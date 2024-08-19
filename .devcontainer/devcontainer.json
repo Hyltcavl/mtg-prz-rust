@@ -1,5 +1,6 @@
 {
   "image": "mcr.microsoft.com/devcontainers/rust:1",
+  "postCreateCommand": "sh ./.devcontainer/post-create.sh",
   "features": {
     "ghcr.io/devcontainers/features/rust:1": {}
   },
