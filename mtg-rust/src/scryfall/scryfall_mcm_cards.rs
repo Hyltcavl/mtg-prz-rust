@@ -71,7 +71,7 @@ struct ScryfallCard {
 /// Returns path to the scryfall cards file.
 pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Error>> {
     let path = get_scryfall_price_file(None).await?;
-
+    // let path = "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/_original_scryfall_prices_27_08_2024-15:04.json".to_owned();
     let mut scryfall_card_list = Vec::new();
     let file = File::open(path)?;
     let reader = BufReader::new(file);
@@ -87,18 +87,16 @@ pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Err
                     .to_string();
                 let set = obj["set_name"].to_string();
                 let prices = obj["prices"].clone();
-
-                let image_url = obj["image_uris"]["normal"].as_str().map_or_else(
-                    || {
-                        eprintln!("Error: Failed to get image_url for object: {:?}", obj);
-                        "www.google.com".to_string()
-                    },
-                    |s| s.to_string(),
-                );
+                // println!("Error: Failed to get image_url for object: {:?}", obj);
                 let prices = Prices {
                     eur: prices["eur"].as_f64(),
                     eur_foil: prices["eur_foil"].as_f64(),
                 };
+                let image_url = obj["image_uris"]["normal"]
+                    .as_str()
+                    .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
+                    .to_string();
+
                 let card = ScryfallCard {
                     name: name,
                     set: set,

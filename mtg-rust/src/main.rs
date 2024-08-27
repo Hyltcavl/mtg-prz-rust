@@ -86,8 +86,8 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
 
 #[tokio::main]
 async fn main() {
-    // let dl_cards_path = prepare_dl_cards();
+    let dl_cards_path = prepare_dl_cards();
     let scryfall_cards_path = download_scryfall_cards();
-    // dl_cards_path.await;
+    dl_cards_path.await;
     scryfall_cards_path.await;
 }
