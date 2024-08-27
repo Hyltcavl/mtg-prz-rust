@@ -1,8 +1,10 @@
 use regex::Regex;
-use reqwest::blocking;
+use reqwest;
 use scraper::{Html, Selector};
-use std::error::Error;
+use serde::Serialize;
+use tokio::time::Instant;
 
+use std::error::Error;
 const UNWANTED_PATTERNS: [&str; 4] = [
     r"(?i)\(skadad\)",
     r"(?i)\( Skadad \)",
@@ -16,7 +18,7 @@ const FOIL_PATTERNS: [&str; 3] = [
     r"(?i)\(Foil Etched\)",
 ];
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Serialize)]
 pub struct Card {
     name: String,
     foil: bool,
@@ -58,9 +60,11 @@ fn get_price(tr_elements: scraper::ElementRef) -> Result<i32, Box<dyn Error>> {
     Ok(price)
 }
 
-pub fn fetch_and_parse(url: &str) -> Result<Vec<Card>, Box<dyn Error>> {
-    let response = blocking::get(url)?;
-    let html_content = response.text()?;
+pub async fn fetch_and_parse(url: &str) -> Result<Vec<Card>, Box<dyn Error>> {
+    let start = Instant::now();
+    let response = reqwest::get(url).await?;
+    println!("fetching {} took {:?} sec", url, start.elapsed().as_secs());
+    let html_content = response.text().await?;
     let parse_document = Html::parse_document(&html_content);
     let table_selector = Selector::parse("tr[id*='product-row-']")?;
     let selected_elements = parse_document.select(&table_selector);
@@ -102,15 +106,23 @@ pub fn fetch_and_parse(url: &str) -> Result<Vec<Card>, Box<dyn Error>> {
             .select(&Selector::parse("img[title]")?)
             .next()
             .and_then(|attributes| attributes.value().attr("title").map(String::from))
-            .unwrap_or("UNKNOWN".to_string());
+            .unwrap_or("UNKNOWN".to_string())
+            .replace(
+                "\n                                                                ",
+                " ",
+            )
+            .to_owned();
 
         let other_set = tr_elements
             .select(&Selector::parse("td.align-right a")?)
             .next()
             .map(|el| el.text().collect::<String>().trim().to_string())
-            .unwrap_or("UNKNOWN".to_string());
-        // .and_then(|attributes| attributes.value().attr("title").map(String::from))
-        // .unwrap_or("UNKNOWN".to_string());
+            .unwrap_or("UNKNOWN".to_string())
+            .replace(
+                "\n                                                                ",
+                " ",
+            )
+            .to_owned();
 
         if set == "UNKNOWN" {
             set = other_set;
@@ -168,14 +180,17 @@ mod tests {
     use std::fs;
 
     use super::*;
+    use tokio;
     // use mockito::{mock, Matcher};
 
-    #[test]
-    fn test_fetch_and_parse() {
+    #[tokio::test]
+    async fn test_fetch_and_parse() {
         let html_content =
             fs::read_to_string("/workspaces/mtg-prz-rust/product_search_page.html").unwrap();
 
-        let mut server = mockito::Server::new();
+        let mut server = std::thread::spawn(|| mockito::Server::new())
+            .join()
+            .unwrap();
         let url = server.url();
         // Create a mock
         let mock = server
@@ -186,11 +201,11 @@ mod tests {
             .with_body(html_content.clone())
             .create();
 
-        // let url = &mockito::server_url();
         let result = fetch_and_parse(&format!(
             "{}/product/card-singles/magic?name=reaper+king",
             url
         ))
+        .await
         .unwrap();
 
         mock.assert();
