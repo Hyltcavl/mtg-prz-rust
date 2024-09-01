@@ -1,10 +1,13 @@
 use regex::Regex;
 use reqwest;
 use scraper::{Html, Selector};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::error::Error;
 use tokio::time::Instant;
 
-use std::error::Error;
+use crate::utils::constants::Vendor;
+
+use crate::utils::string_manipulators::clean_word;
 const UNWANTED_PATTERNS: [&str; 4] = [
     r"(?i)\(skadad\)",
     r"(?i)\( Skadad \)",
@@ -18,19 +21,20 @@ const FOIL_PATTERNS: [&str; 3] = [
     r"(?i)\(Foil Etched\)",
 ];
 
-#[derive(Debug, PartialEq, Clone, Serialize)]
-pub struct Card {
-    name: String,
-    foil: bool,
-    image_url: String,
-    extended_art: bool,
-    prerelease: bool,
-    showcase: bool,
-    set: String,
-    price: i32,
-    trade_in_price: i32,
-    current_stock: i8,
-    max_stock: i8,
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub struct VendorCard {
+    pub vendor: Vendor,
+    pub name: String,
+    pub foil: bool,
+    pub image_url: String,
+    pub extended_art: bool,
+    pub prerelease: bool,
+    pub showcase: bool,
+    pub set: String,
+    pub price: i32,
+    pub trade_in_price: i32,
+    pub current_stock: i8,
+    pub max_stock: i8,
 }
 
 fn create_regex_patterns(patterns: &[&str]) -> Result<Vec<Regex>, Box<dyn Error>> {
@@ -60,10 +64,10 @@ fn get_price(tr_elements: scraper::ElementRef) -> Result<i32, Box<dyn Error>> {
     Ok(price)
 }
 
-pub async fn fetch_and_parse(url: &str) -> Result<Vec<Card>, Box<dyn Error>> {
+pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error>> {
     let start = Instant::now();
     let response = reqwest::get(url).await?;
-    println!("fetching {} took {:?} sec", url, start.elapsed().as_secs());
+    log::debug!("fetching {} took {:?} sec", url, start.elapsed().as_secs());
     let html_content = response.text().await?;
     let parse_document = Html::parse_document(&html_content);
     let table_selector = Selector::parse("tr[id*='product-row-']")?;
@@ -155,14 +159,15 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<Card>, Box<dyn Error>> {
             })
             .unwrap_or_else(|| vec![0, 0]); // Default to a vector of two zeros if parsing fails
 
-        let card = Card {
-            name,
+        let card = VendorCard {
+            vendor: Vendor::dragonslair,
+            name: clean_word(&name),
             foil,
             image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
             extended_art,
             prerelease,
             showcase,
-            set,
+            set: clean_word(&set),
             price,
             trade_in_price: trade_in_price.unwrap_or(0),
             current_stock: stock.first().unwrap_or(&0).to_owned(),
@@ -211,14 +216,15 @@ mod tests {
         mock.assert();
         assert_eq!(result.len(), 8);
 
-        let regular_card = Card {
-            name: "Reaper King".to_string(),
+        let regular_card = VendorCard {
+            vendor: Vendor::dragonslair,
+            name: "reaper king".to_string(),
             foil: false,
             image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
             extended_art: false,
             prerelease: false,
             showcase: false,
-            set: "Shadowmoor".to_string(),
+            set: "shadowmoor".to_string(),
             price: 100,
             trade_in_price: 50,
             current_stock: 1,
@@ -233,7 +239,7 @@ mod tests {
         assert_eq!(result.get(6).unwrap().extended_art, true);
         assert_eq!(
             result.get(7).unwrap().set,
-            "Mystery Booster Retail Edition Foils"
+            "mystery booster retail edition foils"
         );
     }
 }

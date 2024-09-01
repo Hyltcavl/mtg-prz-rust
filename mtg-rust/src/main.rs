@@ -1,20 +1,23 @@
 mod dl;
 mod scryfall;
 mod utils;
+use dotenv;
+use env_logger;
+use log;
 
-use std::fs::{self, OpenOptions};
-use std::path::Path;
+use std::collections::HashMap;
+use std::env;
 use std::sync::Arc;
 
-use dl::card_parser::{fetch_and_parse, Card};
+use dl::card_parser::{fetch_and_parse, VendorCard};
 use dl::list_links::get_page_count;
 use futures::future::join_all;
-use std::io::Write;
 use tokio::sync::Semaphore;
-use utils::date_to_string::date_time_as_string;
-use utils::file_management::write_to_file;
+use utils::compare_prizes::compare_prices;
+use utils::file_management::{get_newest_file, read_json_file, write_to_file};
+use utils::string_manipulators::date_time_as_string;
 
-use scryfall::scryfall_mcm_cards::download_scryfall_cards;
+use scryfall::scryfall_mcm_cards::{download_scryfall_cards, ScryfallCard};
 
 /// Returns the dl cards file path.
 async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
@@ -36,7 +39,7 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
             )
             .to_string();
             let page_count = get_page_count(&request_url).await.unwrap_or(1);
-            println!("cmc: {}, and page_count is {:?}", cmc, page_count);
+            log::debug!("cmc: {}, and page_count is {:?}", cmc, page_count);
             (1..=page_count)
                 .map(|count| {
                     format!(
@@ -49,8 +52,7 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
     });
 
     let results: Vec<Vec<String>> = join_all(page_fetches_asyncs).await;
-
-    println!("{:?}", results);
+    log::debug!("{:?}", results);
     let semaphore = Arc::new(Semaphore::new(10));
 
     let future_cards = results.into_iter().flatten().map(|link| {
@@ -60,13 +62,13 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
             match fetch_and_parse(&link).await {
                 Ok(cards) => cards,
                 Err(e) => {
-                    eprintln!("Error fetching cards from {}: {}", link, e);
+                    log::error!("Error fetching cards from {}: {}", link, e);
                     Vec::new()
                 }
             }
         }
     });
-    let cards: Vec<Card> = join_all(future_cards).await.into_iter().flatten().collect();
+    let cards: Vec<VendorCard> = join_all(future_cards).await.into_iter().flatten().collect();
 
     let cards_as_string = serde_json::to_string(&cards).unwrap();
     let dl_cards_path = format!(
@@ -75,19 +77,64 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
     );
     write_to_file(&dl_cards_path, &cards_as_string)?;
     let end_time = chrono::prelude::Local::now();
-    println!(
-        "DL scan started at: {}. Finished at: {}. Took: {} seconds",
+    log::info!(
+        "DL scan started at: {}. Finished at: {}. Took: {} seconds and with {} cards on dl_cards_path: {}",
         start_time,
         end_time,
-        (end_time - start_time).num_seconds()
+        (end_time - start_time).num_seconds(),
+        cards.len(),
+        dl_cards_path
     );
     return Ok(dl_cards_path);
 }
 
 #[tokio::main]
 async fn main() {
-    let dl_cards_path = prepare_dl_cards();
-    let scryfall_cards_path = download_scryfall_cards();
-    dl_cards_path.await;
-    scryfall_cards_path.await;
+    env_logger::init();
+    log::info!("Starting");
+    let _ = dotenv::dotenv();
+
+    // Check for environment variables
+    let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
+
+    let mut scryfall_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
+    let mut dl_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
+    // Use feature flags in combination with environment variables
+    if dl {
+        dl_cards_path = prepare_dl_cards().await;
+    }
+
+    if scryfall {
+        scryfall_cards_path = download_scryfall_cards().await;
+    }
+
+    let mut dl_cards: Vec<VendorCard> = Vec::new();
+    if !dl {
+        let path = get_newest_file(
+            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards",
+            "dl_cards_",
+        )
+        .unwrap();
+        dl_cards = read_json_file::<Vec<VendorCard>>(path.to_str().unwrap()).unwrap();
+    } else {
+        dl_cards = read_json_file::<Vec<VendorCard>>(&dl_cards_path.unwrap()).unwrap();
+    }
+
+    let mut scryfall_prices: HashMap<String, Vec<ScryfallCard>> = HashMap::new();
+    if !dl {
+        let path = get_newest_file(
+            "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices",
+            "parsed_scryfall_cards_",
+        )
+        .unwrap();
+        scryfall_prices =
+            read_json_file::<HashMap<String, Vec<ScryfallCard>>>(path.to_str().unwrap()).unwrap();
+    } else {
+        scryfall_prices =
+            read_json_file::<HashMap<String, Vec<ScryfallCard>>>(&scryfall_cards_path.unwrap())
+                .unwrap();
+    }
+
+    let _ = compare_prices(dl_cards, scryfall_prices, "https://api.frankfurter.app/").await;
 }
