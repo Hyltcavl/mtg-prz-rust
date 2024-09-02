@@ -46,12 +46,10 @@ async fn get_currency_rate_eur_to_sec(base_url: &str) -> Result<f64, Box<dyn Err
 fn get_same_set_scryfall_card<'a>(
     scryfall_cards: &'a Vec<ScryfallCard>,
     vendor_card: &'a VendorCard,
-) -> &'a ScryfallCard {
-    let same_set_card = scryfall_cards
+) -> Option<&'a ScryfallCard> {
+    scryfall_cards
         .iter()
         .find(|scryfall_card| scryfall_card.set == vendor_card.set)
-        .unwrap();
-    same_set_card
 }
 
 fn get_cheapest_scryfall_card<'a>(scryfall_cards: &'a Vec<ScryfallCard>) -> &'a ScryfallCard {
@@ -84,130 +82,103 @@ fn get_cheapest_foil_scryfall_card<'a>(scryfall_cards: &'a Vec<ScryfallCard>) ->
         })
         .unwrap()
 }
-
 pub async fn compare_prices(
     vendor_card_list: Vec<VendorCard>,
     scryfall_card_map: HashMap<String, Vec<ScryfallCard>>,
     base_url: &str,
 ) -> Vec<CardPrice> {
+    let start_time = chrono::prelude::Local::now();
+
     let currency_rate_eur_to_sek = get_currency_rate_eur_to_sec(base_url).await.unwrap_or(11.5);
     let mut card_prices = Vec::new();
 
     for vendor_card in vendor_card_list {
-        let all_card_versions = scryfall_card_map.get(&vendor_card.name);
-        let foil = vendor_card.foil;
-
-        if let Some(scryfall_cards) = all_card_versions {
-            let same_set_card = get_same_set_scryfall_card(scryfall_cards, &vendor_card);
-
-            let cheapest_card = get_cheapest_scryfall_card(scryfall_cards);
-
-            let cheapest_card_foil = get_cheapest_foil_scryfall_card(scryfall_cards);
-
-            let cheapest_price_sek = cheapest_card.prices.eur.unwrap_or({
-                get_live_card_prices(&cheapest_card.name)
-                    .unwrap()
-                    .into_iter()
-                    .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
-                    .unwrap()
-                    .price
-            }) * currency_rate_eur_to_sek;
-
-            let price_difference = vendor_card.price as f64 - cheapest_price_sek;
-
-            let same_set_price_mcm = if foil {
-                Some(same_set_card.prices.eur_foil.unwrap() * currency_rate_eur_to_sek)
-            } else {
-                Some(same_set_card.prices.eur.unwrap() * currency_rate_eur_to_sek)
-            };
-
-            let cheapest_set_price_mcm = if foil {
-                Some(cheapest_card_foil.prices.eur_foil.unwrap() * currency_rate_eur_to_sek)
-            } else {
-                Some(cheapest_card.prices.eur.unwrap() * currency_rate_eur_to_sek)
-            };
-
-            let card_price = CardPrice {
-                name: vendor_card.name.to_owned(),
-                vendor: vendor_card.vendor.to_owned(),
-                set: vendor_card.set.to_owned(),
-                foil: vendor_card.foil.to_owned(),
-                vendor_price: vendor_card.price.to_owned() as f64,
-                same_set_price_mcm: same_set_price_mcm,
-                cheapest_set_price_mcm: cheapest_set_price_mcm,
-                price_difference: Some(price_difference),
-                price_diff_percentage: Some(
-                    ((vendor_card.price as f64 - cheapest_price_sek) / vendor_card.price as f64)
-                        * 100.0,
-                ),
-            };
-            card_prices.push(card_price);
-        } else {
-            log::info!(
-                "Unable to find card: {} among scryfall cards",
-                vendor_card.name
-            );
+        match process_card(&vendor_card, &scryfall_card_map, currency_rate_eur_to_sek).await {
+            Ok(card_price) => card_prices.push(card_price),
+            Err(e) => log::error!("Error processing card {}: {}", vendor_card.name, e),
         }
     }
 
-    // vendor_card_list.iter().for_each(|vendor_card| {
-    //     let all_card_versions = scryfall_card_map.get(&vendor_card.name);
-    //     let foil = vendor_card.foil;
+    let end_time = chrono::prelude::Local::now();
 
-    //     if let Some(scryfall_cards) = all_card_versions {
-    //         let same_set_card = get_same_set_scryfall_card(scryfall_cards, vendor_card);
+    log::info!(
+        "Compared prices started at: {}. Finished at: {}. Took: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+    );
 
-    //         let cheapest_card = get_cheapest_scryfall_card(scryfall_cards);
+    card_prices
+}
 
-    //         let cheapest_card_foil = get_cheapest_foil_scryfall_card(scryfall_cards);
+async fn process_card(
+    vendor_card: &VendorCard,
+    scryfall_card_map: &HashMap<String, Vec<ScryfallCard>>,
+    currency_rate_eur_to_sek: f64,
+) -> Result<CardPrice, Box<dyn std::error::Error>> {
+    log::debug!(
+        "Comparing prices for card: '{}', set: '{}', foil: '{}'",
+        vendor_card.name,
+        vendor_card.set,
+        vendor_card.foil
+    );
 
-    //         let cheapest_price_sek = cheapest_card.prices.eur.unwrap_or({
-    //             get_live_card_prices(&cheapest_card.name)
-    //                 .unwrap()
-    //                 .into_iter()
-    //                 .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
-    //                 .unwrap()
-    //                 .price
-    //         }) * currency_rate_eur_to_sek;
+    let scryfall_cards = scryfall_card_map.get(&vendor_card.name).ok_or_else(|| {
+        format!(
+            "Unable to find card: '{}' among scryfall cards",
+            vendor_card.name
+        )
+    })?;
 
-    //         let price_difference = vendor_card.price as f64 - cheapest_price_sek;
+    let same_set_card =
+        get_same_set_scryfall_card(scryfall_cards, vendor_card).ok_or_else(|| {
+            format!(
+                "Unable to find a card from the same set for '{}'",
+                vendor_card.name
+            )
+        })?;
 
-    //         let same_set_price_mcm = if foil {
-    //             Some(same_set_card.prices.eur_foil.unwrap() * currency_rate_eur_to_sek)
-    //         } else {
-    //             Some(same_set_card.prices.eur.unwrap() * currency_rate_eur_to_sek)
-    //         };
+    let cheapest_card = get_cheapest_scryfall_card(scryfall_cards);
+    let cheapest_card_foil = get_cheapest_foil_scryfall_card(scryfall_cards);
 
-    //         let cheapest_set_price_mcm = if foil {
-    //             Some(cheapest_card_foil.prices.eur_foil.unwrap() * currency_rate_eur_to_sek)
-    //         } else {
-    //             Some(cheapest_card.prices.eur.unwrap() * currency_rate_eur_to_sek)
-    //         };
+    let cheapest_price = cheapest_card.prices.eur.unwrap_or(
+        get_live_card_prices(&cheapest_card.name)
+            .await?
+            .into_iter()
+            .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
+            .map(|card| card.price)
+            .unwrap_or(1000.0), // Fallback price if no price is found
+    );
 
-    //         let card_price = CardPrice {
-    //             name: vendor_card.name.to_owned(),
-    //             vendor: vendor_card.vendor.to_owned(),
-    //             set: vendor_card.set.to_owned(),
-    //             foil: vendor_card.foil.to_owned(),
-    //             vendor_price: vendor_card.price.to_owned() as f64,
-    //             same_set_price_mcm: same_set_price_mcm,
-    //             cheapest_set_price_mcm: cheapest_set_price_mcm,
-    //             price_difference: Some(price_difference),
-    //             price_diff_percentage: Some(
-    //                 ((vendor_card.price as f64 - cheapest_price_sek) / vendor_card.price as f64)
-    //                     * 100.0,
-    //             ),
-    //         };
-    //         card_prices.push(card_price);
-    //     } else {
-    //         log::info!(
-    //             "Unable to find card: {} among scryfall cards",
-    //             vendor_card.name
-    //         );
-    //     }
-    // });
+    let price_difference = vendor_card.price as f64 - (cheapest_price * currency_rate_eur_to_sek);
 
-    return card_prices;
+    let same_set_price_mcm = if vendor_card.foil {
+        same_set_card.prices.eur_foil.unwrap_or(1000.0) * currency_rate_eur_to_sek
+    } else {
+        same_set_card.prices.eur.unwrap_or(cheapest_price) * currency_rate_eur_to_sek
+    };
+
+    let cheapest_set_price_mcm = if vendor_card.foil {
+        cheapest_card_foil.prices.eur_foil.unwrap_or(1000.0) * currency_rate_eur_to_sek
+    } else {
+        cheapest_price * currency_rate_eur_to_sek
+    };
+
+    Ok(CardPrice {
+        name: vendor_card.name.to_owned(),
+        vendor: vendor_card.vendor.to_owned(),
+        set: vendor_card.set.to_owned(),
+        foil: vendor_card.foil,
+        vendor_price: vendor_card.price as f64,
+        same_set_price_mcm: Some(same_set_price_mcm),
+        cheapest_set_price_mcm: Some(cheapest_set_price_mcm),
+        price_difference: Some(price_difference),
+        price_diff_percentage: Some(
+            ((vendor_card.price as f64 - cheapest_price * currency_rate_eur_to_sek)
+                / vendor_card.price as f64)
+                * 100.0,
+        ),
+    })
 }
 
 #[cfg(test)]
@@ -237,7 +208,7 @@ mod tests {
 
         let brainstorm = VendorCard {
             name: "brainstorm".to_string(),
-            vendor: Vendor::dragonslair,
+            vendor: Vendor::Dragonslair,
             set: "ice age".to_string(),
             foil: false,
             image_url: "www.google.com".to_string(),
@@ -284,14 +255,14 @@ mod tests {
 
         let expected_card_price = CardPrice {
             name: "brainstorm".to_string(),
-            vendor: Vendor::dragonslair,
+            vendor: Vendor::Dragonslair,
             set: "ice age".to_string(),
             foil: false,
             vendor_price: 10.0,
             same_set_price_mcm: Some(11.5),
             cheapest_set_price_mcm: Some(5.75),
             price_difference: Some(4.25),
-            price_diff_percentage: Some(50.0),
+            price_diff_percentage: Some(42.5),
         };
 
         assert_eq!(result[0], expected_card_price);

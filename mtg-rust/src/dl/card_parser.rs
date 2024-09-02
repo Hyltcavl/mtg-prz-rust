@@ -92,7 +92,23 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
                     .trim()
                     .to_string()
             })
-            .unwrap_or_default();
+            .unwrap_or(
+                // if it doesn't have a name, with a link to image such as: https://astraeus.dragonslair.se/product/card-singles/magic/store:kungsholmstorg/sort:recent/magic-warhammer-40-000
+                tr_elements
+                    .select(&Selector::parse("td.wrap")?)
+                    .next()
+                    .map(|el| {
+                        el.text()
+                        .collect::<String>()
+                        .replace(
+                            "\n                                                                ",
+                            " ",
+                        )
+                        .trim()
+                        .to_string()
+                    })
+                    .unwrap(),
+            );
 
         if unwanted_patterns
             .iter()
@@ -105,6 +121,28 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
         let prerelease = Regex::new(r"(?i)\(Prerelease\)")?.is_match(&name);
         let showcase = Regex::new(r"(?i)\(Showcase\)")?.is_match(&name);
         let extended_art = Regex::new(r"(?i)\(Extended Art\)")?.is_match(&name);
+
+        let clean_name = clean_word(
+            &name
+                .replace("(Prerelease)", "")
+                .replace("(Showcase)", "")
+                .replace("(Extended Art)", "")
+                .replace("(Foil)", "")
+                .replace("(Etched Foil)", "")
+                .replace("(Foil Etched)", "")
+                .replace("(Borderless)", "")
+                .replace("(Full art)", "")
+        );
+
+        let image_url = tr_elements
+            .select(&Selector::parse("a.fancybox")?)
+            .next()
+            .and_then(|el| el.value().attr("href"))
+            .map(|href| format!("https://astraeus.dragonslair.se{}", href))
+            .unwrap_or(
+                "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg"
+                    .to_string(),
+            );
 
         let mut set = tr_elements
             .select(&Selector::parse("img[title]")?)
@@ -160,10 +198,10 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             .unwrap_or_else(|| vec![0, 0]); // Default to a vector of two zeros if parsing fails
 
         let card = VendorCard {
-            vendor: Vendor::dragonslair,
-            name: clean_word(&name),
+            vendor: Vendor::Dragonslair,
+            name: clean_name,
             foil,
-            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            image_url: image_url,
             extended_art,
             prerelease,
             showcase,
@@ -214,10 +252,10 @@ mod tests {
         .unwrap();
 
         mock.assert();
-        assert_eq!(result.len(), 8);
+        assert_eq!(result.len(), 9);
 
         let regular_card = VendorCard {
-            vendor: Vendor::dragonslair,
+            vendor: Vendor::Dragonslair,
             name: "reaper king".to_string(),
             foil: false,
             image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
@@ -240,6 +278,10 @@ mod tests {
         assert_eq!(
             result.get(7).unwrap().set,
             "mystery booster retail edition foils"
+        );
+        assert_eq!(
+            result.get(8).unwrap().image_url,
+            "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg"
         );
     }
 }

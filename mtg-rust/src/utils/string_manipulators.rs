@@ -16,3 +16,12 @@ pub fn clean_word(word: &str) -> String {
         .trim()
         .to_string()
 }
+
+pub fn clean_string(input: &str) -> String {
+    input
+        .chars()
+        .filter(|c| c.is_alphanumeric() || c.is_whitespace())
+        .collect::<String>()
+        .trim()
+        .to_string()
+}

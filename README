@@ -1,0 +1,1 @@
+run command:  RUST_LOG=info DL=1 SCRYFALL=1 cargo run

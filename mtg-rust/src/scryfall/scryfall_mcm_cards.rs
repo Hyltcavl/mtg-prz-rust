@@ -8,13 +8,13 @@ use std::fs::File;
 use std::io::BufReader;
 
 use crate::utils::file_management::write_to_file;
-use crate::utils::string_manipulators::{clean_word, date_time_as_string};
+use crate::utils::string_manipulators::{clean_string, clean_word, date_time_as_string};
 /// Returns path to the downloaded scryfall price file.
 /// Defalts to no prefix if None is given
 async fn get_scryfall_price_file(
-    mut prefix: Option<String>,
+    mut _prefix: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let prefix: String = prefix.unwrap_or("".to_string());
+    let _prefix: String = _prefix.unwrap_or("".to_string());
     // Get available scryfall price files list
     let url = "https://api.scryfall.com/bulk-data";
     let client = reqwest::Client::new();
@@ -69,7 +69,10 @@ pub struct ScryfallCard {
     pub image_url: String,
     pub prices: Prices,
 }
+
 /// Returns path to the scryfall cards file.
+///
+///
 pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Error>> {
     let path = get_scryfall_price_file(None).await?;
     // let path = "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/_original_scryfall_prices_27_08_2024-15:04.json".to_owned();
@@ -78,15 +81,13 @@ pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Err
     let reader = BufReader::new(file);
     let cards: Value = serde_json::from_reader(reader)?;
 
-    let re = Regex::new(r"[^a-zA-Z]").unwrap();
-
     if let Value::Array(cards_array) = cards {
         for obj in cards_array {
             if is_not_token(&obj) || is_not_basic_land(&obj) || is_not_artseries(&obj) {
-                let name = re
-                    .replace_all(obj["name"].as_str().unwrap().to_lowercase().as_str(), "")
-                    .to_string();
-                let set = obj["set_name"].to_string();
+                let name =
+                    clean_string(obj["name"].as_str().unwrap().to_lowercase().as_str()).to_string();
+                let set =
+                    clean_string(obj["set_name"].as_str().unwrap().to_lowercase().as_str()).to_string();
                 let prices = obj["prices"].clone();
 
                 let prices = Prices {

@@ -94,6 +94,8 @@ async fn main() {
     log::info!("Starting");
     let _ = dotenv::dotenv();
 
+    let start_time = chrono::prelude::Local::now();
+
     // Check for environment variables
     let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
     let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
@@ -102,15 +104,18 @@ async fn main() {
     let mut dl_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
     // Use feature flags in combination with environment variables
     if dl {
+        log::info!("Downloading Dragonslair cards...");
         dl_cards_path = prepare_dl_cards().await;
     }
 
     if scryfall {
+        log::info!("Downloading Scryfall cards...");
         scryfall_cards_path = download_scryfall_cards().await;
     }
 
     let mut dl_cards: Vec<VendorCard> = Vec::new();
     if !dl {
+        log::info!("Loading existing Dragonslair cards...");
         let path = get_newest_file(
             "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards",
             "dl_cards_",
@@ -122,7 +127,8 @@ async fn main() {
     }
 
     let mut scryfall_prices: HashMap<String, Vec<ScryfallCard>> = HashMap::new();
-    if !dl {
+    if !scryfall {
+        log::info!("Loading existing Scryfall cards...");
         let path = get_newest_file(
             "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices",
             "parsed_scryfall_cards_",
@@ -136,5 +142,22 @@ async fn main() {
                 .unwrap();
     }
 
-    let _ = compare_prices(dl_cards, scryfall_prices, "https://api.frankfurter.app/").await;
+    let compared_prices =
+        compare_prices(dl_cards, scryfall_prices, "https://api.frankfurter.app/").await;
+
+    let parsed_file_path = format!(
+        "compared_prices/compared_prices_{}.json",
+        date_time_as_string(None, None)
+    );
+    let grouped_cards_as_string = serde_json::to_string(&compared_prices).unwrap();
+    let compared_prices_file = write_to_file(&parsed_file_path, &grouped_cards_as_string).unwrap();
+    let end_time = chrono::prelude::Local::now();
+
+    log::info!(
+        "Run started at: {}. Finished at: {}. Took: {}, compared prices in: {:?}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        compared_prices_file
+    );
 }
