@@ -1,10 +1,19 @@
+// use scraper::CaseSensitivity;
 use serde::{Deserialize, Serialize};
 
 use std::{collections::HashMap, error::Error};
 
 use crate::{dl::card_parser::VendorCard, scryfall::scryfall_mcm_cards::ScryfallCard};
 
-use super::{constants::Vendor, price_checker::get_live_card_prices};
+use super::{
+    constants::Vendor,
+    price_checker::{get_live_card_prices, MtgStocksCard},
+};
+
+// #[derive(Debug, Deserialize, Serialize)]
+// struct CachedMtgStockCards {
+//     pub cards: HashMap<String, Vec<MtgStocksCard>>,
+// }
 
 #[derive(Debug, Deserialize, Serialize)]
 struct CurrencyRate {
@@ -87,13 +96,23 @@ pub async fn compare_prices(
     scryfall_card_map: HashMap<String, Vec<ScryfallCard>>,
     base_url: &str,
 ) -> Vec<CardPrice> {
+    let mut cache: HashMap<String, Vec<MtgStocksCard>> = HashMap::new();
+
     let start_time = chrono::prelude::Local::now();
 
     let currency_rate_eur_to_sek = get_currency_rate_eur_to_sec(base_url).await.unwrap_or(11.5);
     let mut card_prices = Vec::new();
 
     for vendor_card in vendor_card_list {
-        match process_card(&vendor_card, &scryfall_card_map, currency_rate_eur_to_sek).await {
+        let processed_card = process_card(
+            &vendor_card,
+            &scryfall_card_map,
+            currency_rate_eur_to_sek,
+            &mut cache,
+        )
+        .await;
+
+        match processed_card {
             Ok(card_price) => card_prices.push(card_price),
             Err(e) => log::error!("Error processing card {}: {}", vendor_card.name, e),
         }
@@ -115,6 +134,7 @@ async fn process_card(
     vendor_card: &VendorCard,
     scryfall_card_map: &HashMap<String, Vec<ScryfallCard>>,
     currency_rate_eur_to_sek: f64,
+    cache: &mut HashMap<String, Vec<MtgStocksCard>>,
 ) -> Result<CardPrice, Box<dyn std::error::Error>> {
     log::debug!(
         "Comparing prices for card: '{}', set: '{}', foil: '{}'",
@@ -141,14 +161,23 @@ async fn process_card(
     let cheapest_card = get_cheapest_scryfall_card(scryfall_cards);
     let cheapest_card_foil = get_cheapest_foil_scryfall_card(scryfall_cards);
 
-    let cheapest_price = cheapest_card.prices.eur.unwrap_or(
-        get_live_card_prices(&cheapest_card.name)
-            .await?
+    let cheapest_price = cheapest_card.prices.eur.unwrap_or({
+        let possible_cache = cache.get(&cheapest_card.name);
+
+        let mtg_stock_prices = match possible_cache {
+            Some(prices) => prices,
+            None => &get_live_card_prices(&cheapest_card.name).await?,
+        };
+
+        let stock_prices = mtg_stock_prices
             .into_iter()
             .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
             .map(|card| card.price)
-            .unwrap_or(1000.0), // Fallback price if no price is found
-    );
+            .unwrap_or(1000.0); // Fallback price if no price is found
+
+        cache.insert(cheapest_card.name.clone(), mtg_stock_prices.to_vec());
+        stock_prices
+    });
 
     let price_difference = vendor_card.price as f64 - (cheapest_price * currency_rate_eur_to_sek);
 

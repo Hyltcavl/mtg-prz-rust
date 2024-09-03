@@ -1,4 +1,5 @@
 use reqwest::header::{HeaderMap, HeaderValue};
+use serde::{Deserialize, Serialize};
 use serde_json::{Error, Value};
 use url::form_urlencoded;
 
@@ -24,7 +25,7 @@ impl From<serde_json::Error> for MtgPriceError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MtgStocksCard {
     pub set: String,
     pub price: f64,

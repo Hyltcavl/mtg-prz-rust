@@ -1,5 +1,5 @@
 use log;
-use regex::Regex;
+// use regex::Regex;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -86,8 +86,8 @@ pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Err
             if is_not_token(&obj) || is_not_basic_land(&obj) || is_not_artseries(&obj) {
                 let name =
                     clean_string(obj["name"].as_str().unwrap().to_lowercase().as_str()).to_string();
-                let set =
-                    clean_string(obj["set_name"].as_str().unwrap().to_lowercase().as_str()).to_string();
+                let set = clean_string(obj["set_name"].as_str().unwrap().to_lowercase().as_str())
+                    .to_string();
                 let prices = obj["prices"].clone();
 
                 let prices = Prices {

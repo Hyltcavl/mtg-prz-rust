@@ -131,8 +131,10 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
                 .replace("(Etched Foil)", "")
                 .replace("(Foil Etched)", "")
                 .replace("(Borderless)", "")
-                .replace("(Full art)", "")
+                .replace("(Full art)", ""),
         );
+
+        // TODO: ignore cards that are only basic, so plain, mountain, forest etc
 
         let image_url = tr_elements
             .select(&Selector::parse("a.fancybox")?)
