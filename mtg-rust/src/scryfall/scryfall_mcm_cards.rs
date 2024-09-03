@@ -1,12 +1,11 @@
 use log;
-// use regex::Regex;
 use reqwest;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
+use crate::cards::card::{CardName, Prices, ScryfallCard, SetName};
 use crate::utils::file_management::write_to_file;
 use crate::utils::string_manipulators::{clean_string, clean_word, date_time_as_string};
 /// Returns path to the downloaded scryfall price file.
@@ -57,22 +56,7 @@ async fn get_scryfall_price_file(
     return Ok(path);
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub struct Prices {
-    pub eur: Option<f64>,
-    pub eur_foil: Option<f64>,
-}
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub struct ScryfallCard {
-    pub name: String,
-    pub set: String,
-    pub image_url: String,
-    pub prices: Prices,
-}
-
 /// Returns path to the scryfall cards file.
-///
-///
 pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Error>> {
     let path = get_scryfall_price_file(None).await?;
     // let path = "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/_original_scryfall_prices_27_08_2024-15:04.json".to_owned();
@@ -99,9 +83,11 @@ pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Err
                     .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
                     .to_string();
 
+                let card_name = CardName::new(name.clone())?;
+                let set_name = SetName::new(set)?;
                 let card = ScryfallCard {
-                    name: clean_word(&name),
-                    set: clean_word(&set),
+                    name: card_name,
+                    set: set_name,
                     image_url: image_url,
                     prices: prices,
                 };
@@ -113,11 +99,10 @@ pub async fn download_scryfall_cards() -> Result<String, Box<dyn std::error::Err
     // Group scryfall cards by name
     let mut grouped_cards: HashMap<String, Vec<ScryfallCard>> = HashMap::new();
     for card in scryfall_card_list {
-        // grouped_cards.entry(key)
         grouped_cards
-            .entry(card.name.to_string())
+            .entry(card.name.cleaned.clone())
             .or_insert_with(Vec::new)
-            .push(card.clone());
+            .push(card);
     }
 
     let parsed_file_path = format!(

@@ -1,13 +1,11 @@
 use regex::Regex;
 use reqwest;
 use scraper::{Html, Selector};
-use serde::{Deserialize, Serialize};
 use std::error::Error;
 use tokio::time::Instant;
 
-use crate::utils::constants::Vendor;
+use crate::cards::card::{CardName, SetName, Vendor, VendorCard};
 
-use crate::utils::string_manipulators::clean_word;
 const UNWANTED_PATTERNS: [&str; 4] = [
     r"(?i)\(skadad\)",
     r"(?i)\( Skadad \)",
@@ -20,22 +18,6 @@ const FOIL_PATTERNS: [&str; 3] = [
     r"(?i)\(Etched Foil\)",
     r"(?i)\(Foil Etched\)",
 ];
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub struct VendorCard {
-    pub vendor: Vendor,
-    pub name: String,
-    pub foil: bool,
-    pub image_url: String,
-    pub extended_art: bool,
-    pub prerelease: bool,
-    pub showcase: bool,
-    pub set: String,
-    pub price: i32,
-    pub trade_in_price: i32,
-    pub current_stock: i8,
-    pub max_stock: i8,
-}
 
 fn create_regex_patterns(patterns: &[&str]) -> Result<Vec<Regex>, Box<dyn Error>> {
     patterns
@@ -122,19 +104,14 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
         let showcase = Regex::new(r"(?i)\(Showcase\)")?.is_match(&name);
         let extended_art = Regex::new(r"(?i)\(Extended Art\)")?.is_match(&name);
 
-        let clean_name = clean_word(
-            &name
-                .replace("(Prerelease)", "")
-                .replace("(Showcase)", "")
-                .replace("(Extended Art)", "")
-                .replace("(Foil)", "")
-                .replace("(Etched Foil)", "")
-                .replace("(Foil Etched)", "")
-                .replace("(Borderless)", "")
-                .replace("(Full art)", ""),
-        );
-
         // TODO: ignore cards that are only basic, so plain, mountain, forest etc
+        let card_name = match CardName::new(name) {
+            Ok(card_name) => card_name,
+            Err(e) => {
+                log::error!("Error parsing card name: {}", e);
+                continue;
+            }
+        };
 
         let image_url = tr_elements
             .select(&Selector::parse("a.fancybox")?)
@@ -172,6 +149,14 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             set = other_set;
         }
 
+        let set_name = match SetName::new(set) {
+            Ok(set_name) => set_name,
+            Err(e) => {
+                log::error!("Error parsing set name: {}", e);
+                continue;
+            }
+        };
+
         let price = get_price(tr_elements)?;
 
         let trade_in_price = tr_elements
@@ -201,13 +186,13 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
 
         let card = VendorCard {
             vendor: Vendor::Dragonslair,
-            name: clean_name,
+            name: card_name,
             foil,
             image_url: image_url,
             extended_art,
             prerelease,
             showcase,
-            set: clean_word(&set),
+            set: set_name,
             price,
             trade_in_price: trade_in_price.unwrap_or(0),
             current_stock: stock.first().unwrap_or(&0).to_owned(),
@@ -224,10 +209,10 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
 mod tests {
     use std::fs;
 
+    use crate::test::helpers::reaper_king_vendor_card;
+
     use super::*;
     use tokio;
-    // use mockito::{mock, Matcher};
-
     #[tokio::test]
     async fn test_fetch_and_parse() {
         let html_content =
@@ -256,21 +241,9 @@ mod tests {
         mock.assert();
         assert_eq!(result.len(), 9);
 
-        let regular_card = VendorCard {
-            vendor: Vendor::Dragonslair,
-            name: "reaper king".to_string(),
-            foil: false,
-            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
-            extended_art: false,
-            prerelease: false,
-            showcase: false,
-            set: "shadowmoor".to_string(),
-            price: 100,
-            trade_in_price: 50,
-            current_stock: 1,
-            max_stock: 2,
-        };
-        assert_eq!(result.first().unwrap(), &regular_card);
+        let reaper_king_vendor_card = reaper_king_vendor_card();
+
+        assert_eq!(result.first().unwrap(), &reaper_king_vendor_card);
         assert_eq!(result.get(1).unwrap().foil, true);
         assert_eq!(result.get(2).unwrap().foil, true);
         assert_eq!(result.get(3).unwrap().foil, true);
@@ -278,7 +251,7 @@ mod tests {
         assert_eq!(result.get(5).unwrap().showcase, true);
         assert_eq!(result.get(6).unwrap().extended_art, true);
         assert_eq!(
-            result.get(7).unwrap().set,
+            result.get(7).unwrap().set.cleaned,
             "mystery booster retail edition foils"
         );
         assert_eq!(
