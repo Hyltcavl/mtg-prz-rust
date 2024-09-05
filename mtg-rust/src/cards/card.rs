@@ -1,4 +1,9 @@
-use serde::{Deserialize, Serialize};
+use std::{
+    cmp::Ordering,
+    hash::{Hash, Hasher},
+};
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SetName {
@@ -28,7 +33,7 @@ impl SetName {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct CardName {
     pub almost_raw: String,
     pub cleaned: String,
@@ -48,21 +53,28 @@ impl CardName {
         }
 
         Ok(CardName {
-            almost_raw: raw,
+            almost_raw: name_without_disclaimers,
             cleaned: cleaned_name,
         })
     }
 
     fn remove_name_disclaimers(name: &str) -> String {
         let disclaimers = [
+            "(Prerelease Zendikar Rising)",
             "(Prerelease)",
             "(Showcase)",
+            "( Showcase )",
             "(Extended Art)",
             "(Foil)",
             "(Etched Foil)",
             "(Foil Etched)",
             "(Borderless)",
             "(Full art)",
+            "(Alernate Art)",
+            "(japansk)",
+            "(Retro)",
+            "(Extended art)",
+            "(Theme Booster)",
         ];
 
         let mut cleaned_raw = name.to_string();
@@ -84,6 +96,54 @@ impl CardName {
 
     fn is_basic_land(name: &str) -> bool {
         matches!(name, "mountain" | "island" | "plains" | "swamp" | "forest")
+    }
+}
+
+impl PartialEq for CardName {
+    fn eq(&self, other: &Self) -> bool {
+        self.cleaned == other.cleaned
+    }
+}
+
+impl Eq for CardName {}
+
+impl PartialOrd for CardName {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cleaned.cmp(&other.cleaned))
+    }
+}
+
+impl Ord for CardName {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.cleaned.cmp(&other.cleaned)
+    }
+}
+impl Hash for CardName {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.cleaned.hash(state);
+    }
+}
+
+impl Serialize for CardName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // Serialize CardName as a string (you can choose which field to use)
+        serializer.serialize_str(&self.almost_raw)
+    }
+}
+impl<'de> Deserialize<'de> for CardName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        // You might want to implement the cleaning logic here
+        Ok(CardName {
+            almost_raw: s.clone(),
+            cleaned: Self::clean_name(&s), // This is a simplification
+        })
     }
 }
 

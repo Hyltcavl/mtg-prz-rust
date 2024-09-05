@@ -1,0 +1,149 @@
+   Compiling mtg-rust v0.1.0 (/workspaces/mtg-prz-rust/mtg-rust)
+warning: field `0` is never read
+  --> src/utils/mtg_stock_price_checker.rs:14:18
+   |
+14 |     RequestError(reqwest::Error),
+   |     ------------ ^^^^^^^^^^^^^^
+   |     |
+   |     field in this variant
+   |
+   = note: `#[warn(dead_code)]` on by default
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+   |
+14 |     RequestError(()),
+   |                  ~~
+
+warning: field `0` is never read
+  --> src/utils/mtg_stock_price_checker.rs:17:16
+   |
+17 |     OtherError(Error),
+   |     ---------- ^^^^^
+   |     |
+   |     field in this variant
+   |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+   |
+17 |     OtherError(()),
+   |                ~~
+
+warning: variants `NoCardFound` and `BadApiResponse` are never constructed
+  --> src/utils/mtg_stock_price_checker.rs:15:5
+   |
+13 | pub enum MtgPriceError {
+   |          ------------- variants in this enum
+14 |     RequestError(reqwest::Error),
+15 |     NoCardFound,
+   |     ^^^^^^^^^^^
+16 |     BadApiResponse(String),
+   |     ^^^^^^^^^^^^^^
+   |
+   = note: `MtgPriceError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `mtg-rust` (bin "mtg-rust") generated 3 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.11s
+     Running `target/debug/mtg-rust`
+[2024-09-05T19:34:04Z INFO  mtg_rust] Starting
+[2024-09-05T19:34:04Z INFO  mtg_rust] Loading existing Dragonslair cards...
+[2024-09-05T19:34:04Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_05_09_2024-19:07.json
+[2024-09-05T19:34:05Z INFO  mtg_rust] Loading existing Scryfall cards...
+[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:20.json
+[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/parsed_scryfall_cards_05_09_2024-19:20.json
+[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/parsed_scryfall_cards_05_09_2024-19:15.json
+[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:15.json
+[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:25.json
+[2024-09-05T19:34:08Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Cragsmasher Yeti' because of: No price found for card 'Cragsmasher Yeti'
+[2024-09-05T19:34:08Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Cragsmasher Yeti
+[2024-09-05T19:34:08Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Lost Jitte' because of: No price found for card 'Lost Jitte'
+[2024-09-05T19:34:08Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Lost Jitte
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Charging Hooligan' because of: No price found for card 'Charging Hooligan'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Charging Hooligan
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Wildwood Mentor' because of: No price found for card 'Wildwood Mentor'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Wildwood Mentor
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Wildwood Mentor: No price found for card 'Wildwood Mentor'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Wildwood Mentor
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Yuma, Proud Protector: No price found for card 'Yuma, Proud Protector'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Yuma, Proud Protector
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Dovin, Architect of Law' because of: No price found for card 'Dovin, Architect of Law'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Dovin, Architect of Law
+[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Legolas's Quick Reflexes' because of: No price found for card 'Legolas's Quick Reflexes'
+[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Legolas's Quick Reflexes
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Legolas's Quick Reflexes: No price found for card 'Legolas's Quick Reflexes'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Legolas's Quick Reflexes
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Become Brutes' because of: No price found for card 'Become Brutes'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Become Brutes
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Tawnos, Urza's Apprentice' because of: No price found for card 'Tawnos, Urza's Apprentice'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Tawnos, Urza's Apprentice
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Hunting Velociraptor' because of: No price found for card 'Hunting Velociraptor'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Hunting Velociraptor
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Ransom Note' because of: No price found for card 'Ransom Note'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Ransom Note
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Sandstorm Salvager' because of: No price found for card 'Sandstorm Salvager'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Sandstorm Salvager
+[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Sword of Wealth and Power' because of: No price found for card 'Sword of Wealth and Power'
+[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Sword of Wealth and Power
+[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Rootpath Purifier' because of: No price found for card 'Rootpath Purifier'
+[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Rootpath Purifier
+[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Nazahn, Revered Bladesmith' because of: No price found for card 'Nazahn, Revered Bladesmith'
+[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Nazahn, Revered Bladesmith
+[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Kaust, Eyes of the Glade' because of: No price found for card 'Kaust, Eyes of the Glade'
+[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Kaust, Eyes of the Glade
+[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Compy Swarm' because of: No price found for card 'Compy Swarm'
+[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Compy Swarm
+[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Disciple of Caelus Nin: No price found for card 'Disciple of Caelus Nin'
+[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Disciple of Caelus Nin
+[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Generous Plunderer: No price found for card 'Generous Plunderer'
+[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Generous Plunderer
+[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Ellie and Alan, Paleontologists' because of: No price found for card 'Ellie and Alan, Paleontologists'
+[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Ellie and Alan, Paleontologists
+[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Duskana, the Rage Mother' because of: No price found for card 'Duskana, the Rage Mother'
+[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Duskana, the Rage Mother
+[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Fomori Vault' because of: No price found for card 'Fomori Vault'
+[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Fomori Vault
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Blaster, Combat DJ // Blaster, Morale Booster' because of: No price found for card 'Blaster, Combat DJ // Blaster, Morale Booster'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Blaster, Combat DJ // Blaster, Morale Booster
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Archaeomancer's Map: No price found for card 'Archaeomancer's Map'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Archaeomancer's Map
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Molten Duplication' because of: No price found for card 'Molten Duplication'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Molten Duplication
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Esoteric Duplicator' because of: No price found for card 'Esoteric Duplicator'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Esoteric Duplicator
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Katilda and Lier' because of: No price found for card 'Katilda and Lier'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Katilda and Lier
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Katilda and Lier: No price found for card 'Katilda and Lier'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Katilda and Lier
+[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Permission Denied' because of: No price found for card 'Permission Denied'
+[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Permission Denied
+[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Memory Vessel' because of: No price found for card 'Memory Vessel'
+[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Memory Vessel
+[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Grim Giganotosaurus' because of: No price found for card 'Grim Giganotosaurus'
+[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Grim Giganotosaurus
+[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Don't Move' because of: No price found for card 'Don't Move'
+[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Don't Move
+[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Don't Move: No price found for card 'Don't Move'
+[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Don't Move
+[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Tolarian Winds: No price found for card 'Tolarian Winds'
+[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Tolarian Winds
+[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Crusade' because of: No price found for card 'Crusade'
+[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Crusade
+[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Cresting Mosasaurus: No price found for card 'Cresting Mosasaurus'
+[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Cresting Mosasaurus
+[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Zephyr Winder' because of: No price found for card 'Zephyr Winder'
+[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Zephyr Winder
+[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Loot, the Key to Everything' because of: No price found for card 'Loot, the Key to Everything'
+[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Loot, the Key to Everything
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Lotus Ring' because of: No price found for card 'Lotus Ring'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Lotus Ring
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Slimefoot and Squee' because of: No price found for card 'Slimefoot and Squee'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Slimefoot and Squee
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Slimefoot and Squee: No price found for card 'Slimefoot and Squee'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Slimefoot and Squee
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Artificer's Dragon' because of: No price found for card 'Artificer's Dragon'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Artificer's Dragon
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Harvester of Misery' because of: No price found for card 'Harvester of Misery'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Harvester of Misery
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Woodcaller Automaton' because of: No price found for card 'Woodcaller Automaton'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Woodcaller Automaton
+[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Woodcaller Automaton: No price found for card 'Woodcaller Automaton'
+[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Woodcaller Automaton
+[2024-09-05T19:34:17Z INFO  mtg_rust::utils::compare_prices] Compared prices started at: 2024-09-05 19:34:08.685323261 +00:00. Finished at: 2024-09-05 19:34:17.085987216 +00:00. Took: 8, ComparedPrices list size: 14955
+[2024-09-05T19:34:17Z INFO  mtg_rust] Run started at: 2024-09-05 19:34:04.606155496 +00:00. Finished at: 2024-09-05 19:34:17.563626884 +00:00. Took: 12, compared prices in: "compared_prices/compared_prices_05_09_2024-19:34.json"

@@ -1,19 +1,21 @@
+use reqwest::Client;
 use std::{collections::HashMap, error::Error};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{cards::card::{ScryfallCard, Vendor, VendorCard}, utils::price_checker::get_live_card_prices};
-
-use super::price_checker::MtgStocksCard;
+use crate::{
+    cards::card::{CardName, ScryfallCard, Vendor, VendorCard},
+    utils::mtg_stock_price_checker::MtgPriceFetcher,
+};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ComparedCard {
     name: String,
     foil: bool,
     vendor: Vendor,
-    cheapest_set_price_mcm_sek: Option<f64>,
-    price_difference_to_cheapest_vendor_card: Option<f64>,
-    price_diff_to_cheapest_percentage_vendor_card: Option<f64>,
+    cheapest_set_price_mcm_sek: i32,
+    price_difference_to_cheapest_vendor_card: i32,
+    price_diff_to_cheapest_percentage_vendor_card: i32,
     vendor_cards: Vec<VendorCard>,
 }
 
@@ -25,9 +27,10 @@ struct CurrencyRate {
     rates: Rates,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Serialize)]
 struct Rates {
-    sek: f64,
+    SEK: f64,
 }
 
 // https://www.frankfurter.app/docs/
@@ -38,126 +41,330 @@ async fn get_currency_rate_eur_to_sec(base_url: &str) -> Result<f64, Box<dyn Err
         .text()
         .await?;
     let currency_rate: CurrencyRate = serde_json::from_str(&resp)?;
-    Ok(currency_rate.rates.sek)
+    Ok(currency_rate.rates.SEK)
 }
 
 fn get_cheapest_foil_scryfall_card<'a>(
     scryfall_cards: &'a Vec<ScryfallCard>,
-) -> Result<&'a ScryfallCard, Box<dyn std::error::Error>> {
-    let scryfall_cards = scryfall_cards
-        .iter()
-        .min_by(|scryfall_card_1, scryfall_card_2| {
-            match (
-                scryfall_card_1.prices.eur_foil,
-                scryfall_card_2.prices.eur_foil,
-            ) {
-                (Some(price1), Some(price2)) => price1.partial_cmp(&price2).unwrap(),
-                (None, Some(_)) => std::cmp::Ordering::Greater,
-                (Some(_), None) => std::cmp::Ordering::Less,
-                (None, None) => std::cmp::Ordering::Equal,
-            }
-        });
-    match scryfall_cards {
-        Some(card) => Ok(card),
-        None => Err(format!("No foil card found for '{}'", card_name).into()),
-    }
+    card_name: &str,
+) -> Result<f64, Box<dyn std::error::Error>> {
+    let cheapest_scryfall_card =
+        scryfall_cards
+            .iter()
+            .min_by(|scryfall_card_1, scryfall_card_2| {
+                match (
+                    scryfall_card_1.prices.eur_foil,
+                    scryfall_card_2.prices.eur_foil,
+                ) {
+                    (Some(price1), Some(price2)) => price1.partial_cmp(&price2).unwrap(),
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, None) => std::cmp::Ordering::Equal,
+                }
+            });
+
+    cheapest_scryfall_card
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("No card found for '{}'", card_name),
+            )) as Box<dyn std::error::Error>
+        })?
+        .prices
+        .eur_foil
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("No price found for card '{}'", card_name),
+            )) as Box<dyn std::error::Error>
+        })
 }
 
-pub async fn compare_prices(
-    vendor_card_list: HashMap<String, Vec<VendorCard>>,
-    scryfall_card_map: HashMap<String, Vec<ScryfallCard>>,
-    base_url: &str,
-) -> Vec<ComparedCard> {
-    let start_time = chrono::prelude::Local::now();
-    let mut cache: HashMap<String, Vec<MtgStocksCard>> = HashMap::new();
-    
-    //     let start_time = chrono::prelude::Local::now();
+fn get_cheapest_scryfall_card<'a>(
+    scryfall_cards: &'a Vec<ScryfallCard>,
+    card_name: &str,
+) -> Result<f64, Box<dyn std::error::Error>> {
+    let cheapest_scryfall_card =
+        scryfall_cards
+            .iter()
+            .min_by(|scryfall_card_1, scryfall_card_2| {
+                match (scryfall_card_1.prices.eur, scryfall_card_2.prices.eur) {
+                    (Some(price1), Some(price2)) => price1.partial_cmp(&price2).unwrap(),
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, None) => std::cmp::Ordering::Equal,
+                }
+            });
 
-    let currency_rate_eur_to_sek = get_currency_rate_eur_to_sec(base_url).await.unwrap_or(11.5);
-    //     let mut card_prices = Vec::new();
+    cheapest_scryfall_card
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("No card found for '{}'", card_name),
+            )) as Box<dyn std::error::Error>
+        })?
+        .prices
+        .eur
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("No price found for card '{}'", card_name),
+            )) as Box<dyn std::error::Error>
+        })
+}
 
-    for (card_name, vendor_card_list) in vendor_card_list {
-        // Separate foil and non-foil cards
-        let (foil, non_foil): (Vec<VendorCard>, Vec<VendorCard>) =
-            vendor_card_list.into_iter().partition(|card| card.foil);
-        // Then for each (foil and non-foil)
-        //-Get the cheapest vendor card
-        let lowest_price_vendor_card = foil
-            .into_iter()
-            .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
-            .unwrap();
+pub async fn compare_foil_card_price(
+    vendor_cards: Vec<VendorCard>,
+    scryfall_cards: &HashMap<CardName, Vec<ScryfallCard>>,
+    currency_rate_eur_to_sek: f64,
+    fetcher: &MtgPriceFetcher,
+) -> Result<ComparedCard, Box<dyn std::error::Error>> {
+    //-Get the cheapest vendor card
+    let lowest_price_vendor_card = vendor_cards
+        .clone()
+        .into_iter()
+        .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "No vendor cards available to find the lowest price",
+            ))
+        })?;
 
-        //-Get the scryfall card list
-        let scryfall_cards = scryfall_card_map
-            .get(&card_name)
-            .ok_or_else(|| format!("Unable to find card: '{}' among scryfall cards", &card_name));
+    let card_name = &lowest_price_vendor_card.name;
+    //-Get the scryfall card list
+    let scryfall_cards = scryfall_cards.get(card_name);
 
-        let scryfall_cards = match scryfall_cards {
-            Ok(scryfall_cards) => scryfall_cards,
+    let scryfall_cards = scryfall_cards.ok_or_else(|| {
+        Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!(
+                "No scryfall cards for card with name '{}'",
+                &card_name.almost_raw
+            ),
+        ))
+    })?;
+
+    //-Get the price of the cheapest scryfall card or get the price from MtgStocks
+    let cheapest_mcm_card_foil_price =
+        match get_cheapest_foil_scryfall_card(scryfall_cards, &card_name.almost_raw) {
+            Ok(price) => price,
             Err(e) => {
-                log::error!("Error finding scryfall cards for {}: {}", &card_name, e);
-                continue;
+                log::error!(
+                    "Error finding cheapest foil scryfall card for {}: {}",
+                    card_name.almost_raw,
+                    e
+                );
+
+                //With cache
+                // let mtg_stock_prices = match cache.get(&card_name) {
+                //     Some(prices) => prices,
+                //     None => {
+                //         let mtgstock = get_live_card_prices(&card_name).await;
+                //         match mtgstock {
+                //             Ok(prices) => &prices,
+                //             Err(e) => {
+                //                 log::error!(
+                //                     "Error fetching live prices for {}: {}",
+                //                     card_name,
+                //                     e
+                //                 );
+                //                 continue;
+                //             }
+                //         }
+                //     }
+                // };
+
+                // No cache checking
+                let mtg_stock_prices = fetcher
+                    .get_live_card_prices(&card_name.almost_raw, "https://api.mtgstocks.com")
+                    .await
+                    .map_err(|e| {
+                        Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!(
+                                "Error fetching live prices for '{}' with error: {}",
+                                card_name.almost_raw, e
+                            ),
+                        ))
+                    })?;
+
+                mtg_stock_prices
+                    .into_iter()
+                    .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
+                    .map(|card| card.price)
+                    .unwrap()
             }
         };
 
-        //-Get the cheapest scryfall card
-        let cheapest_mcm_card_foil = match get_cheapest_foil_scryfall_card(scryfall_cards) {
-            Ok(card) => card,
+    //-Calculate the price difference
+    let cheapest_price_sek = cheapest_mcm_card_foil_price * currency_rate_eur_to_sek;
+    Ok(ComparedCard {
+        name: lowest_price_vendor_card.name.almost_raw.to_owned(),
+        foil: true,
+        vendor: lowest_price_vendor_card.vendor.to_owned(),
+        cheapest_set_price_mcm_sek: cheapest_price_sek.ceil() as i32,
+        price_difference_to_cheapest_vendor_card: cheapest_price_sek.ceil() as i32
+            - lowest_price_vendor_card.price,
+        price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
+            lowest_price_vendor_card.price,
+            cheapest_price_sek.ceil() as i32,
+        ),
+        vendor_cards,
+    })
+}
+
+pub async fn compare_card_price(
+    vendor_cards: Vec<VendorCard>,
+    scryfall_cards: &HashMap<CardName, Vec<ScryfallCard>>,
+    currency_rate_eur_to_sek: f64,
+    fetcher: &MtgPriceFetcher,
+) -> Result<ComparedCard, Box<dyn std::error::Error>> {
+    //-Get the cheapest vendor card
+    let lowest_price_vendor_card = vendor_cards
+        .clone()
+        .into_iter()
+        .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
+        .ok_or_else(|| {
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "No vendor cards available to find the lowest price",
+            ))
+        })?;
+
+    let card_name = &lowest_price_vendor_card.name;
+    //-Get the scryfall card list
+    let scryfall_cards = scryfall_cards.get(card_name);
+
+    let scryfall_cards = scryfall_cards.ok_or_else(|| {
+        Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("No scryfall cards found for '{}'", card_name.almost_raw),
+        ))
+    })?;
+
+    //-Get the price of the cheapest scryfall card or get the price from MtgStocks
+    let cheapest_mcm_card_price =
+        match get_cheapest_scryfall_card(scryfall_cards, &card_name.almost_raw) {
+            Ok(card_price) => card_price,
             Err(e) => {
-                log::error!("Error finding cheapest foil scryfall card for {}: {}", card_name, e);
-                
-                let mtg_stock_prices = match cache.get(&card_name) {
-                                Some(prices) => prices,
-                                None => {
-                                    let mtgstock = get_live_card_prices(&card_name).await;
-                                    match mtgstock {
-                                        Ok(prices) => &prices,
-                                        Err(e) => {
-                                            log::error!("Error fetching live prices for {}: {}", card_name, e);
-                                            continue;
-                                        }
-                                }
-                            }
-                        };
+                log::error!(
+                    "Error finding cheapest scryfall card '{}' because of: {}",
+                    card_name.almost_raw,
+                    e
+                );
 
-                return mtg_stock_prices
-                            .into_iter()
-                            .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
-                            .map(|card| card.price)
-                            .unwrap_or(1000.0); 
+                let mtg_stock_prices = fetcher
+                    .get_live_card_prices(&card_name.almost_raw, "https://api.mtgstocks.com/")
+                    .await
+                    .map_err(|e| {
+                        Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!(
+                                "Error fetching live prices for '{}' because of: {}",
+                                card_name.almost_raw, e
+                            ),
+                        ))
+                    })?;
 
-                continue;
+                mtg_stock_prices
+                    .into_iter()
+                    .min_by(|card_1, card_2| card_1.price.partial_cmp(&card_2.price).unwrap())
+                    .map(|card| card.price)
+                    .unwrap()
             }
-        }
-        //-Calculate the price difference
+        };
 
-        //
+    //-Calculate the price difference
+    let cheapest_price_sek = cheapest_mcm_card_price * currency_rate_eur_to_sek;
+    let price_diff = cheapest_price_sek.ceil() as i32 - lowest_price_vendor_card.price;
+    Ok(ComparedCard {
+        name: lowest_price_vendor_card.name.almost_raw.to_owned(),
+        foil: false,
+        vendor: lowest_price_vendor_card.vendor.to_owned(),
+        cheapest_set_price_mcm_sek: cheapest_price_sek.ceil() as i32,
+        price_difference_to_cheapest_vendor_card: price_diff,
+        price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
+            lowest_price_vendor_card.price,
+            cheapest_price_sek.ceil() as i32,
+        ),
+        vendor_cards,
+    })
+}
+
+fn calculate_percentual_price_difference(original: i32, comparer: i32) -> i32 {
+    if original == 0 {
+        return 0;
     }
+    ((original - comparer) / original) * 100
+}
+pub async fn compare_prices(
+    vendor_card_list: HashMap<CardName, Vec<VendorCard>>,
+    scryfall_card_map: HashMap<CardName, Vec<ScryfallCard>>,
+    base_url: &str,
+) -> Vec<ComparedCard> {
+    let start_time = chrono::prelude::Local::now();
+    let client = Client::new();
+    let fetcher = MtgPriceFetcher::new(client);
 
-    //     for (name, vendor_card_list) in vendor_card_list {
-    //         let processed_card = process_cards(
-    //             &vendor_card_list,
-    //             &scryfall_card_map,
-    //             currency_rate_eur_to_sek,
-    //             &mut cache,
-    //         )
-    //         .await;
+    let mut compared_cards = Vec::new();
+    let currency_rate_eur_to_sek = get_currency_rate_eur_to_sec(base_url).await.unwrap_or(11.5);
 
-    //         match processed_card {
-    //             Ok(card_price) => card_prices.push(card_price),
-    //             Err(e) => log::error!("Error processing card {}: {}", vendor_card.name, e),
-    //         }
-    //     }
+    for (card_name, vendor_card_list) in vendor_card_list {
+        log::debug!("Working on card {}", card_name.almost_raw);
 
-    //     let end_time = chrono::prelude::Local::now();
+        // Separate foil and non-foil cards
+        let (foil, non_foil): (Vec<VendorCard>, Vec<VendorCard>) =
+            vendor_card_list.into_iter().partition(|card| card.foil);
 
-    //     log::info!(
-    //         "Compared prices started at: {}. Finished at: {}. Took: {}",
-    //         start_time,
-    //         end_time,
-    //         (end_time - start_time).num_seconds(),
-    //     );
-    Vec::new()
+        // TODO: Cache for scryfall cards
+        // Then for each (foil and non-foil)
+
+        let compare_card_price = compare_card_price(
+            non_foil,
+            &scryfall_card_map,
+            currency_rate_eur_to_sek,
+            &fetcher,
+        )
+        .await;
+
+        match compare_card_price {
+            Ok(card_price) => {
+                compared_cards.push(card_price);
+            }
+            Err(e) => log::debug!(
+                "Unable to process card '{}' because of: {}",
+                card_name.almost_raw,
+                e
+            ),
+        }
+
+        let compare_foil_card_price =
+            compare_foil_card_price(foil, &scryfall_card_map, currency_rate_eur_to_sek, &fetcher)
+                .await;
+
+        match compare_foil_card_price {
+            Ok(card_price) => {
+                compared_cards.push(card_price);
+            }
+            Err(e) => log::debug!(
+                "Unable to process foil card '{}' because of error: {}",
+                card_name.almost_raw,
+                e
+            ),
+        }
+    }
+    let end_time = chrono::prelude::Local::now();
+
+    log::info!(
+        "Compared prices started at: {}. Finished at: {}. Took: {}, ComparedPrices list size: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        compared_cards.len()
+    );
+
+    compared_cards
 }
 
 #[cfg(test)]
@@ -168,15 +375,25 @@ mod tests {
     use crate::{
         cards::card::Vendor,
         test::helpers::{
-            reaper_king_scryfall_card, reaper_king_scryfall_card_2, reaper_king_vendor_card,
-            reaper_king_vendor_card_2, reaper_king_vendor_card_foil, REAPER_KING_STRING,
+            lifecraft_c_name, lifecraft_c_scryfall_card, lifecraft_c_vendor_card,
+            reaper_king_card_name, reaper_king_scryfall_card_cheap,
+            reaper_king_scryfall_card_expensive, reaper_king_vendor_card_cheap,
+            reaper_king_vendor_card_expensive, reaper_king_vendor_card_foil,
         },
     };
+
+    use env_logger;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
 
     use super::*;
 
     #[tokio::test]
     async fn test_compare_prices() {
+        init(); // Initialize logger
+        let currency = 11.3355;
         let response =
             "{\"amount\":1.0,\"base\":\"EUR\",\"date\":\"2024-08-30\",\"rates\":{\"SEK\":11.3355}}";
 
@@ -193,44 +410,90 @@ mod tests {
             .with_body(response)
             .create();
 
-        let vendor_card_list = HashMap::from([(
-            REAPER_KING_STRING.to_string(),
-            vec![
-                reaper_king_vendor_card(),
-                reaper_king_vendor_card_2(),
-                reaper_king_vendor_card_foil(),
-            ],
-        )]);
+        let vendor_card_list = HashMap::from([
+            (
+                reaper_king_card_name(),
+                vec![
+                    reaper_king_vendor_card_expensive(),
+                    reaper_king_vendor_card_cheap(),
+                    reaper_king_vendor_card_foil(),
+                ],
+            ),
+            (lifecraft_c_name(), vec![lifecraft_c_vendor_card()]),
+        ]);
 
-        let scryfall_cards = HashMap::from([(
-            REAPER_KING_STRING.to_string(),
-            vec![reaper_king_scryfall_card(), reaper_king_scryfall_card_2()],
-        )]);
+        let scryfall_cards = HashMap::from([
+            (
+                reaper_king_card_name(),
+                vec![
+                    reaper_king_scryfall_card_expensive(),
+                    reaper_king_scryfall_card_cheap(),
+                ],
+            ),
+            (lifecraft_c_name(), vec![lifecraft_c_scryfall_card()]),
+        ]);
 
         let result = compare_prices(vendor_card_list, scryfall_cards, &url).await;
 
+        let cheapest_set_price_mcm_sek =
+            (reaper_king_scryfall_card_cheap().prices.eur.unwrap() * currency).ceil() as i32;
+        let price_diff = cheapest_set_price_mcm_sek - reaper_king_vendor_card_cheap().price;
         let non_foil_card = ComparedCard {
-            name: REAPER_KING_STRING.to_string(),
+            name: reaper_king_vendor_card_cheap().name.almost_raw,
             foil: false,
             vendor: Vendor::Dragonslair,
-            cheapest_set_price_mcm_sek: Some(11.3355),
-            price_difference_to_cheapest_vendor_card: Some(11.3355 - 10.0),
-            price_diff_to_cheapest_percentage_vendor_card: Some((11.3355 - 10.0) / 10.0 * 100.0),
-            vendor_cards: vec![reaper_king_vendor_card(), reaper_king_vendor_card_2()],
+            cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
+            price_difference_to_cheapest_vendor_card: price_diff,
+            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
+                reaper_king_vendor_card_cheap().price,
+                cheapest_set_price_mcm_sek,
+            ),
+            vendor_cards: vec![
+                reaper_king_vendor_card_expensive(),
+                reaper_king_vendor_card_cheap(),
+            ],
         };
 
+        let cheapest_set_price_mcm_sek =
+            (reaper_king_scryfall_card_cheap().prices.eur_foil.unwrap() * currency).ceil() as i32;
+        let price_diff = cheapest_set_price_mcm_sek - reaper_king_vendor_card_foil().price;
         let foil_card = ComparedCard {
-            name: REAPER_KING_STRING.to_string(),
+            name: reaper_king_vendor_card_foil().name.almost_raw,
             foil: true,
             vendor: Vendor::Dragonslair,
-            cheapest_set_price_mcm_sek: Some(11.3355),
-            price_difference_to_cheapest_vendor_card: Some(11.3355 - 10.0),
-            price_diff_to_cheapest_percentage_vendor_card: Some((11.3355 - 10.0) / 10.0 * 100.0),
+            cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
+            price_difference_to_cheapest_vendor_card: price_diff,
+            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
+                reaper_king_vendor_card_foil().price,
+                cheapest_set_price_mcm_sek,
+            ),
             vendor_cards: vec![reaper_king_vendor_card_foil()],
         };
+
+        let cheapest_set_price_mcm_sek =
+            (lifecraft_c_scryfall_card().prices.eur_foil.unwrap() * currency).ceil() as i32;
+        let price_diff = cheapest_set_price_mcm_sek - lifecraft_c_vendor_card().price;
+        let lifecraft = ComparedCard {
+            name: lifecraft_c_vendor_card().name.almost_raw,
+            foil: true,
+            vendor: Vendor::Dragonslair,
+            cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
+            price_difference_to_cheapest_vendor_card: price_diff,
+            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
+                lifecraft_c_vendor_card().price,
+                cheapest_set_price_mcm_sek,
+            ),
+            vendor_cards: vec![lifecraft_c_vendor_card()],
+        };
+
         mock.assert();
-        assert_eq!(result.len(), 2);
-        assert_eq!(result[0], non_foil_card);
-        assert_eq!(result[0], foil_card);
+        assert_eq!(result.len(), 3);
+
+        let mut sorted_result = result.clone();
+        sorted_result.sort_by(|a, b| a.name.cmp(&b.name).then(a.foil.cmp(&b.foil)));
+
+        assert_eq!(sorted_result[0], lifecraft);
+        assert_eq!(sorted_result[1], non_foil_card);
+        assert_eq!(sorted_result[2], foil_card);
     }
 }

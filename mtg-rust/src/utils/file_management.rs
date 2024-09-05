@@ -1,53 +1,16 @@
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::BufReader;
 use std::path::PathBuf;
 use std::{
     fs::{self, OpenOptions},
     path::Path,
 };
 
+use serde::Serialize;
+use std::io::{self, BufWriter};
+
 use chrono::NaiveDateTime;
 use serde::de::DeserializeOwned;
-
-pub fn write_to_file(path: &str, content: &str) -> std::io::Result<()> {
-    // Create all parent directories if they don't exist
-    if let Some(parent) = Path::new(path).parent() {
-        fs::create_dir_all(parent)?;
-    }
-
-    // Open the file in write mode, creating it if it doesn't exist
-    let mut file = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .append(true)
-        .open(path)?;
-
-    // Write the content to the file
-    writeln!(file, "{}", content)?;
-
-    Ok(())
-}
-
-pub fn read_json_file<T>(file_path: &str) -> Result<T, Box<dyn std::error::Error>>
-where
-    T: DeserializeOwned,
-{
-    // Check if the file exists
-    let path = Path::new(file_path);
-    if !path.exists() {
-        return Err(format!("File not found: {}", file_path).into());
-    }
-
-    // Read the file content
-    let mut file = File::open(path)?;
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
-
-    // Parse the JSON content
-    let data: T = serde_json::from_str(&content)?;
-
-    Ok(data)
-}
 
 pub fn get_newest_file(
     folder_path: &str,
@@ -90,4 +53,69 @@ pub fn get_newest_file(
         .map(|(file_path, _)| file_path);
 
     newest_file.ok_or_else(|| "No valid files found".into())
+}
+
+pub fn save_to_json_file<T: Serialize>(path: &str, data: &T) -> io::Result<()> {
+    if let Some(parent) = Path::new(path).parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    // Open the file in write mode, creating it if it doesn't exist
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(path)?;
+    // let file = File::create(filename)?;
+
+    let writer = BufWriter::new(file);
+    serde_json::to_writer_pretty(writer, data)?;
+    Ok(())
+}
+
+pub fn load_from_json_file<T: DeserializeOwned>(filename: &str) -> io::Result<T> {
+    let file = File::open(filename)?;
+    let reader = BufReader::new(file);
+    let data = serde_json::from_reader(reader)?;
+    Ok(data)
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::collections::HashMap;
+
+    use crate::{
+        cards::card::{CardName, VendorCard},
+        test::helpers::reaper_king_vendor_card_cheap,
+    };
+
+    use env_logger;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
+    use super::*;
+
+    #[test]
+    fn test_save_file() {
+        init(); // Initialize logger
+
+        let mut vendor_cards = Vec::new();
+        vendor_cards.push(reaper_king_vendor_card_cheap());
+
+        let mut map = HashMap::new();
+        map.insert(reaper_king_vendor_card_cheap().name, vendor_cards);
+
+        // Save to JSON file
+        save_to_json_file::<HashMap<CardName, Vec<VendorCard>>>("cards.json", &map).unwrap();
+
+        // Load from JSON file
+        let loaded_map =
+            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>("cards.json").unwrap();
+
+        assert_eq!(loaded_map, map);
+        let _ = fs::remove_file("cards.json");
+    }
 }

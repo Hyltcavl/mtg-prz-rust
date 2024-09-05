@@ -105,10 +105,10 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
         let extended_art = Regex::new(r"(?i)\(Extended Art\)")?.is_match(&name);
 
         // TODO: ignore cards that are only basic, so plain, mountain, forest etc
-        let card_name = match CardName::new(name) {
+        let card_name = match CardName::new(name.clone()) {
             Ok(card_name) => card_name,
             Err(e) => {
-                log::error!("Error parsing card name: {}", e);
+                log::debug!("Error parsing card name: '{}', with error: {}", name, e);
                 continue;
             }
         };
@@ -209,7 +209,7 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
 mod tests {
     use std::fs;
 
-    use crate::test::helpers::reaper_king_vendor_card;
+    use crate::test::helpers::reaper_king_vendor_card_expensive;
 
     use super::*;
     use tokio;
@@ -239,9 +239,9 @@ mod tests {
         .unwrap();
 
         mock.assert();
-        assert_eq!(result.len(), 9);
+        assert_eq!(result.len(), 10);
 
-        let reaper_king_vendor_card = reaper_king_vendor_card();
+        let reaper_king_vendor_card = reaper_king_vendor_card_expensive();
 
         assert_eq!(result.first().unwrap(), &reaper_king_vendor_card);
         assert_eq!(result.get(1).unwrap().foil, true);
@@ -257,6 +257,10 @@ mod tests {
         assert_eq!(
             result.get(8).unwrap().image_url,
             "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg"
+        );
+        assert_eq!(
+            result.get(9).unwrap().name.almost_raw,
+            "Reaper King"
         );
     }
 }
