@@ -193,7 +193,7 @@ async fn main() {
 
     let _ = save_to_json_file::<Vec<ComparedCard>>(&compared_cards_path, &compared_prices).unwrap();
 
-    generate_html_from_json(&compared_cards_path, ".");
+    let _ = generate_html_from_json(&compared_cards_path, "../");
 
     let end_time = chrono::prelude::Local::now();
     log::info!(

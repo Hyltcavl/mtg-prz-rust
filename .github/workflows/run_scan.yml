@@ -24,7 +24,7 @@ jobs:
         override: true
 
     - name: Build and run
-      run: mtg-rust/ cargo run
+      run: cd mtg-rust && RUST_LOG=info cargo run
 
     - name: Check for changes
       id: git-check
