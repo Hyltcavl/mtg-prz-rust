@@ -1,0 +1,42 @@
+name: Get nice price
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '30 5,17 * * *'
+    
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Build and run
+      run: mtg-rust/ cargo run
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git add -A
+        git status --porcelain
+        echo "::set-output name=changes::$(git status --porcelain | wc -l)"
+
+    - name: Commit and push if changes
+      if: steps.git-check.outputs.changes > 0
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Auto-commit: Push generated files" -a
+        git push
