@@ -165,7 +165,7 @@ fn generate_index_page(total_pages: usize, total_cards: usize, total_with_diff: 
         <title>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff} </title>
     </head>
     <body>
-        <h1>MTG Card Price Comparison</h1>
+        <h1>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff}</h1>
         <ul>
     "#
     );
