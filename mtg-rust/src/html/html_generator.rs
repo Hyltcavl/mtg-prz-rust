@@ -35,7 +35,7 @@ pub fn generate_html_from_json(
     }
 
     // Generate index page
-    let index_content = generate_index_page(num_pages);
+    let index_content = generate_index_page(num_pages, cards.len(), positive_diff_cards.len());
     fs::write(format!("{}/index.html", output_dir), index_content)?;
 
     Ok(())
@@ -80,7 +80,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
     </head>
     <body>
-        <h1>MTG Cards with Positive Price Difference - Page {}</h1>
+        <h1>MTG Cards with Price Difference - Page {}</h1>
         <table id="card-table">
             <thead>
                 <tr>
@@ -90,7 +90,6 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
                     <th>Vendor price (SEK)</th>
                     <th>MCM price (SEK)</th>
                     <th>Price Difference</th>
-                    <th>Price Difference (%)</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,7 +120,6 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
                     <td>{cheapest_vendor_price} SEK</td>
                     <td>{cheapest_mcm_price:.2} SEK</td>
                     <td>{price_diff:.2} SEK</td>
-                    <td>{price_diff_percentage:.2}%</td>
                 </tr>
             "#
         ));
@@ -156,20 +154,21 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
     content
 }
 
-fn generate_index_page(total_pages: usize) -> String {
-    let mut content = r#"
+fn generate_index_page(total_pages: usize, total_cards: usize, total_with_diff: usize) -> String {
+    let mut content = format!(
+        r#"
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MTG Card Price Comparison - Index</title>
+        <title>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff} </title>
     </head>
     <body>
         <h1>MTG Card Price Comparison</h1>
         <ul>
     "#
-    .to_string();
+    );
 
     for i in 1..=total_pages {
         content.push_str(&format!(
