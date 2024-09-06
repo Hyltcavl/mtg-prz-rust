@@ -10,13 +10,13 @@ use crate::{
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ComparedCard {
-    name: String,
-    foil: bool,
-    vendor: Vendor,
-    cheapest_set_price_mcm_sek: i32,
-    price_difference_to_cheapest_vendor_card: i32,
-    price_diff_to_cheapest_percentage_vendor_card: i32,
-    vendor_cards: Vec<VendorCard>,
+    pub name: String,
+    pub foil: bool,
+    pub vendor: Vendor,
+    pub cheapest_set_price_mcm_sek: i32,
+    pub price_difference_to_cheapest_vendor_card: i32,
+    pub price_diff_to_cheapest_percentage_vendor_card: i32,
+    pub vendor_cards: Vec<VendorCard>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

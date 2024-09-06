@@ -1,6 +1,5 @@
 use std::{
-    cmp::Ordering,
-    hash::{Hash, Hasher},
+    cmp::Ordering, fmt, hash::{Hash, Hasher}
 };
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -152,6 +151,16 @@ pub enum Vendor {
     Dragonslair,
     Alphaspel,
     Cardmarket,
+}
+
+impl fmt::Display for Vendor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Vendor::Dragonslair => write!(f, "Dragonslair"),
+            Vendor::Alphaspel => write!(f, "Alphaspel"),
+            Vendor::Cardmarket => write!(f, "Cardmarket"),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]

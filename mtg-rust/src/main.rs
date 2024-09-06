@@ -1,11 +1,14 @@
 mod cards;
 mod dl;
+mod html;
 mod scryfall;
 mod test;
 mod utils;
+
 use cards::card::{CardName, ScryfallCard, VendorCard};
 use dotenv;
 use env_logger;
+use html::html_generator::generate_html_from_json;
 use log;
 use utils::compare_prices::{compare_prices, ComparedCard};
 
@@ -183,20 +186,21 @@ async fn main() {
     let compared_prices: Vec<utils::compare_prices::ComparedCard> =
         compare_prices(dl_cards, scryfall_prices, "https://api.frankfurter.app/").await;
 
-    let parsed_file_path = format!(
+    let compared_cards_path = format!(
         "compared_prices/compared_prices_{}.json",
         date_time_as_string(None, None)
     );
 
-    let _ = save_to_json_file::<Vec<ComparedCard>>(&parsed_file_path, &compared_prices).unwrap();
+    let _ = save_to_json_file::<Vec<ComparedCard>>(&compared_cards_path, &compared_prices).unwrap();
+
+    generate_html_from_json(&compared_cards_path, "compared_prices/");
 
     let end_time = chrono::prelude::Local::now();
-
     log::info!(
         "Run started at: {}. Finished at: {}. Took: {}, compared prices in: {:?}",
         start_time,
         end_time,
         (end_time - start_time).num_seconds(),
-        parsed_file_path
+        compared_cards_path
     );
 }

@@ -3,3 +3,8 @@ target
 mtg-rust/dragonslair_cards
 mtg-rust/scryfall_prices
 mtg-rust/scryfall_prices_raw
+mtg-rust/dragonslair_cards
+mtg-rust/scryfall_prices
+bfg-repo-cleaner
+mtg-rust/compared_prices
+output.log
