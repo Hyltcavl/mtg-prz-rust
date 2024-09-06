@@ -2,3 +2,7 @@ run command:  RUST_LOG=info DL=1 SCRYFALL=1 cargo run > output.log 2>&1
 RUST_LOG=debug DL=0 SCRYFALL=0 cargo run > output.log 2>&1
 
 RUST_LOG=debug cargo test --package mtg-rust --bin mtg-rust -- scryfall::scryfall_mcm_cards::tests --show-output 
+
+Errors:
+* When creating the html file, it doesnt pick the cheapest vendor card, just the first available. Should filter out the cheapest one before... 
+* Price percentage is broken..
