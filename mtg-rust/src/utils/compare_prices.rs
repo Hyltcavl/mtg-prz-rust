@@ -15,7 +15,6 @@ pub struct ComparedCard {
     pub vendor: Vendor,
     pub cheapest_set_price_mcm_sek: i32,
     pub price_difference_to_cheapest_vendor_card: i32,
-    pub price_diff_to_cheapest_percentage_vendor_card: i32,
     pub vendor_cards: Vec<VendorCard>,
 }
 
@@ -206,10 +205,6 @@ pub async fn compare_foil_card_price(
         cheapest_set_price_mcm_sek: cheapest_price_sek.ceil() as i32,
         price_difference_to_cheapest_vendor_card: cheapest_price_sek.ceil() as i32
             - lowest_price_vendor_card.price,
-        price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
-            lowest_price_vendor_card.price,
-            cheapest_price_sek.ceil() as i32,
-        ),
         vendor_cards,
     })
 }
@@ -284,20 +279,10 @@ pub async fn compare_card_price(
         vendor: lowest_price_vendor_card.vendor.to_owned(),
         cheapest_set_price_mcm_sek: cheapest_price_sek.ceil() as i32,
         price_difference_to_cheapest_vendor_card: price_diff,
-        price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
-            lowest_price_vendor_card.price,
-            cheapest_price_sek.ceil() as i32,
-        ),
         vendor_cards,
     })
 }
 
-fn calculate_percentual_price_difference(original: i32, comparer: i32) -> i32 {
-    if original == 0 {
-        return 0;
-    }
-    ((original - comparer) / original) * 100
-}
 pub async fn compare_prices(
     vendor_card_list: HashMap<CardName, Vec<VendorCard>>,
     scryfall_card_map: HashMap<CardName, Vec<ScryfallCard>>,
@@ -444,10 +429,6 @@ mod tests {
             vendor: Vendor::Dragonslair,
             cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
             price_difference_to_cheapest_vendor_card: price_diff,
-            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
-                reaper_king_vendor_card_cheap().price,
-                cheapest_set_price_mcm_sek,
-            ),
             vendor_cards: vec![
                 reaper_king_vendor_card_expensive(),
                 reaper_king_vendor_card_cheap(),
@@ -463,10 +444,6 @@ mod tests {
             vendor: Vendor::Dragonslair,
             cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
             price_difference_to_cheapest_vendor_card: price_diff,
-            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
-                reaper_king_vendor_card_foil().price,
-                cheapest_set_price_mcm_sek,
-            ),
             vendor_cards: vec![reaper_king_vendor_card_foil()],
         };
 
@@ -479,10 +456,6 @@ mod tests {
             vendor: Vendor::Dragonslair,
             cheapest_set_price_mcm_sek: cheapest_set_price_mcm_sek,
             price_difference_to_cheapest_vendor_card: price_diff,
-            price_diff_to_cheapest_percentage_vendor_card: calculate_percentual_price_difference(
-                lifecraft_c_vendor_card().price,
-                cheapest_set_price_mcm_sek,
-            ),
             vendor_cards: vec![lifecraft_c_vendor_card()],
         };
 

@@ -32,21 +32,19 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: dl_cards
-        path: dragonslair_cards
+        path: mtg-rust/dragonslair_cards
 
     - name: Upload scan Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: compared_prices
+        name: mtg-rust/compared_prices
         path: compared_prices
 
-
-    - name: Upload scan Artifacts
-      uses: actions/upload-artifact@v4
-      if: ${{ matrix.scan_type == 'alpha_scan' }}
-      with:
-        name: ${{ matrix.scan_type }}
-        path: alphaspel_cards
+    # - name: Upload scan Artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: ${{ matrix.scan_type }}
+    #     path: alphaspel_cards
     
     - run: |
         git config user.name "github-actions[bot]"

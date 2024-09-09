@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fs;
 
+use crate::cards::card::VendorCard;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 
@@ -11,8 +12,6 @@ pub fn generate_html_from_json(
     output_dir: &str,
 ) -> Result<(), Box<dyn Error>> {
     // Read the JSON file
-    // let json_content = fs::read_to_string(json_file_path)?;
-    // let cards: Vec<Value> = serde_json::from_str(&json_content)?;
     let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path)?;
 
     // Filter cards with positive price difference
@@ -98,13 +97,19 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
     );
 
     for card in sorted_cards {
+        let cheapest_vendor_card = &card
+            .vendor_cards
+            .clone()
+            .into_iter()
+            .min_by(|x, y| x.price.cmp(&y.price))
+            .unwrap();
+
         let name = &card.name;
         let foil = card.foil;
         let cheapest_mcm_price = card.cheapest_set_price_mcm_sek;
-        let cheapest_vendor_price = &card.vendor_cards[0].price;
+        let cheapest_vendor_price = &cheapest_vendor_card.price;
         let price_diff = card.price_difference_to_cheapest_vendor_card;
-        let price_diff_percentage = card.price_diff_to_cheapest_percentage_vendor_card;
-        let image_url = &card.vendor_cards[0].image_url;
+        let image_url = &cheapest_vendor_card.image_url;
 
         content.push_str(&format!(
             r#"
