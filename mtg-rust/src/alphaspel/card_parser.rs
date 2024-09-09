@@ -10,7 +10,24 @@ use reqwest::Client;
 use scraper::{Html, Selector};
 use serde_json::json;
 
-use crate::cards::card::{CardName, SetName, Vendor, VendorCard};
+use crate::{
+    cards::card::{CardName, SetName, Vendor, VendorCard},
+    utils::{file_management::save_to_json_file, string_manipulators::date_time_as_string},
+};
+
+const PROMO_PATTERNS: [&str; 4] = [
+    r"(?i)\(Promo\)",
+    r"(?i)\(promo\)",
+    r"(?i)\(Prerelease\)",
+    r"(?i)\(prerelease\)",
+];
+
+fn create_regex_patterns(patterns: &[&str]) -> Result<Vec<Regex>, Box<dyn Error>> {
+    patterns
+        .iter()
+        .map(|&p| Regex::new(p).map_err(|e| Box::new(e) as Box<dyn Error>)) // Convert regex::Error to Box<dyn Error>
+        .collect()
+}
 
 fn get_card_information(product: scraper::ElementRef) -> Result<VendorCard, Box<dyn Error>> {
     let in_stock = product
@@ -35,12 +52,6 @@ fn get_card_information(product: scraper::ElementRef) -> Result<VendorCard, Box<
         .collect();
 
     let image_url = format!("https://alphaspel.se{}", image_url.replace("\n", "").trim());
-    // .next()
-    // .ok_or("No stock information found")?
-    // .text()
-    // .collect::<String>()
-    // .trim()
-    // .to_string();
 
     let product_name = product
         .select(&Selector::parse(".product-name").unwrap())
@@ -48,6 +59,19 @@ fn get_card_information(product: scraper::ElementRef) -> Result<VendorCard, Box<
         .ok_or("No product name found")?
         .text()
         .collect::<String>();
+
+    let product_name = product_name
+        .replace("\n", "")
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join(" ");
+
+    let promo_patterns = create_regex_patterns(&PROMO_PATTERNS)?;
+    let prerelease = promo_patterns
+        .iter()
+        .any(|pattern| pattern.is_match(&product_name));
+
+    let alternative_art = product_name.contains("(alternative art)");
 
     if product_name.to_lowercase().contains("(italiensk)")
         || product_name.to_lowercase().contains("(tysk)")
@@ -123,8 +147,8 @@ fn get_card_information(product: scraper::ElementRef) -> Result<VendorCard, Box<
         vendor: Vendor::Alphaspel,
         foil,
         image_url: image_url,
-        extended_art: false,
-        prerelease: false,
+        extended_art: alternative_art,
+        prerelease: prerelease,
         showcase: false,
         set,
         price,
@@ -156,12 +180,10 @@ async fn get_all_card_pages(base_url: &str) -> Result<Vec<String>, Box<dyn Error
 // shouldb me https://alphaspel.se
 pub async fn get_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
     let short = true;
-    let start_time = Instant::now();
+    let start_time = chrono::prelude::Local::now();
     let start_time_as_string = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
 
     let pages = get_all_card_pages(base_url).await?;
-
-    // log::info!("{:?}", pages);
 
     let mut grouped_cards: HashMap<String, Vec<VendorCard>> = HashMap::new();
 
@@ -172,13 +194,6 @@ pub async fn get_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
 
         let set_initial_page = reqwest::get(&link).await?.text().await?;
         let document = Html::parse_document(&set_initial_page);
-
-        // let pages = document
-        //     .select(&Selector::parse(".pagination.pagination-sm.pull-right li").unwrap())
-        //     .last()
-        //     .and_then(|element| element.text().next())
-        //     .and_then(|text| text.trim().parse::<i32>().ok())
-        //     .unwrap_or(1);
 
         let selector = Selector::parse("ul.pagination li").unwrap();
 
@@ -201,7 +216,7 @@ pub async fn get_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
     }
 
     log::info!("{:?}", links_and_page_numbers);
-
+    let mut cards = Vec::new();
     for (set_href, pages) in links_and_page_numbers {
         for x in 1..=pages {
             let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page={x}");
@@ -211,34 +226,47 @@ pub async fn get_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
             let products = document.select(product_selector);
 
             for product in products {
-                if let Ok(card) = get_card_information(product) {
-                    grouped_cards
-                        .entry(card.name.almost_raw.clone())
-                        .or_insert_with(Vec::new)
-                        .push(card);
+                match get_card_information(product) {
+                    Ok(card) => cards.push(card),
+                    Err(e) => {
+                        log::error!("Error parsing card: {}", e);
+                    }
                 }
             }
         }
     }
 
-    // let json = serde_json::to_string(&grouped_cards)?;
-    // let mut file = File::create(format!("cards_{}.json", start_time_as_string))?;
-    // file.write_all(json.as_bytes())?;
+    for card in &cards {
+        grouped_cards
+            .entry(card.name.almost_raw.clone())
+            .or_insert_with(Vec::new)
+            .push(card.clone())
+    }
+
+    let alpha_cards_path = format!(
+        "alphaspel_cards/alphaspel_cards_{}.json",
+        date_time_as_string(None, None)
+    );
+
+    save_to_json_file(&alpha_cards_path, &grouped_cards)?;
 
     // let duration = start_time.elapsed();
-    // println!(
-    //     "Alphaspel scan started {} and took {} minutes",
-    //     start_time_as_string,
-    //     duration.as_secs() / 60
-    // );
+    let end_time = chrono::prelude::Local::now();
+    log::info!(
+        "Alphaspel scan started at: {}. Finished at: {}. Took: {} seconds and with {} cards on dl_cards_path: {}",
+        start_time_as_string,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        cards.len(),
+        alpha_cards_path
+    );
 
-    Ok("hhello".to_owned())
+    Ok(alpha_cards_path)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test::helpers::reaper_king_vendor_card_expensive;
     use std::fs;
     use tokio;
 
@@ -311,62 +339,21 @@ mod tests {
 
         assert_eq!(cards.len(), 51);
         assert_eq!(cards[0], first_card);
+        assert_eq!(cards[49].extended_art, true);
+        assert_eq!(cards.last().unwrap().prerelease, true);
+        assert_eq!(cards.last().unwrap().foil, true);
+        assert_eq!(
+            cards.last().unwrap().name.almost_raw,
+            "Whiskervale Forerunner"
+        );
     }
 
     #[tokio::test]
     async fn test_fetch_and_parse() {
         init();
 
-        // let html_content = fs::read_to_string(
-        //     "/workspaces/mtg-prz-rust/mtg-rust/src/alphaspel/alphaspel_starter_page.html",
-        // )
-        // .unwrap();
-
-        // let mut server = std::thread::spawn(|| mockito::Server::new())
-        //     .join()
-        //     .unwrap();
-        // let url = server.url();
-        // // Create a mock
-        // let mock = server
-        //     .mock("GET", "/1978-mtg-loskort/")
-        //     .with_status(200)
-        //     .with_header("content-type", "text/plain")
-        //     .with_body(html_content.clone())
-        //     .create();
         let url = "https://alphaspel.se"; // server.url();
         let stuff = get_alpha_cards(&url).await.unwrap();
-        // mock.assert();
-        assert_eq!(stuff, "s");
-        // let result = fetch_and_parse(&format!(
-        //     "{}/product/card-singles/magic?name=reaper+king",
-        //     url
-        // ))
-        // .await
-        // .unwrap();
-
-        // mock.assert();
-
-        // let reaper_king_vendor_card = reaper_king_vendor_card_expensive();
-
-        // assert_eq!(result.first().unwrap(), &reaper_king_vendor_card);
-        // assert_eq!(result.get(1).unwrap().foil, true);
-        // assert_eq!(result.get(2).unwrap().foil, true);
-        // assert_eq!(result.get(3).unwrap().foil, true);
-        // assert_eq!(result.get(4).unwrap().prerelease, true);
-        // assert_eq!(result.get(5).unwrap().showcase, true);
-        // assert_eq!(result.get(6).unwrap().extended_art, true);
-        // assert_eq!(
-        //     result.get(7).unwrap().set.cleaned,
-        //     "mystery booster retail edition foils"
-        // );
-        // assert_eq!(
-        //     result.get(8).unwrap().image_url,
-        //     "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg",
-        //     "{:?}",
-        //     result.get(8).unwrap()
-        // );
-        // assert_eq!(result.get(9).unwrap().name.almost_raw, "Reaper King");
-        // assert_eq!(result.len(), 10);
     }
 
     fn endings() -> Vec<String> {
