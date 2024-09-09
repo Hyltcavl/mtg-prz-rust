@@ -1,0 +1,803 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MTG Card Price Comparison - Page 2</title>
+        <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { cursor: pointer; }
+            .card-image-container { position: relative; display: inline-block; }
+            .card-image { width: 30px; height: auto; cursor: pointer; }
+            .enlarged-image {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-width: 80vw;
+                max-height: 80vh;
+                width: auto;
+                height: auto;
+                z-index: 1000;
+                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            }
+            .card-image-container:hover .enlarged-image { display: block; }
+            .pagination { margin-top: 20px; text-align: center; }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+    </head>
+    <body>
+        <h1>MTG Cards with Price Difference - Page 2</h1>
+        <table id="card-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Vendor</th>
+                    <th>Name</th>
+                    <th>Foil</th>
+                    <th>Vendor price (SEK)</th>
+                    <th>MCM price (SEK)</th>
+                    <th>Price Difference</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/02bac6ff-a4a5-4413-8153-c9804faa8237.250x250_q50_fill.png" alt="Bygone Bishop">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/02bac6ff-a4a5-4413-8153-c9804faa8237.250x250_q50_fill.png" alt="Bygone Bishop">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Bygone Bishop</td>
+                    <td>false</td>
+                    <td>1 SEK</td>
+                    <td>2 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/8e206c91-10c7-4028-8d37-61c43eb3ddc4.250x250_q50_fill.png" alt="Lotleth Giant">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/8e206c91-10c7-4028-8d37-61c43eb3ddc4.250x250_q50_fill.png" alt="Lotleth Giant">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Lotleth Giant</td>
+                    <td>true</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/98ef0830-3821-4a1d-b9e0-8228b62b6641.250x250_q50_fill.png" alt="Saiba Cryptomancer">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/98ef0830-3821-4a1d-b9e0-8228b62b6641.250x250_q50_fill.png" alt="Saiba Cryptomancer">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Saiba Cryptomancer</td>
+                    <td>true</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/308ecf8a-dee7-4d11-a980-fb99f7a42a1a.250x250_q50_fill.png" alt="Weather the Storm">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/308ecf8a-dee7-4d11-a980-fb99f7a42a1a.250x250_q50_fill.png" alt="Weather the Storm">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Weather the Storm</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/7729cd06-b9cc-407d-9853-e0270d975ad5.250x250_q50_fill.png" alt="Obscura Storefront">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/7729cd06-b9cc-407d-9853-e0270d975ad5.250x250_q50_fill.png" alt="Obscura Storefront">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Obscura Storefront</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/1d7ab659-04be-4eb8-8ab3-cd62ac31a1dc.250x250_q50_fill.png" alt="Undercity Informer">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/1d7ab659-04be-4eb8-8ab3-cd62ac31a1dc.250x250_q50_fill.png" alt="Undercity Informer">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Undercity Informer</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/69616f09-89bf-47e4-bbed-755abcda38e8.250x250_q50_fill.png" alt="Kashi-Tribe Elite">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/69616f09-89bf-47e4-bbed-755abcda38e8.250x250_q50_fill.png" alt="Kashi-Tribe Elite">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Kashi-Tribe Elite</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/e5881a89-c96b-48a6-8038-b3c6df97d309.250x250_q50_fill.png" alt="Dimir Infiltrator">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/e5881a89-c96b-48a6-8038-b3c6df97d309.250x250_q50_fill.png" alt="Dimir Infiltrator">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Dimir Infiltrator</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/30440/product" alt="Chariot of Victory">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/30440/product" alt="Chariot of Victory">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Chariot of Victory</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/5a15f666-c7ba-4d02-afa1-29d0a1eaaafa.250x250_q50_fill.png" alt="Sphere of Law">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/5a15f666-c7ba-4d02-afa1-29d0a1eaaafa.250x250_q50_fill.png" alt="Sphere of Law">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Sphere of Law</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/103634/product" alt="Lithomantic Barrage">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/103634/product" alt="Lithomantic Barrage">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Lithomantic Barrage</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/29740/product" alt="Archetype of Aggression">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/29740/product" alt="Archetype of Aggression">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Archetype of Aggression</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/1bbbfddf-f08f-4167-87e9-6731831bbd3f.250x250_q50_fill.png" alt="Hellspark Elemental">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/1bbbfddf-f08f-4167-87e9-6731831bbd3f.250x250_q50_fill.png" alt="Hellspark Elemental">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Hellspark Elemental</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/6be0f6aa-b642-40d7-a330-8b32fc889322.250x250_q50_fill.png" alt="Hidden Ancients">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/6be0f6aa-b642-40d7-a330-8b32fc889322.250x250_q50_fill.png" alt="Hidden Ancients">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Hidden Ancients</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Explore the Underdark</td>
+                    <td>true</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/5225bb1a-8e41-48e0-8020-4fe21463781b.250x250_q50_fill.png" alt="No Quarter">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/5225bb1a-8e41-48e0-8020-4fe21463781b.250x250_q50_fill.png" alt="No Quarter">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>No Quarter</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>7 SEK</td>
+                    <td>2 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/92464/product" alt="Joint Exploration">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/92464/product" alt="Joint Exploration">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Joint Exploration</td>
+                    <td>true</td>
+                    <td>5 SEK</td>
+                    <td>7 SEK</td>
+                    <td>2 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/86688dd0-9a59-4282-84f4-da0770a61d45.250x250_q50_fill.png" alt="Faerie Swarm">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/86688dd0-9a59-4282-84f4-da0770a61d45.250x250_q50_fill.png" alt="Faerie Swarm">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Faerie Swarm</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>7 SEK</td>
+                    <td>2 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/e9eeb38b-89f5-493d-89ee-8cd0da9c31bc.250x250_q50_fill.png" alt="Perish the Thought">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/e9eeb38b-89f5-493d-89ee-8cd0da9c31bc.250x250_q50_fill.png" alt="Perish the Thought">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Perish the Thought</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>9 SEK</td>
+                    <td>4 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/e1e00a0b-51ff-4604-9122-f3ded31e3abd.250x250_q50_fill.png" alt="Outrider en-Kor">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/e1e00a0b-51ff-4604-9122-f3ded31e3abd.250x250_q50_fill.png" alt="Outrider en-Kor">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Outrider en-Kor</td>
+                    <td>true</td>
+                    <td>10 SEK</td>
+                    <td>11 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/e5aeae6e-d815-4b99-bc8c-8ccf90460de8.250x250_q50_fill.png" alt="Fleshwrither">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/e5aeae6e-d815-4b99-bc8c-8ccf90460de8.250x250_q50_fill.png" alt="Fleshwrither">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Fleshwrither</td>
+                    <td>false</td>
+                    <td>10 SEK</td>
+                    <td>15 SEK</td>
+                    <td>5 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/ac01983e-f4e2-4e7f-897b-77c5e884ec59.250x250_q50_fill.png" alt="Ivory Gargoyle">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/ac01983e-f4e2-4e7f-897b-77c5e884ec59.250x250_q50_fill.png" alt="Ivory Gargoyle">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Ivory Gargoyle</td>
+                    <td>false</td>
+                    <td>10 SEK</td>
+                    <td>16 SEK</td>
+                    <td>6 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/f0b23c84-115c-47c0-87cf-4e82f77327e4.250x250_q50_fill.png" alt="Guildless Commons">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/f0b23c84-115c-47c0-87cf-4e82f77327e4.250x250_q50_fill.png" alt="Guildless Commons">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Guildless Commons</td>
+                    <td>true</td>
+                    <td>15 SEK</td>
+                    <td>16 SEK</td>
+                    <td>1 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/34371/product" alt="Ancient Carp">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/34371/product" alt="Ancient Carp">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Ancient Carp</td>
+                    <td>false</td>
+                    <td>5 SEK</td>
+                    <td>20 SEK</td>
+                    <td>15 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/e04f2f01-79a3-47ea-9590-d82fa724b930.250x250_q50_fill.png" alt="Crime // Punishment">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/e04f2f01-79a3-47ea-9590-d82fa724b930.250x250_q50_fill.png" alt="Crime // Punishment">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Crime // Punishment</td>
+                    <td>false</td>
+                    <td>15 SEK</td>
+                    <td>22 SEK</td>
+                    <td>7 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/5081f8c3-c2f3-4b7b-ad70-fd24847507bd.250x250_q50_fill.png" alt="Tainted Sigil">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/5081f8c3-c2f3-4b7b-ad70-fd24847507bd.250x250_q50_fill.png" alt="Tainted Sigil">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Tainted Sigil</td>
+                    <td>true</td>
+                    <td>25 SEK</td>
+                    <td>27 SEK</td>
+                    <td>2 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/cf336461-7a30-4e29-9a79-8d361d330ceb.250x250_q50_fill.png" alt="Damping Matrix">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/cf336461-7a30-4e29-9a79-8d361d330ceb.250x250_q50_fill.png" alt="Damping Matrix">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Damping Matrix</td>
+                    <td>true</td>
+                    <td>25 SEK</td>
+                    <td>28 SEK</td>
+                    <td>3 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Savvy Trader</td>
+                    <td>false</td>
+                    <td>20 SEK</td>
+                    <td>32 SEK</td>
+                    <td>12 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/49499/product" alt="Primevals' Glorious Rebirth">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/49499/product" alt="Primevals' Glorious Rebirth">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Primevals' Glorious Rebirth</td>
+                    <td>true</td>
+                    <td>30 SEK</td>
+                    <td>33 SEK</td>
+                    <td>3 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/3a72c53b-5449-40a6-a725-a6f391b8b210.250x250_q50_fill.png" alt="Greenbelt Rampager">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/3a72c53b-5449-40a6-a725-a6f391b8b210.250x250_q50_fill.png" alt="Greenbelt Rampager">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Greenbelt Rampager</td>
+                    <td>true</td>
+                    <td>25 SEK</td>
+                    <td>33 SEK</td>
+                    <td>8 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Mist-Syndicate Naga</td>
+                    <td>false</td>
+                    <td>30 SEK</td>
+                    <td>33 SEK</td>
+                    <td>3 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/76383/product" alt="Wish">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/76383/product" alt="Wish">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Wish</td>
+                    <td>false</td>
+                    <td>30 SEK</td>
+                    <td>34 SEK</td>
+                    <td>4 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/31184/product" alt="Void Snare">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/31184/product" alt="Void Snare">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Void Snare</td>
+                    <td>true</td>
+                    <td>10 SEK</td>
+                    <td>35 SEK</td>
+                    <td>25 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/1a9bb937-3351-431f-b47b-9a2ae970e774.250x250_q50_fill.png" alt="Eternal Scourge">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/1a9bb937-3351-431f-b47b-9a2ae970e774.250x250_q50_fill.png" alt="Eternal Scourge">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Eternal Scourge</td>
+                    <td>true</td>
+                    <td>30 SEK</td>
+                    <td>40 SEK</td>
+                    <td>10 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/33726/product" alt="Mob Rule">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/33726/product" alt="Mob Rule">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Mob Rule</td>
+                    <td>true</td>
+                    <td>30 SEK</td>
+                    <td>43 SEK</td>
+                    <td>13 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/5266afc3-9e03-49f1-b121-3def22843562.250x250_q50_fill.png" alt="Wrathful Raptors">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/5266afc3-9e03-49f1-b121-3def22843562.250x250_q50_fill.png" alt="Wrathful Raptors">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Wrathful Raptors</td>
+                    <td>false</td>
+                    <td>45 SEK</td>
+                    <td>47 SEK</td>
+                    <td>2 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/b63be4a0-e827-4d9f-8dc1-f3c3ec5c4735.250x250_q50_fill.png" alt="Indomitable Creativity">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/b63be4a0-e827-4d9f-8dc1-f3c3ec5c4735.250x250_q50_fill.png" alt="Indomitable Creativity">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Indomitable Creativity</td>
+                    <td>false</td>
+                    <td>35 SEK</td>
+                    <td>53 SEK</td>
+                    <td>18 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/02b6041a-691a-4106-90b6-cceb9ea637b9.250x250_q50_fill.png" alt="Rain of Daggers">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/02b6041a-691a-4106-90b6-cceb9ea637b9.250x250_q50_fill.png" alt="Rain of Daggers">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Rain of Daggers</td>
+                    <td>false</td>
+                    <td>25 SEK</td>
+                    <td>77 SEK</td>
+                    <td>52 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/1e6b5c68-2fc3-4ef0-bdcc-116c05848806.250x250_q50_fill.png" alt="Tunnel Ignus">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/1e6b5c68-2fc3-4ef0-bdcc-116c05848806.250x250_q50_fill.png" alt="Tunnel Ignus">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Tunnel Ignus</td>
+                    <td>true</td>
+                    <td>25 SEK</td>
+                    <td>87 SEK</td>
+                    <td>62 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/0edefb8b-03de-4b3a-9bf7-ff40c5b2cba0.250x250_q50_fill.png" alt="Lullmage Mentor">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/0edefb8b-03de-4b3a-9bf7-ff40c5b2cba0.250x250_q50_fill.png" alt="Lullmage Mentor">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Lullmage Mentor</td>
+                    <td>true</td>
+                    <td>85 SEK</td>
+                    <td>90 SEK</td>
+                    <td>5 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/560b912e-1af4-4d84-866a-6eae9076a55a.250x250_q50_fill.png" alt="Dead // Gone">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/560b912e-1af4-4d84-866a-6eae9076a55a.250x250_q50_fill.png" alt="Dead // Gone">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Dead // Gone</td>
+                    <td>true</td>
+                    <td>10 SEK</td>
+                    <td>96 SEK</td>
+                    <td>86 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/cf55327c-bb9e-4405-a767-c613f1e00904.250x250_q50_fill.png" alt="It That Betrays">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/cf55327c-bb9e-4405-a767-c613f1e00904.250x250_q50_fill.png" alt="It That Betrays">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>It That Betrays</td>
+                    <td>false</td>
+                    <td>95 SEK</td>
+                    <td>121 SEK</td>
+                    <td>26 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/eac44ab8-d36a-42da-85be-5080d41ceece.250x250_q50_fill.png" alt="Darksteel Monolith">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/eac44ab8-d36a-42da-85be-5080d41ceece.250x250_q50_fill.png" alt="Darksteel Monolith">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Darksteel Monolith</td>
+                    <td>false</td>
+                    <td>165 SEK</td>
+                    <td>182 SEK</td>
+                    <td>17 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/8b66fc10-3c2e-40fd-a783-10198954f8bb.250x250_q50_fill.png" alt="Unbound Flourishing">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/8b66fc10-3c2e-40fd-a783-10198954f8bb.250x250_q50_fill.png" alt="Unbound Flourishing">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Unbound Flourishing</td>
+                    <td>true</td>
+                    <td>155 SEK</td>
+                    <td>183 SEK</td>
+                    <td>28 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Sunken Ruins</td>
+                    <td>false</td>
+                    <td>140 SEK</td>
+                    <td>188 SEK</td>
+                    <td>48 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/77a79495-56cc-4ec0-bcca-f13d2d09f192.250x250_q50_fill.png" alt="Primordial Hydra">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/77a79495-56cc-4ec0-bcca-f13d2d09f192.250x250_q50_fill.png" alt="Primordial Hydra">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Primordial Hydra</td>
+                    <td>true</td>
+                    <td>115 SEK</td>
+                    <td>213 SEK</td>
+                    <td>98 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Sunken Ruins</td>
+                    <td>true</td>
+                    <td>180 SEK</td>
+                    <td>228 SEK</td>
+                    <td>48 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/48892/product" alt="Flash">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/48892/product" alt="Flash">
+                        </div>
+                    </td>
+                    <td>Dragonslair</td>
+                    <td>Flash</td>
+                    <td>true</td>
+                    <td>80 SEK</td>
+                    <td>249 SEK</td>
+                    <td>169 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/d2dc38a2-523a-48b6-9814-7cb0be1ae5f9.250x250_q50_fill.png" alt="Young Wolf">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/d2dc38a2-523a-48b6-9814-7cb0be1ae5f9.250x250_q50_fill.png" alt="Young Wolf">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Young Wolf</td>
+                    <td>true</td>
+                    <td>265 SEK</td>
+                    <td>271 SEK</td>
+                    <td>6 SEK</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://alphaspel.se/media/products/thumbs/fb2a5445-aff6-4b48-827c-8a8ec569919e.250x250_q50_fill.png" alt="Darksteel Monolith">
+                            <img class="enlarged-image" src="https://alphaspel.se/media/products/thumbs/fb2a5445-aff6-4b48-827c-8a8ec569919e.250x250_q50_fill.png" alt="Darksteel Monolith">
+                        </div>
+                    </td>
+                    <td>Alphaspel</td>
+                    <td>Darksteel Monolith</td>
+                    <td>true</td>
+                    <td>285 SEK</td>
+                    <td>450 SEK</td>
+                    <td>165 SEK</td>
+                </tr>
+            </tbody></table><div class='pagination'><a href='page_1.html'>Previous</a> Page 2 of 3 <a href='page_3.html'>Next</a></div>
+        <script>
+            new Tablesort(document.getElementById('card-table'));
+        </script>
+    </body>
+    </html>
+    
