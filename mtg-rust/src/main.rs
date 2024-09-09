@@ -1,3 +1,4 @@
+mod alphaspel;
 mod cards;
 mod dl;
 mod html;
