@@ -1,7 +1,7 @@
 use regex::Regex;
 use reqwest;
 use scraper::{Html, Selector};
-use std::error::Error;
+use std::{error::Error, num::ParseIntError};
 use tokio::time::Instant;
 
 use crate::cards::card::{CardName, SetName, Vendor, VendorCard};
@@ -25,25 +25,61 @@ fn create_regex_patterns(patterns: &[&str]) -> Result<Vec<Regex>, Box<dyn Error>
         .map(|&p| Regex::new(p).map_err(|e| Box::new(e) as Box<dyn Error>)) // Convert regex::Error to Box<dyn Error>
         .collect()
 }
-fn parse_price(price_str: Option<&str>) -> i32 {
+
+#[derive(Debug)]
+struct NoPriceAvailableError;
+
+impl std::error::Error for NoPriceAvailableError {}
+
+impl std::fmt::Display for NoPriceAvailableError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "No price available")
+    }
+}
+
+fn parse_price(price_str: &str) -> Result<i32, Box<dyn Error>> {
+    if price_str.trim() == "-" {
+        return Err(Box::new(NoPriceAvailableError));
+    }
     price_str
-        .and_then(|s| s.replace(" kr", "").trim().parse::<i32>().ok())
-        .unwrap_or(0)
+        .replace("Slut, ", "")
+        .replace("Fullt, ", "")
+        .replace("kr", "")
+        .trim()
+        .parse::<i32>()
+        .map_err(|e| Box::new(e) as Box<dyn Error>)
 }
 
 fn get_price(tr_elements: scraper::ElementRef) -> Result<i32, Box<dyn Error>> {
     let price_if_item_is_in_store = tr_elements
         .select(&Selector::parse("td.align-right span.format-bold")?)
         .next()
-        .map(|element| parse_price(Some(element.text().collect::<String>().as_str())));
+        .map(|element| parse_price(element.text().collect::<String>().as_str()));
+
     let price_if_item_is_not_in_store = tr_elements
         .select(&Selector::parse("td.align-right span.format-subtle")?)
         .next()
-        .map(|element| parse_price(Some(element.text().collect::<String>().as_str())));
-    let price = price_if_item_is_in_store
-        .or(price_if_item_is_not_in_store)
-        .unwrap_or(0);
-    Ok(price)
+        .map(|element| parse_price(element.text().collect::<String>().as_str()));
+
+    match price_if_item_is_in_store.or(price_if_item_is_not_in_store) {
+        Some(Ok(price)) => Ok(price),
+        Some(Err(e)) => {
+            if e.is::<NoPriceAvailableError>() {
+                Err(e)
+            } else {
+                Ok(0)
+            }
+        }
+        None => Ok(0),
+    }
+}
+
+fn get_buyin_value(tr_elements: scraper::ElementRef) -> Result<i32, Box<dyn std::error::Error>> {
+    if let Some(buyin_str) = tr_elements.value().attr("data-buyin") {
+        return Ok(buyin_str.parse()?);
+    }
+
+    Err("Could not find data-buyin attribute".into())
 }
 
 pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error>> {
@@ -157,16 +193,29 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             }
         };
 
-        let price = get_price(tr_elements)?;
+        let price = match get_price(tr_elements) {
+            Ok(price) => price,
+            Err(e) => {
+                log::error!(
+                    "Error parsing price: {}, for card: {}",
+                    e,
+                    card_name.almost_raw
+                );
+                continue;
+            }
+        };
 
-        let trade_in_price = tr_elements
-            .select(&Selector::parse("td.align-right")?)
-            .nth(2)
-            .and_then(|element| {
-                Some(parse_price(Some(
-                    element.text().collect::<String>().as_str(),
-                )))
-            });
+        let trade_in_price = match get_buyin_value(tr_elements) {
+            Ok(price) => price,
+            Err(e) => {
+                log::error!(
+                    "Error parsing trade-in price: {}, for card: {}",
+                    e,
+                    card_name.almost_raw
+                );
+                continue;
+            }
+        };
 
         let stock = tr_elements
             .select(&Selector::parse("td.align-right")?)
@@ -194,7 +243,7 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             showcase,
             set: set_name,
             price,
-            trade_in_price: trade_in_price.unwrap_or(0),
+            trade_in_price: trade_in_price,
             current_stock: stock.first().unwrap_or(&0).to_owned(),
             max_stock: stock.last().unwrap_or(&0).to_owned(),
         };
@@ -207,14 +256,17 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-
-    use crate::test::helpers::reaper_king_vendor_card_expensive;
-
     use super::*;
+    use crate::test::helpers::reaper_king_vendor_card_expensive;
+    use std::fs;
     use tokio;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
     #[tokio::test]
     async fn test_fetch_and_parse() {
+        init();
         let html_content =
             fs::read_to_string("/workspaces/mtg-prz-rust/product_search_page.html").unwrap();
 
@@ -239,7 +291,6 @@ mod tests {
         .unwrap();
 
         mock.assert();
-        assert_eq!(result.len(), 10);
 
         let reaper_king_vendor_card = reaper_king_vendor_card_expensive();
 
@@ -256,11 +307,11 @@ mod tests {
         );
         assert_eq!(
             result.get(8).unwrap().image_url,
-            "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg"
+            "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg",
+            "{:?}",
+            result.get(8).unwrap()
         );
-        assert_eq!(
-            result.get(9).unwrap().name.almost_raw,
-            "Reaper King"
-        );
+        assert_eq!(result.get(9).unwrap().name.almost_raw, "Reaper King");
+        assert_eq!(result.len(), 10);
     }
 }
