@@ -1,14 +1,16 @@
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::time::Instant;
+use std::{collections::HashMap, sync::Arc};
 
 use chrono::Local;
+use futures::future::{err, join_all};
 use regex::Regex;
 use reqwest::Client;
 use scraper::{Html, Selector};
 use serde_json::json;
+use tokio::sync::Semaphore;
 
 use crate::{
     cards::card::{CardName, SetName, Vendor, VendorCard},
@@ -178,63 +180,80 @@ async fn get_all_card_pages(base_url: &str) -> Result<Vec<String>, Box<dyn Error
     Ok(sets_links)
 }
 // shouldb me https://alphaspel.se
-pub async fn get_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
-    let short = true;
+pub async fn download_alpha_cards(base_url: &str) -> Result<String, Box<dyn Error>> {
     let start_time = chrono::prelude::Local::now();
     let start_time_as_string = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
+
+    log::info!("Alphaspel scan started at: {}", start_time_as_string,);
 
     let pages = get_all_card_pages(base_url).await?;
 
     let mut grouped_cards: HashMap<String, Vec<VendorCard>> = HashMap::new();
 
-    let mut links_and_page_numbers: HashMap<String, u32> = HashMap::new();
-    let mut index = 0;
-    for set_href in pages {
-        let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page=1");
+    let semaphore = Arc::new(Semaphore::new(20));
 
-        let set_initial_page = reqwest::get(&link).await?.text().await?;
-        let document = Html::parse_document(&set_initial_page);
+    // let mut links_and_page_numbers: HashMap<String, u32> = HashMap::new();
+    // let mut index = 0;
+    let futures = pages.into_iter().map(|set_href| {
+        let semaphore_clone = Arc::clone(&semaphore);
+        async move {
+            let _permit = semaphore_clone.acquire().await.unwrap(); //Get a permit to run in parallel
 
-        let selector = Selector::parse("ul.pagination li").unwrap();
+            let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page=1");
+            let set_initial_page = reqwest::get(&link).await.unwrap().text().await.unwrap();
+            let document = Html::parse_document(&set_initial_page);
+            let selector = Selector::parse("ul.pagination li").unwrap();
 
-        let mut max_page = 0;
-
-        for element in document.select(&selector) {
-            if let Ok(num) = element.text().collect::<String>().trim().parse::<u32>() {
-                if num > max_page {
-                    max_page = num;
-                }
-            }
-        }
-
-        links_and_page_numbers.insert(set_href, max_page);
-
-        if short && index >= 5 {
-            break;
-        }
-        index += 1;
-    }
-
-    log::info!("{:?}", links_and_page_numbers);
-    let mut cards = Vec::new();
-    for (set_href, pages) in links_and_page_numbers {
-        for x in 1..=pages {
-            let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page={x}");
-            let set_page = reqwest::get(&link).await?.text().await?;
-            let document = Html::parse_document(&set_page);
-            let product_selector = &Selector::parse(".products.row .product")?;
-            let products = document.select(product_selector);
-
-            for product in products {
-                match get_card_information(product) {
-                    Ok(card) => cards.push(card),
-                    Err(e) => {
-                        log::error!("Error parsing card: {}", e);
+            let mut max_page = 0;
+            for element in document.select(&selector) {
+                if let Ok(num) = element.text().collect::<String>().trim().parse::<u32>() {
+                    if num > max_page {
+                        max_page = num;
                     }
                 }
             }
+
+            (set_href, max_page)
         }
-    }
+    });
+
+    let links_and_page_numbers: HashMap<String, u32> =
+        join_all(futures).await.into_iter().collect();
+
+    log::info!("{:?}", links_and_page_numbers);
+    let futures = links_and_page_numbers.iter().map(|(set_href, pages)| {
+        let semaphore_clone = Arc::clone(&semaphore);
+        async move {
+            let _permit = semaphore_clone.acquire().await.unwrap();
+            let mut cards = Vec::new();
+
+            for x in 1..=*pages as i32 {
+                let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page={x}");
+                log::info!("Processing link {}", &link);
+                let set_page = reqwest::get(&link)
+                    .await
+                    .unwrap()
+                    .text()
+                    .await
+                    .unwrap_or_else(|e| {
+                        log::error!("Error fetching page: {}, with error: {}", &link, e);
+                        return "".to_string();
+                    });
+                let document = Html::parse_document(&set_page);
+                let product_selector = &Selector::parse(".products.row .product").unwrap();
+                let products = document.select(product_selector);
+
+                for product in products {
+                    if let Ok(card) = get_card_information(product) {
+                        cards.push(card);
+                    }
+                }
+            }
+            cards
+        }
+    });
+
+    let cards: Vec<VendorCard> = join_all(futures).await.into_iter().flatten().collect();
 
     for card in &cards {
         grouped_cards
@@ -353,7 +372,8 @@ mod tests {
         init();
 
         let url = "https://alphaspel.se"; // server.url();
-        let stuff = get_alpha_cards(&url).await.unwrap();
+        let stuff = download_alpha_cards(&url).await.unwrap();
+        print!("{}", stuff);
     }
 
     fn endings() -> Vec<String> {

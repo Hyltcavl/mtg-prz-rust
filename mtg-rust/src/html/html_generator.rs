@@ -84,6 +84,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
             <thead>
                 <tr>
                     <th>Image</th>
+                    <th>Vendor</th>
                     <th>Name</th>
                     <th>Foil</th>
                     <th>Vendor price (SEK)</th>
@@ -103,7 +104,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
             .into_iter()
             .min_by(|x, y| x.price.cmp(&y.price))
             .unwrap();
-
+        let vendor = &cheapest_vendor_card.vendor;
         let name = &card.name;
         let foil = card.foil;
         let cheapest_mcm_price = card.cheapest_set_price_mcm_sek;
@@ -120,6 +121,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
                             <img class="enlarged-image" src="{image_url}" alt="{name}">
                         </div>
                     </td>
+                    <td>{vendor}</td>
                     <td>{name}</td>
                     <td>{foil}</td>
                     <td>{cheapest_vendor_price} SEK</td>

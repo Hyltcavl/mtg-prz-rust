@@ -6,6 +6,7 @@ mod scryfall;
 mod test;
 mod utils;
 
+use alphaspel::card_parser::download_alpha_cards;
 use cards::card::{CardName, ScryfallCard, VendorCard};
 use dotenv;
 use env_logger;
@@ -117,9 +118,11 @@ async fn main() {
     // Check for environment variables
     let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
     let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let alpha = env::var("ALHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
 
     let mut scryfall_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
     let mut dl_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
+    let mut alpha_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
 
     // Use feature flags in combination with environment variables
     if dl {
@@ -130,6 +133,11 @@ async fn main() {
     if scryfall {
         log::info!("Downloading Scryfall cards...");
         scryfall_cards_path = download_scryfall_cards(None).await;
+    }
+
+    if alpha {
+        log::info!("Downloading Alphaspel cards...");
+        alpha_cards_path = download_alpha_cards("https://alphaspel.se").await;
     }
 
     let dl_cards: HashMap<CardName, Vec<VendorCard>>;
@@ -146,6 +154,23 @@ async fn main() {
     } else {
         dl_cards =
             load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(&dl_cards_path.unwrap())
+                .unwrap();
+    }
+
+    let alpha_cards: HashMap<CardName, Vec<VendorCard>>;
+    if !alpha {
+        log::info!("Loading existing Alphaspel cards...");
+        let path = get_newest_file(
+            "/workspaces/mtg-prz-rust/mtg-rust/alphaspel_cards",
+            "alphaspel_cards_",
+        )
+        .unwrap();
+        alpha_cards =
+            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(path.to_str().unwrap())
+                .unwrap();
+    } else {
+        alpha_cards =
+            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(&alpha_cards_path.unwrap())
                 .unwrap();
     }
 
@@ -167,6 +192,8 @@ async fn main() {
         .unwrap();
     }
 
+    let vendor_cards = merge_card_maps(dl_cards, alpha_cards);
+
     // let dl_keys: Vec<&CardName> = dl_cards.keys().collect();
     // let sampled_keys: Vec<&CardName> = dl_keys.iter().take(10).cloned().collect();
 
@@ -184,8 +211,12 @@ async fn main() {
     );
     save_to_json_file(&parsed_file_path, &sample_prices).unwrap();
 
-    let compared_prices: Vec<utils::compare_prices::ComparedCard> =
-        compare_prices(dl_cards, scryfall_prices, "https://api.frankfurter.app/").await;
+    let compared_prices: Vec<ComparedCard> = compare_prices(
+        vendor_cards,
+        scryfall_prices,
+        "https://api.frankfurter.app/",
+    )
+    .await;
 
     let compared_cards_path = format!(
         "compared_prices/compared_prices_{}.json",
@@ -204,4 +235,20 @@ async fn main() {
         (end_time - start_time).num_seconds(),
         compared_cards_path
     );
+}
+
+fn merge_card_maps(
+    map1: HashMap<CardName, Vec<VendorCard>>,
+    map2: HashMap<CardName, Vec<VendorCard>>,
+) -> HashMap<CardName, Vec<VendorCard>> {
+    let mut merged_map = map1;
+
+    for (key, mut value) in map2 {
+        merged_map
+            .entry(key)
+            .or_insert_with(Vec::new)
+            .append(&mut value);
+    }
+
+    merged_map
 }

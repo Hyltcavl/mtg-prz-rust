@@ -4,7 +4,10 @@ mtg-rust/dragonslair_cards
 mtg-rust/scryfall_prices
 mtg-rust/scryfall_prices_raw
 mtg-rust/dragonslair_cards
-mtg-rust/scryfall_prices
-bfg-repo-cleaner
+mtg-rust/alphaspel_cards
 mtg-rust/compared_prices
+bfg-repo-cleaner
 output.log
+mtg-rust/output.log
+mtg-rust/output.log
+.vscode/settings.json
