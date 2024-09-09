@@ -1,5 +1,7 @@
 use std::{
-    cmp::Ordering, fmt, hash::{Hash, Hasher}
+    cmp::Ordering,
+    fmt,
+    hash::{Hash, Hasher},
 };
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -146,7 +148,7 @@ impl<'de> Deserialize<'de> for CardName {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, Hash)]
 pub enum Vendor {
     Dragonslair,
     Alphaspel,

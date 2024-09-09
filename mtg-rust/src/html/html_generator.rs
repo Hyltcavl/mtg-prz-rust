@@ -1,7 +1,8 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 
-use crate::cards::card::VendorCard;
+use crate::cards::card::Vendor;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 
@@ -23,19 +24,51 @@ pub fn generate_html_from_json(
     // Create output directory if it doesn't exist
     fs::create_dir_all(output_dir)?;
 
-    // Calculate number of pages
-    let num_pages = (positive_diff_cards.len() + CARDS_PER_PAGE - 1) / CARDS_PER_PAGE;
-
-    // Generate individual pages
-    for (page_num, chunk) in positive_diff_cards.chunks(CARDS_PER_PAGE).enumerate() {
-        let page_content = generate_page_content(chunk, page_num + 1, num_pages);
-        let file_name = format!("{}/page_{}.html", output_dir, page_num + 1);
-        fs::write(&file_name, page_content)?;
+    let mut vendor_cards: HashMap<Vendor, Vec<&ComparedCard>> = HashMap::new();
+    for card in &positive_diff_cards {
+        let cheapest_vendor_card = card.vendor_cards.iter().min_by_key(|c| c.price).unwrap();
+        vendor_cards
+            .entry(cheapest_vendor_card.vendor.clone())
+            .or_default()
+            .push(card);
     }
 
-    // Generate index page
-    let index_content = generate_index_page(num_pages, cards.len(), positive_diff_cards.len());
+    // Generate pages for each vendor
+    for (vendor, cards) in &vendor_cards {
+        let vendor_dir = format!("{}/{}", output_dir, vendor.to_string().to_lowercase());
+        fs::create_dir_all(&vendor_dir)?;
+
+        let num_pages = (cards.len() + CARDS_PER_PAGE - 1) / CARDS_PER_PAGE;
+
+        for (page_num, chunk) in cards.chunks(CARDS_PER_PAGE).enumerate() {
+            let page_content = generate_page_content(chunk, page_num + 1, num_pages);
+            let file_name = format!("{}/page_{}.html", vendor_dir, page_num + 1);
+            fs::write(&file_name, page_content)?;
+        }
+
+        // Generate vendor index page
+        let vendor_index = generate_vendor_index_page(vendor, num_pages, cards.len());
+        fs::write(format!("{}/index.html", vendor_dir), vendor_index)?;
+    }
+
+    // Generate main index page
+    let index_content =
+        generate_main_index_page(&vendor_cards, cards.len(), positive_diff_cards.len());
     fs::write(format!("{}/index.html", output_dir), index_content)?;
+
+    // Calculate number of pages
+    // let num_pages = (positive_diff_cards.len() + CARDS_PER_PAGE - 1) / CARDS_PER_PAGE;
+
+    // // Generate individual pages
+    // for (page_num, chunk) in positive_diff_cards.chunks(CARDS_PER_PAGE).enumerate() {
+    //     let page_content = generate_page_content(chunk, page_num + 1, num_pages);
+    //     let file_name = format!("{}/page_{}.html", output_dir, page_num + 1);
+    //     fs::write(&file_name, page_content)?;
+    // }
+
+    // // Generate index page
+    // let index_content = generate_index_page(num_pages, cards.len(), positive_diff_cards.len());
+    // fs::write(format!("{}/index.html", output_dir), index_content)?;
 
     Ok(())
 }
@@ -161,7 +194,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
     content
 }
 
-fn generate_index_page(total_pages: usize, total_cards: usize, total_with_diff: usize) -> String {
+fn generate_vendor_index_page(vendor: &Vendor, total_pages: usize, total_cards: usize) -> String {
     let mut content = format!(
         r#"
     <!DOCTYPE html>
@@ -169,7 +202,42 @@ fn generate_index_page(total_pages: usize, total_cards: usize, total_with_diff: 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff} </title>
+        <title>{} - Nice prices. Total cards: {}</title>
+    </head>
+    <body>
+        <h1>{} - Nice prices. Total cards: {}</h1>
+        <ul>
+    "#,
+        vendor, total_cards, vendor, total_cards
+    );
+
+    for i in 1..=total_pages {
+        content.push_str(&format!(
+            "        <li><a href='page_{}.html'>Page {}</a></li>\n",
+            i, i
+        ));
+    }
+
+    content.push_str(
+        "    </ul>\n    <p><a href='../index.html'>Back to main index</a></p>\n</body>\n</html>",
+    );
+
+    content
+}
+
+fn generate_main_index_page(
+    vendor_cards: &HashMap<Vendor, Vec<&ComparedCard>>,
+    total_cards: usize,
+    total_with_diff: usize,
+) -> String {
+    let mut content = format!(
+        r#"
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff}</title>
     </head>
     <body>
         <h1>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff}</h1>
@@ -177,10 +245,12 @@ fn generate_index_page(total_pages: usize, total_cards: usize, total_with_diff: 
     "#
     );
 
-    for i in 1..=total_pages {
+    for (vendor, cards) in vendor_cards {
         content.push_str(&format!(
-            "        <li><a href='page_{}.html'>Page {}</a></li>\n",
-            i, i
+            "        <li><a href='{}/index.html'>{} ({} cards)</a></li>\n",
+            vendor.to_string().to_lowercase(),
+            vendor,
+            cards.len()
         ));
     }
 
