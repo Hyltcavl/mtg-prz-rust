@@ -6,11 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MTG Card Price Comparison - Page 1</title>
         <style>
-            table { border-collapse: collapse; width: 100%; }
+            table { border-collapse: collapse; width: 70%; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { cursor: pointer; }
             .card-image-container { position: relative; display: inline-block; }
-            .card-image { width: 30px; height: auto; cursor: pointer; }
+            .card-image { width: 40px; height: auto; cursor: pointer; }
             .enlarged-image {
                 display: none;
                 position: fixed;
@@ -35,12 +35,11 @@
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>Vendor</th>
                     <th>Name</th>
-                    <th>Foil</th>
                     <th>Vendor price (SEK)</th>
                     <th>MCM price (SEK)</th>
                     <th>Price Difference</th>
+                    <th>Vendor</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,76 +47,15 @@
                 <tr>
                     <td>
                         <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/88631/product" alt="Goliath Paladin">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/88631/product" alt="Goliath Paladin">
-                        </div>
-                    </td>
-                    <td>Dragonslair</td>
-                    <td>Goliath Paladin</td>
-                    <td>false</td>
-                    <td>5 SEK</td>
-                    <td>6 SEK</td>
-                    <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/35449/product" alt="Fiery Impulse">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/35449/product" alt="Fiery Impulse">
-                        </div>
-                    </td>
-                    <td>Dragonslair</td>
-                    <td>Fiery Impulse</td>
-                    <td>false</td>
-                    <td>5 SEK</td>
-                    <td>6 SEK</td>
-                    <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
-                        </div>
-                    </td>
-                    <td>Dragonslair</td>
-                    <td>Explore the Underdark</td>
-                    <td>true</td>
-                    <td>5 SEK</td>
-                    <td>6 SEK</td>
-                    <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
                             <img class="card-image" src="https://astraeus.dragonslair.se/images/109578/product" alt="Food Coma">
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/109578/product" alt="Food Coma">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Food Coma</td>
-                    <td>false</td>
+                    <td>Food Coma (foil:false)</td>
                     <td>5 SEK</td>
                     <td>6 SEK</td>
                     <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/95514/product" alt="Audacity">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/95514/product" alt="Audacity">
-                        </div>
-                    </td>
                     <td>Dragonslair</td>
-                    <td>Audacity</td>
-                    <td>false</td>
-                    <td>5 SEK</td>
-                    <td>6 SEK</td>
-                    <td>1 SEK</td>
                 </tr>
             
                 <tr>
@@ -127,27 +65,67 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/29740/product" alt="Archetype of Aggression">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Archetype of Aggression</td>
-                    <td>false</td>
+                    <td>Archetype of Aggression (foil:false)</td>
                     <td>5 SEK</td>
                     <td>6 SEK</td>
                     <td>1 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
                     <td>
                         <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/103634/product" alt="Lithomantic Barrage">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/103634/product" alt="Lithomantic Barrage">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/95514/product" alt="Audacity">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/95514/product" alt="Audacity">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Lithomantic Barrage</td>
-                    <td>false</td>
+                    <td>Audacity (foil:false)</td>
                     <td>5 SEK</td>
                     <td>6 SEK</td>
                     <td>1 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/35449/product" alt="Fiery Impulse">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/35449/product" alt="Fiery Impulse">
+                        </div>
+                    </td>
+                    <td>Fiery Impulse (foil:false)</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/88631/product" alt="Goliath Paladin">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/88631/product" alt="Goliath Paladin">
+                        </div>
+                    </td>
+                    <td>Goliath Paladin (foil:false)</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/89054/product" alt="Explore the Underdark">
+                        </div>
+                    </td>
+                    <td>Explore the Underdark (foil:true)</td>
+                    <td>5 SEK</td>
+                    <td>6 SEK</td>
+                    <td>1 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -157,27 +135,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/30440/product" alt="Chariot of Victory">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Chariot of Victory</td>
-                    <td>false</td>
+                    <td>Chariot of Victory (foil:false)</td>
                     <td>5 SEK</td>
                     <td>6 SEK</td>
                     <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/54809/product" alt="Gideon's Company">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/54809/product" alt="Gideon's Company">
-                        </div>
-                    </td>
                     <td>Dragonslair</td>
-                    <td>Gideon's Company</td>
-                    <td>false</td>
-                    <td>5 SEK</td>
-                    <td>7 SEK</td>
-                    <td>2 SEK</td>
                 </tr>
             
                 <tr>
@@ -187,12 +149,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/92464/product" alt="Joint Exploration">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Joint Exploration</td>
-                    <td>true</td>
+                    <td>Joint Exploration (foil:true)</td>
                     <td>5 SEK</td>
                     <td>7 SEK</td>
                     <td>2 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/54809/product" alt="Gideon's Company">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/54809/product" alt="Gideon's Company">
+                        </div>
+                    </td>
+                    <td>Gideon's Company (foil:false)</td>
+                    <td>5 SEK</td>
+                    <td>7 SEK</td>
+                    <td>2 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -202,12 +177,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/88749/product" alt="Kenku Artificer">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Kenku Artificer</td>
-                    <td>false</td>
+                    <td>Kenku Artificer (foil:false)</td>
                     <td>8 SEK</td>
                     <td>9 SEK</td>
                     <td>1 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -217,12 +191,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/75595/product" alt="Battle Cry Goblin">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Battle Cry Goblin</td>
-                    <td>false</td>
+                    <td>Battle Cry Goblin (foil:false)</td>
                     <td>5 SEK</td>
                     <td>9 SEK</td>
                     <td>4 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/48257/product" alt="Release to the Wind">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/48257/product" alt="Release to the Wind">
+                        </div>
+                    </td>
+                    <td>Release to the Wind (foil:false)</td>
+                    <td>10 SEK</td>
+                    <td>12 SEK</td>
+                    <td>2 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -232,12 +219,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/34467/product" alt="Gudul Lurker">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Gudul Lurker</td>
-                    <td>false</td>
+                    <td>Gudul Lurker (foil:false)</td>
                     <td>5 SEK</td>
-                    <td>11 SEK</td>
-                    <td>6 SEK</td>
+                    <td>12 SEK</td>
+                    <td>7 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -247,12 +233,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/48313/product" alt="Forerunner of the Empire">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Forerunner of the Empire</td>
-                    <td>false</td>
+                    <td>Forerunner of the Empire (foil:false)</td>
                     <td>5 SEK</td>
                     <td>12 SEK</td>
                     <td>7 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -262,12 +247,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/40142/product" alt="Elvish Vanguard">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Elvish Vanguard</td>
-                    <td>false</td>
+                    <td>Elvish Vanguard (foil:false)</td>
                     <td>10 SEK</td>
-                    <td>13 SEK</td>
-                    <td>3 SEK</td>
+                    <td>14 SEK</td>
+                    <td>4 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -277,27 +261,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/31959/product" alt="Brave the Sands">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Brave the Sands</td>
-                    <td>false</td>
+                    <td>Brave the Sands (foil:false)</td>
                     <td>8 SEK</td>
                     <td>14 SEK</td>
                     <td>6 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/51608/product" alt="Saheeli's Directive">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/51608/product" alt="Saheeli's Directive">
-                        </div>
-                    </td>
                     <td>Dragonslair</td>
-                    <td>Saheeli's Directive</td>
-                    <td>false</td>
-                    <td>15 SEK</td>
-                    <td>16 SEK</td>
-                    <td>1 SEK</td>
                 </tr>
             
                 <tr>
@@ -307,12 +275,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/38551/product" alt="Inverter of Truth">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Inverter of Truth</td>
-                    <td>false</td>
+                    <td>Inverter of Truth (foil:false)</td>
                     <td>15 SEK</td>
-                    <td>17 SEK</td>
-                    <td>2 SEK</td>
+                    <td>16 SEK</td>
+                    <td>1 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/51608/product" alt="Saheeli's Directive">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/51608/product" alt="Saheeli's Directive">
+                        </div>
+                    </td>
+                    <td>Saheeli's Directive (foil:false)</td>
+                    <td>15 SEK</td>
+                    <td>16 SEK</td>
+                    <td>1 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -322,12 +303,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/40549/product" alt="Summary Dismissal">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Summary Dismissal</td>
-                    <td>true</td>
+                    <td>Summary Dismissal (foil:true)</td>
                     <td>15 SEK</td>
                     <td>18 SEK</td>
                     <td>3 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -337,12 +317,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/34371/product" alt="Ancient Carp">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Ancient Carp</td>
-                    <td>false</td>
+                    <td>Ancient Carp (foil:false)</td>
                     <td>5 SEK</td>
                     <td>20 SEK</td>
                     <td>15 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -352,12 +331,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/49470/product" alt="Marwyn, the Nurturer">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Marwyn, the Nurturer</td>
-                    <td>false</td>
+                    <td>Marwyn, the Nurturer (foil:false)</td>
                     <td>20 SEK</td>
                     <td>21 SEK</td>
                     <td>1 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -367,27 +345,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/104098/product" alt="Hedron Detonator">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Hedron Detonator</td>
-                    <td>false</td>
+                    <td>Hedron Detonator (foil:false)</td>
                     <td>20 SEK</td>
                     <td>21 SEK</td>
                     <td>1 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
-                        </div>
-                    </td>
                     <td>Dragonslair</td>
-                    <td>Savvy Trader</td>
-                    <td>false</td>
-                    <td>20 SEK</td>
-                    <td>32 SEK</td>
-                    <td>12 SEK</td>
                 </tr>
             
                 <tr>
@@ -397,27 +359,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/49499/product" alt="Primevals' Glorious Rebirth">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Primevals' Glorious Rebirth</td>
-                    <td>true</td>
+                    <td>Primevals' Glorious Rebirth (foil:true)</td>
                     <td>30 SEK</td>
                     <td>33 SEK</td>
                     <td>3 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
                     <td>
                         <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/118266/product" alt="Savvy Trader">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Mist-Syndicate Naga</td>
-                    <td>false</td>
-                    <td>30 SEK</td>
+                    <td>Savvy Trader (foil:false)</td>
+                    <td>20 SEK</td>
                     <td>33 SEK</td>
-                    <td>3 SEK</td>
+                    <td>13 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -427,12 +387,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/76383/product" alt="Wish">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Wish</td>
-                    <td>false</td>
+                    <td>Wish (foil:false)</td>
                     <td>30 SEK</td>
                     <td>34 SEK</td>
                     <td>4 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
+                        </div>
+                    </td>
+                    <td>Mist-Syndicate Naga (foil:false)</td>
+                    <td>30 SEK</td>
+                    <td>34 SEK</td>
+                    <td>4 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -442,12 +415,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/31184/product" alt="Void Snare">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Void Snare</td>
-                    <td>true</td>
+                    <td>Void Snare (foil:true)</td>
                     <td>10 SEK</td>
                     <td>35 SEK</td>
                     <td>25 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -457,12 +429,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/33726/product" alt="Mob Rule">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Mob Rule</td>
-                    <td>true</td>
+                    <td>Mob Rule (foil:true)</td>
                     <td>30 SEK</td>
                     <td>43 SEK</td>
                     <td>13 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -472,27 +443,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/63883/product" alt="Towering Titan">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Towering Titan</td>
-                    <td>false</td>
+                    <td>Towering Titan (foil:false)</td>
                     <td>40 SEK</td>
-                    <td>47 SEK</td>
-                    <td>7 SEK</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/109980/product" alt="Calamity of the Titans">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/109980/product" alt="Calamity of the Titans">
-                        </div>
-                    </td>
+                    <td>45 SEK</td>
+                    <td>5 SEK</td>
                     <td>Dragonslair</td>
-                    <td>Calamity of the Titans</td>
-                    <td>false</td>
-                    <td>50 SEK</td>
-                    <td>60 SEK</td>
-                    <td>10 SEK</td>
                 </tr>
             
                 <tr>
@@ -502,12 +457,25 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/111237/product" alt="Forest // Forest">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Forest // Forest</td>
-                    <td>false</td>
+                    <td>Forest // Forest (foil:false)</td>
                     <td>40 SEK</td>
-                    <td>61 SEK</td>
-                    <td>21 SEK</td>
+                    <td>59 SEK</td>
+                    <td>19 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/109980/product" alt="Calamity of the Titans">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/109980/product" alt="Calamity of the Titans">
+                        </div>
+                    </td>
+                    <td>Calamity of the Titans (foil:false)</td>
+                    <td>50 SEK</td>
+                    <td>63 SEK</td>
+                    <td>13 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -517,12 +485,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/53315/product" alt="Through the Breach">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Through the Breach</td>
-                    <td>true</td>
+                    <td>Through the Breach (foil:true)</td>
                     <td>80 SEK</td>
                     <td>90 SEK</td>
                     <td>10 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -532,12 +499,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/104888/product" alt="Unmask">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Unmask</td>
-                    <td>false</td>
+                    <td>Unmask (foil:false)</td>
                     <td>100 SEK</td>
                     <td>152 SEK</td>
                     <td>52 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -547,12 +513,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Sunken Ruins</td>
-                    <td>false</td>
+                    <td>Sunken Ruins (foil:false)</td>
                     <td>140 SEK</td>
                     <td>188 SEK</td>
                     <td>48 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -562,12 +527,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/64686/product" alt="Mana Echoes">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Mana Echoes</td>
-                    <td>false</td>
+                    <td>Mana Echoes (foil:false)</td>
                     <td>170 SEK</td>
-                    <td>192 SEK</td>
-                    <td>22 SEK</td>
+                    <td>193 SEK</td>
+                    <td>23 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -577,12 +541,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/64786/product" alt="Sunken Ruins">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Sunken Ruins</td>
-                    <td>true</td>
+                    <td>Sunken Ruins (foil:true)</td>
                     <td>180 SEK</td>
                     <td>228 SEK</td>
                     <td>48 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -592,12 +555,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/48892/product" alt="Flash">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Flash</td>
-                    <td>true</td>
+                    <td>Flash (foil:true)</td>
                     <td>80 SEK</td>
                     <td>249 SEK</td>
                     <td>169 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             
                 <tr>
@@ -607,12 +569,11 @@
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/117308/product" alt="Overwhelming Forces">
                         </div>
                     </td>
-                    <td>Dragonslair</td>
-                    <td>Overwhelming Forces</td>
-                    <td>false</td>
+                    <td>Overwhelming Forces (foil:false)</td>
                     <td>100 SEK</td>
                     <td>526 SEK</td>
                     <td>426 SEK</td>
+                    <td>Dragonslair</td>
                 </tr>
             </tbody></table><div class='pagination'>Page 1 of 1 </div>
         <script>
