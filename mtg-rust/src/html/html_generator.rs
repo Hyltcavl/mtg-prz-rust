@@ -88,11 +88,11 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MTG Card Price Comparison - Page {}</title>
         <style>
-            table {{ border-collapse: collapse; width: 100%; }}
+            table {{ border-collapse: collapse; width: 70%; }}
             th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
             th {{ cursor: pointer; }}
             .card-image-container {{ position: relative; display: inline-block; }}
-            .card-image {{ width: 30px; height: auto; cursor: pointer; }}
+            .card-image {{ width: 40px; height: auto; cursor: pointer; }}
             .enlarged-image {{
                 display: none;
                 position: fixed;
@@ -117,12 +117,11 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>Vendor</th>
                     <th>Name</th>
-                    <th>Foil</th>
                     <th>Vendor price (SEK)</th>
                     <th>MCM price (SEK)</th>
                     <th>Price Difference</th>
+                    <th>Vendor</th>
                 </tr>
             </thead>
             <tbody>
@@ -154,12 +153,11 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
                             <img class="enlarged-image" src="{image_url}" alt="{name}">
                         </div>
                     </td>
-                    <td>{vendor}</td>
-                    <td>{name}</td>
-                    <td>{foil}</td>
+                    <td>{name} (foil:{foil})</td>
                     <td>{cheapest_vendor_price} SEK</td>
                     <td>{cheapest_mcm_price:.2} SEK</td>
                     <td>{price_diff:.2} SEK</td>
+                    <td>{vendor}</td>
                 </tr>
             "#
         ));
