@@ -4,7 +4,6 @@ RUST_LOG=debug DL=0 SCRYFALL=0 ALPHASPEL=0 cargo run > output.log 2>&1
 RUST_LOG=debug cargo test --package mtg-rust --bin mtg-rust -- scryfall::scryfall_mcm_cards::tests --show-output 
 
 TODO:
-split by vendor in interface
 Scan cards
 Manatorsk cards
 
