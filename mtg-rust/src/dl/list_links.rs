@@ -27,7 +27,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_page_count() {
         let html_content =
-            fs::read_to_string("/workspaces/mtg-prz-rust/get_pages_page.html").unwrap();
+            fs::read_to_string("/workspaces/mtg-prz-rust/mtg-rust/src/dl/get_pages_page.html")
+                .unwrap();
         let mut server = std::thread::spawn(|| mockito::Server::new())
             .join()
             .unwrap();
@@ -55,7 +56,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_page_count_no_pages() {
         let html_content =
-            fs::read_to_string("/workspaces/mtg-prz-rust/get_pages_no_pages.html").unwrap();
+            fs::read_to_string("/workspaces/mtg-prz-rust/mtg-rust/src/dl/get_pages_no_pages.html")
+                .unwrap();
         let mut server = std::thread::spawn(|| mockito::Server::new())
             .join()
             .unwrap();

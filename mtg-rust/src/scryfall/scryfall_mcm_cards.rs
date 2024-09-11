@@ -243,7 +243,7 @@ mod tests {
 
         // load_from_json_file::<String>("scryfall_card_resp.json").unwrap();
         let html_content =
-            fs::read_to_string("/workspaces/mtg-prz-rust/scryfall_card_resp.json").unwrap();
+            fs::read_to_string("/workspaces/mtg-prz-rust/mtg-rust/src/scryfall/scryfall_card_resp.json").unwrap();
         // Mock the all-cards endpoint
         let _m2 = server
             .mock("GET", "/all-cards")

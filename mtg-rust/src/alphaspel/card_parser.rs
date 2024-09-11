@@ -367,14 +367,14 @@ mod tests {
         );
     }
 
-    #[tokio::test]
-    async fn test_fetch_and_parse() {
-        init();
+    // #[tokio::test]
+    // async fn test_fetch_and_parse() {
+    //     init();
 
-        let url = "https://alphaspel.se"; // server.url();
-        let stuff = download_alpha_cards(&url).await.unwrap();
-        print!("{}", stuff);
-    }
+    //     let url = "https://alphaspel.se"; // server.url();
+    //     let stuff = download_alpha_cards(&url).await.unwrap();
+    //     print!("{}", stuff);
+    // }
 
     fn endings() -> Vec<String> {
         return vec![
