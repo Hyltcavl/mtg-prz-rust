@@ -1,5 +1,0 @@
-mtg-prz
-target
-mtg-rust/dragonslair_cards
-mtg-rust/scryfall_prices
-bfg-repo-cleaner
