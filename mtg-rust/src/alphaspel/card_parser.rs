@@ -1,15 +1,15 @@
 use std::error::Error;
-use std::fs::File;
-use std::io::Write;
-use std::time::Instant;
+// use std::fs::File;
+// use std::io::Write;
+// use std::time::Instant;
 use std::{collections::HashMap, sync::Arc};
 
 use chrono::Local;
-use futures::future::{err, join_all};
+use futures::future::join_all;
 use regex::Regex;
-use reqwest::Client;
+// use reqwest::Client;
 use scraper::{Html, Selector};
-use serde_json::json;
+// use serde_json::json;
 use tokio::sync::Semaphore;
 
 use crate::{

@@ -118,7 +118,7 @@ async fn main() {
     // Check for environment variables
     let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
     let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
-    let alpha = env::var("ALHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let alpha = env::var("ALPHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
 
     let mut scryfall_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
     let mut dl_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());

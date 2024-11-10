@@ -12,9 +12,9 @@ use super::string_manipulators::clean_string;
 #[derive(Debug)]
 pub enum MtgPriceError {
     RequestError(reqwest::Error),
-    NoCardFound,
-    BadApiResponse(String),
-    OtherError(Error),
+    // NoCardFound,
+    // BadApiResponse(String),
+    OtherError(serde_json::Error),
 }
 
 impl From<reqwest::Error> for MtgPriceError {

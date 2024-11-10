@@ -83,6 +83,7 @@ async fn get_scryfall_price_file(
         .text()
         .await?;
 
+    log::debug!("Download completed");
     // Parse the string response into a JSON value
     let json: serde_json::Value = serde_json::from_str(&all_cards)?;
 

@@ -38,7 +38,7 @@ pub fn get_newest_file(
                             .and_then(|date_time_str| {
                                 NaiveDateTime::parse_from_str(
                                     &date_time_str.replace(".json", ""),
-                                    "%d_%m_%Y-%H:%M",
+                                    "%d_%m_%Y-%H-%M",
                                 )
                                 .ok()
                             })

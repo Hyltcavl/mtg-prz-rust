@@ -5,9 +5,9 @@ use std::fs;
 use crate::cards::card::Vendor;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
+use crate::utils::string_manipulators::date_time_as_string;
 
-const CARDS_PER_PAGE: usize = 50;
-
+// const CARDS_PER_PAGE: usize = 50;
 pub fn generate_html_from_json(
     json_file_path: &str,
     output_dir: &str,
@@ -33,27 +33,30 @@ pub fn generate_html_from_json(
             .push(card);
     }
 
+    let current_date = date_time_as_string(None, None);
+
     // Generate pages for each vendor
     for (vendor, cards) in &vendor_cards {
-        let vendor_dir = format!("{}/{}", output_dir, vendor.to_string().to_lowercase());
-        fs::create_dir_all(&vendor_dir)?;
+        // Genergate vendor directories if they don't exist yet
+        let vendor_directory = format!("{}/{}", output_dir, vendor.to_string().to_lowercase());
+        fs::create_dir_all(&vendor_directory)?;
 
-        let num_pages = (cards.len() + CARDS_PER_PAGE - 1) / CARDS_PER_PAGE;
-
-        for (page_num, chunk) in cards.chunks(CARDS_PER_PAGE).enumerate() {
-            let page_content = generate_page_content(chunk, page_num + 1, num_pages);
-            let file_name = format!("{}/page_{}.html", vendor_dir, page_num + 1);
-            fs::write(&file_name, page_content)?;
-        }
+        let page_content = generate_page_content(cards, &current_date);
+        let file_name = format!("{}/prices.html", vendor_directory);
+        fs::write(&file_name, page_content)?;
 
         // Generate vendor index page
-        let vendor_index = generate_vendor_index_page(vendor, num_pages, cards.len());
-        fs::write(format!("{}/index.html", vendor_dir), vendor_index)?;
+        // let vendor_index = generate_vendor_index_page(vendor, cards.len());
+        // fs::write(format!("{}/index.html", vendor_directory), vendor_index)?;
     }
 
     // Generate main index page
-    let index_content =
-        generate_main_index_page(&vendor_cards, cards.len(), positive_diff_cards.len());
+    let index_content = generate_main_index_page(
+        &vendor_cards,
+        cards.len(),
+        positive_diff_cards.len(),
+        &current_date,
+    );
     fs::write(format!("{}/index.html", output_dir), index_content)?;
 
     // Calculate number of pages
@@ -72,7 +75,7 @@ pub fn generate_html_from_json(
 
     Ok(())
 }
-fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: usize) -> String {
+fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String {
     let mut sorted_cards = cards.to_vec();
     sorted_cards.sort_by(|a, b| {
         a.cheapest_set_price_mcm_sek
@@ -86,7 +89,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MTG Card Price Comparison - Page {}</title>
+        <title>MTG Card Price Comparison, {} </title>
         <style>
             table {{ border-collapse: collapse; width: 70%; }}
             th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
@@ -112,7 +115,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
     </head>
     <body>
-        <h1>MTG Cards with Price Difference - Page {}</h1>
+        <h1>MTG Cards with Price Difference, {}</h1>
         <table id="card-table">
             <thead>
                 <tr>
@@ -126,7 +129,7 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
             </thead>
             <tbody>
     "#,
-        page_num, page_num
+        current_date, current_date
     );
 
     for card in sorted_cards {
@@ -168,17 +171,6 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
 
     // Add pagination links
     content.push_str("<div class='pagination'>");
-    if page_num > 1 {
-        content.push_str(&format!(
-            "<a href='page_{}.html'>Previous</a> ",
-            page_num - 1
-        ));
-    }
-    content.push_str(&format!("Page {} of {} ", page_num, total_pages));
-    if page_num < total_pages {
-        content.push_str(&format!("<a href='page_{}.html'>Next</a>", page_num + 1));
-    }
-    content.push_str("</div>");
 
     content.push_str(
         r#"
@@ -193,41 +185,35 @@ fn generate_page_content(cards: &[&ComparedCard], page_num: usize, total_pages: 
     content
 }
 
-fn generate_vendor_index_page(vendor: &Vendor, total_pages: usize, total_cards: usize) -> String {
-    let mut content = format!(
-        r#"
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{} - Nice prices. Total cards: {}</title>
-    </head>
-    <body>
-        <h1>{} - Nice prices. Total cards: {}</h1>
-        <ul>
-    "#,
-        vendor, total_cards, vendor, total_cards
-    );
+// fn generate_vendor_index_page(vendor: &Vendor, total_cards: usize) -> String {
+//     let mut content = format!(
+//         r#"
+//     <!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//         <meta charset="UTF-8">
+//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//         <title>{} - MTG-prizes. Total cards: {}</title>
+//     </head>
+//     <body>
+//         <h1>{} - MTG-prizes. Total cards: {}</h1>
+//         <ul>
+//     "#,
+//         vendor, total_cards, vendor, total_cards
+//     );
 
-    for i in 1..=total_pages {
-        content.push_str(&format!(
-            "        <li><a href='page_{}.html'>Page {}</a></li>\n",
-            i, i
-        ));
-    }
+//     content.push_str(
+//         "    </ul>\n    <p><a href='../index.html'>Back to main index</a></p>\n</body>\n</html>",
+//     );
 
-    content.push_str(
-        "    </ul>\n    <p><a href='../index.html'>Back to main index</a></p>\n</body>\n</html>",
-    );
-
-    content
-}
+//     content
+// }
 
 fn generate_main_index_page(
     vendor_cards: &HashMap<Vendor, Vec<&ComparedCard>>,
     total_cards: usize,
     total_with_diff: usize,
+    current_date: &str,
 ) -> String {
     let mut content = format!(
         r#"
@@ -236,17 +222,17 @@ fn generate_main_index_page(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff}</title>
+        <title>MTG-prizes</title>
     </head>
     <body>
-        <h1>Nice prices. Total cards: {total_cards}, Total nice price cards: {total_with_diff}</h1>
+        <h1>MTG-prizes {current_date}, Total cards: {total_cards}, Total nice price cards: {total_with_diff}</h1>
         <ul>
     "#
     );
 
     for (vendor, cards) in vendor_cards {
         content.push_str(&format!(
-            "        <li><a href='{}/index.html'>{} ({} cards)</a></li>\n",
+            "        <li><a href='{}/prices.html'>{} ({} cards)</a></li>\n",
             vendor.to_string().to_lowercase(),
             vendor,
             cards.len()

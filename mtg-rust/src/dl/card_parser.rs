@@ -1,7 +1,7 @@
 use regex::Regex;
 use reqwest;
 use scraper::{Html, Selector};
-use std::{error::Error, num::ParseIntError};
+use std::error::Error;
 use tokio::time::Instant;
 
 use crate::cards::card::{CardName, SetName, Vendor, VendorCard};
@@ -268,7 +268,8 @@ mod tests {
     async fn test_fetch_and_parse() {
         init();
         let html_content =
-            fs::read_to_string("/workspaces/mtg-prz-rust/mtg-rust/src/dl/product_search_page.html").unwrap();
+            fs::read_to_string("/workspaces/mtg-prz-rust/mtg-rust/src/dl/product_search_page.html")
+                .unwrap();
 
         let mut server = std::thread::spawn(|| mockito::Server::new())
             .join()
