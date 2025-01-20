@@ -7,3 +7,9 @@ TODO:
 Scan cards
 Manatorsk cards
 
+
+to add dependency:
+cargo add <dependency name>
+
+to add dependency with feature flag:
+cargo add <dependency name> --feature <feature name>

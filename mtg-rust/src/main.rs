@@ -1,5 +1,6 @@
 mod alphaspel;
 mod cards;
+mod delver_lense;
 mod dl;
 mod html;
 mod scryfall;
