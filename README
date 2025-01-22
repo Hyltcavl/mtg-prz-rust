@@ -7,7 +7,6 @@ TODO:
 Scan cards
 Manatorsk cards
 
-
 to add dependency:
 cargo add <dependency name>
 

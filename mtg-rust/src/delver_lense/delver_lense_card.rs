@@ -52,3 +52,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    // use env_logger;
+
+    // fn init() {
+    //     let _ = env_logger::builder().is_test(true).try_init();
+    // }
+
+    #[test]
+    fn test_reading_delver_lense_cards() {
+        // init(); // Initialize logger
+        // init();
+        assert!(main().is_ok());
+    }
+}

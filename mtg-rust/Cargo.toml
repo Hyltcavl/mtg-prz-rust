@@ -1,7 +1,3 @@
-[[bin]]
-name = "delver_lense"
-path = "src/delver_lense/delver_lense_card.rs"
-
 [package]
 name = "mtg-rust"
 version = "0.1.0"
