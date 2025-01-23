@@ -193,3 +193,11 @@ pub struct ScryfallCard {
     pub image_url: String,
     pub prices: Prices,
 }
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub struct PersonalCard {
+    pub name: CardName,
+    pub set: SetName,
+    pub foil: bool,
+    pub price: f64,
+}
