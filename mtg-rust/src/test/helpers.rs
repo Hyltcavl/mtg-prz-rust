@@ -12,6 +12,40 @@ pub fn reaper_king_set_name_2() -> SetName {
     SetName::new("Mystery booster retail edition foils".to_string()).unwrap()
 }
 
+pub fn counterspell_forth_e() -> VendorCard {
+    VendorCard {
+        vendor: Vendor::Dragonslair,
+        name: CardName::new("Counterspell".to_string()).unwrap(),
+        foil: false,
+        image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+        extended_art: false,
+        prerelease: false,
+        showcase: false,
+        set: SetName::new("Magic 25".to_string()).unwrap(),
+        price: 100,
+        trade_in_price: 50,
+        current_stock: 6,
+        max_stock: 4,
+    }
+}
+
+pub fn counterspell_ice_age() -> VendorCard {
+    VendorCard {
+        vendor: Vendor::Dragonslair,
+        name: CardName::new("Counterspell".to_string()).unwrap(),
+        foil: false,
+        image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+        extended_art: false,
+        prerelease: false,
+        showcase: false,
+        set: SetName::new("Ice Age".to_string()).unwrap(),
+        price: 100,
+        trade_in_price: 50,
+        current_stock: 2,
+        max_stock: 4,
+    }
+}
+
 pub fn reaper_king_vendor_card_expensive() -> VendorCard {
     VendorCard {
         vendor: Vendor::Dragonslair,
