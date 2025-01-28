@@ -10,3 +10,4 @@ bfg-repo-cleaner
 output.log
 mtg-rust/output.log
 .vscode/settings.json
+dl_cards_*.json

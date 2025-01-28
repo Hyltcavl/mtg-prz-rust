@@ -200,5 +200,5 @@ pub struct PersonalCard {
     pub set: SetName,
     pub foil: bool,
     pub price: f64,
-    pub count: i8
+    pub count: i8,
 }
