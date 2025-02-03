@@ -153,7 +153,7 @@ fn generate_html_header() -> String {
                 <th data-sort-method="number">MCM price</th>
                 <th data-sort-method="number">Vendor requested amnt</th>
                 <th data-sort-method="number">Tradable cards amnt</th>
-                <th>Color</th>
+                <th data-sort-method="string">Color</th>
                 <th data-sort-method="string">Rarity</th>
             </tr>
         </thead>
@@ -197,7 +197,7 @@ pub fn generate_html_footer() -> String {
             const colorFilter = document.getElementById('colorFilter');
             colorFilter.innerHTML = '<option value="all">All</option>';
             Array.from(colorSet).sort().forEach(color => {
-                colorFilter.innerHTML += `<option value="${color}">${color}</option>`;
+                colorFilter.innerHTML += `<option value='${color}'>${color}</option>`;
             });
         }
 
@@ -255,7 +255,7 @@ fn generate_card_row(card: &TradeableCard) -> String {
 
     let vendor_stock = card.card_ammount_requested_by_vendor;
     let tradable_stock = card.cards_to_trade;
-    let color = card.color.clone();
+    let color = card.color.clone().replace('"', "");
     let rarity = card.rarity;
     format!(
         r#"
@@ -290,79 +290,6 @@ fn generate_page_content(cards: &[TradeableCard]) -> String {
     content
 }
 
-fn generate_html_from_cards(cards: &[TradeableCard]) -> String {
-    let mut html = String::from(
-        r#"<!DOCTYPE html>
-<html>
-<head>
-    <title>Card Trade Overview</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .card { 
-            border: 1px solid #ddd; 
-            padding: 15px; 
-            margin: 10px 0; 
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .profit { color: green; }
-        .loss { color: red; }
-        .header { 
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .price-comparison {
-            display: flex;
-            gap: 20px;
-            margin: 10px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Card Trade Overview</h1>
-    </div>
-"#,
-    );
-
-    for card in cards {
-        html.push_str(&format!(
-            r#"<div class="card">
-    <h2>{} {}</h2>
-    <p><strong>Set:</strong> {}</p>
-    <p><strong>Vendor:</strong> {}</p>
-    <p><strong>Foil:</strong> {}</p>
-    <div class="price-comparison">
-        <div>
-            <strong>Trade-in Price:</strong> {:.2} {:?}
-        </div>
-        <div>
-            <strong>MCM Price:</strong> {:.2} {:?}
-        </div>
-    </div>
-    <p><strong>Cards to Trade:</strong> {}</p>
-    <p><strong>Requested by Vendor:</strong> {}</p>
-</div>"#,
-            card.name.almost_raw,
-            if card.foil { "(Foil)" } else { "" },
-            card.set.raw,
-            card.tradeable_vendor,
-            card.foil,
-            card.trade_in_price.amount,
-            card.trade_in_price.currency,
-            card.mcm_price.amount,
-            card.mcm_price.currency,
-            card.cards_to_trade,
-            card.card_ammount_requested_by_vendor
-        ));
-    }
-
-    html.push_str("</body></html>");
-    html
-}
-
 // Example usage function
 pub fn create_tradable_card_html_page(
     tradable_cards: &Vec<TradeableCard>,
@@ -381,7 +308,7 @@ mod tests {
     #[test]
     fn create_html_page_for_tradable_cards() {
         let mut tradable_cards: Vec<TradeableCard> = load_from_json_file::<Vec<TradeableCard>>(
-            "/workspaces/mtg-prz-rust/tradable_cards_03_02_2025-10-44.json",
+            "/workspaces/mtg-prz-rust/mtg-rust/tradable_cards_03_02_2025-12-43.json",
         )
         .unwrap();
         tradable_cards.sort_by(|a, b| a.cards_to_trade.cmp(&b.cards_to_trade));

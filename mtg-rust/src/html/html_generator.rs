@@ -3,7 +3,6 @@ use std::error::Error;
 use std::fs;
 
 use crate::cards::card::Vendor;
-use crate::delver_lense::show_tradable_cards::generate_html_footer;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 use crate::utils::string_manipulators::date_time_as_string;
@@ -22,61 +21,20 @@ pub fn generate_html_from_json(
         .filter(|card| card.price_difference_to_cheapest_vendor_card > 0)
         .collect();
 
-    // Create output directory if it doesn't exist
-    fs::create_dir_all(output_dir)?;
-
-    let mut vendor_cards: HashMap<Vendor, Vec<&ComparedCard>> = HashMap::new();
-    for card in &positive_diff_cards {
-        let cheapest_vendor_card = card.vendor_cards.iter().min_by_key(|c| c.price).unwrap();
-        vendor_cards
-            .entry(cheapest_vendor_card.vendor.clone())
-            .or_default()
-            .push(card);
-    }
-
     let current_date = date_time_as_string(None, None);
 
-    // Generate pages for each vendor
-    for (vendor, cards) in &vendor_cards {
-        // Genergate vendor directories if they don't exist yet
-        let vendor_directory = format!("{}/{}", output_dir, vendor.to_string().to_lowercase());
-        fs::create_dir_all(&vendor_directory)?;
+    let generate_page_content =
+        generate_page_content(&positive_diff_cards, &current_date, cards.len());
 
-        let page_content = generate_page_content(cards, &current_date);
-        let file_name = format!("{}/prices.html", vendor_directory);
-        fs::write(&file_name, page_content)?;
-
-        // Generate vendor index page
-        // let vendor_index = generate_vendor_index_page(vendor, cards.len());
-        // fs::write(format!("{}/index.html", vendor_directory), vendor_index)?;
-    }
-
-    // Generate main index page
-    let index_content = generate_main_index_page(
-        &vendor_cards,
-        cards.len(),
-        positive_diff_cards.len(),
-        &current_date,
-    );
-    fs::write(format!("{}/index.html", output_dir), index_content)?;
-
-    // Calculate number of pages
-    // let num_pages = (positive_diff_cards.len() + CARDS_PER_PAGE - 1) / CARDS_PER_PAGE;
-
-    // // Generate individual pages
-    // for (page_num, chunk) in positive_diff_cards.chunks(CARDS_PER_PAGE).enumerate() {
-    //     let page_content = generate_page_content(chunk, page_num + 1, num_pages);
-    //     let file_name = format!("{}/page_{}.html", output_dir, page_num + 1);
-    //     fs::write(&file_name, page_content)?;
-    // }
-
-    // // Generate index page
-    // let index_content = generate_index_page(num_pages, cards.len(), positive_diff_cards.len());
-    // fs::write(format!("{}/index.html", output_dir), index_content)?;
+    fs::write(format!("{}/index.html", output_dir), generate_page_content)?;
 
     Ok(())
 }
-fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String {
+fn generate_page_content(
+    cards: &[&ComparedCard],
+    current_date: &str,
+    total_with_diff: usize,
+) -> String {
     let mut sorted_cards = cards.to_vec();
     sorted_cards.sort_by(|a, b| {
         a.cheapest_set_price_mcm_sek
@@ -206,18 +164,14 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
         {}
     </head>
     <body>
-        <h1>MTG Cards with Price Difference, {}</h1>
+        <h1>MTG-prizes {}, Total cards: {}, Total nice price cards: {}</h1>
          <div class="filters">
         <div class="filter-group">
-            <label for="rarityFilter">Rarity:</label>
-            <select id="rarityFilter">
+            <label for="vendorFilter">Vendor:</label>
+            <select id="vendorFilter">
                 <option value="all">All</option>
             </select>
             
-            <label for="colorFilter">Color:</label>
-            <select id="colorFilter">
-                <option value="all">All</option>
-            </select>
             
             <button onclick="resetFilters()">Reset Filters</button>
         </div>
@@ -235,7 +189,11 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
             </thead>
             <tbody>
     "#,
-        current_date, style_and_import, current_date
+        current_date,
+        style_and_import,
+        current_date,
+        cards.len(),
+        total_with_diff
     );
 
     for card in sorted_cards {
@@ -278,39 +236,70 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
     content
 }
 
-fn generate_main_index_page(
-    vendor_cards: &HashMap<Vendor, Vec<&ComparedCard>>,
-    total_cards: usize,
-    total_with_diff: usize,
-    current_date: &str,
-) -> String {
-    let mut content = format!(
-        r#"
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MTG-prizes</title>
-    </head>
-    <body>
-        <h1>MTG-prizes {current_date}, Total cards: {total_cards}, Total nice price cards: {total_with_diff}</h1>
-        <ul>
+pub fn generate_html_footer() -> String {
+    r#"
+        </tbody></table>
+        <div class='pagination'></div>
+        <script>
+        // Initialize Tablesort
+        new Tablesort(document.getElementById('card-table'), {
+            descending: true
+        });
+
+        // Function to populate filter dropdowns dynamically
+        function populateFilters() {
+            const rows = document.querySelectorAll('#card-table tbody tr');
+            const vendorSet = new Set();
+            
+            // Collect unique values
+            rows.forEach(row => {
+                const vendor = row.querySelector('td:nth-child(6)').textContent.trim();                
+                vendorSet.add(vendor);
+            });
+
+            // Populate vendor filter
+            const vendorFilter = document.getElementById('vendorFilter');
+            vendorFilter.innerHTML = '<option value="all">All</option>';
+            Array.from(vendorSet).sort().forEach(vendor => {
+                vendorFilter.innerHTML += `<option value="${vendor}">${vendor}</option>`;
+            });
+        }
+
+        // Filter function
+        function applyFilters() {
+            const vendorFilter = document.getElementById('vendorFilter').value;
+            const rows = document.querySelectorAll('#card-table tbody tr');
+
+            rows.forEach(row => {
+                const vendor = row.querySelector('td:nth-child(6)').textContent.trim();
+                
+                const vendorMatch = vendorFilter === 'all' || vendor === vendorFilter;
+
+                if (vendorMatch) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('vendorFilter').value = 'all';
+            const rows = document.querySelectorAll('#card-table tbody tr');
+            rows.forEach(row => row.classList.remove('hidden'));
+        }
+
+        // Initialize filters
+        populateFilters();
+
+        // Add event listeners to filters
+        document.getElementById('vendorFilter').addEventListener('change', applyFilters);
+    </script>
+    </body>
+    </html>
     "#
-    );
-
-    for (vendor, cards) in vendor_cards {
-        content.push_str(&format!(
-            "        <li><a href='{}/prices.html'>{} ({} cards)</a></li>\n",
-            vendor.to_string().to_lowercase(),
-            vendor,
-            cards.len()
-        ));
-    }
-
-    content.push_str("    </ul>\n</body>\n</html>");
-
-    content
+    .to_string()
 }
 
 #[cfg(test)]
