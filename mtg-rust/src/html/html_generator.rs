@@ -3,6 +3,7 @@ use std::error::Error;
 use std::fs;
 
 use crate::cards::card::Vendor;
+use crate::delver_lense::show_tradable_cards::generate_html_footer;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 use crate::utils::string_manipulators::date_time_as_string;
@@ -82,6 +83,118 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
             .cmp(&b.cheapest_set_price_mcm_sek)
     });
 
+    let style_and_import = r#"
+    <style>
+        table { 
+            border-collapse: collapse; 
+            width: 70%; 
+            margin: 0 auto; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+        th[role="columnheader"]:not(.no-sort):after {
+            content: '';
+            float: right;
+            margin-top: 7px;
+            border-width: 0 4px 4px;
+            border-style: solid;
+            border-color: #404040 transparent;
+            visibility: hidden;
+            opacity: 0;
+            user-select: none;
+        }
+        th[aria-sort="ascending"]:not(.no-sort):after {
+            border-bottom: none;
+            border-width: 4px 4px 0;
+        }
+        th[aria-sort]:not(.no-sort):after {
+            visibility: visible;
+            opacity: 0.4;
+        }
+        th[role="columnheader"]:not(.no-sort):hover:after {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .card-image-container { 
+            position: relative; 
+            display: inline-block; 
+        }
+        .card-image { 
+            width: 40px; 
+            height: auto; 
+            cursor: pointer; 
+        }
+        .enlarged-image {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 80vw;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .card-image-container:hover .enlarged-image { 
+            display: block; 
+        }
+        .pagination { 
+            margin-top: 20px; 
+            text-align: center; 
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .filters {
+            width: 70%;
+            margin: 20px auto;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .filter-group {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select, button {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>"#.to_string();
+
     let mut content = format!(
         r#"
     <!DOCTYPE html>
@@ -90,46 +203,39 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MTG Card Price Comparison, {} </title>
-        <style>
-            table {{ border-collapse: collapse; width: 70%; }}
-            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-            th {{ cursor: pointer; }}
-            .card-image-container {{ position: relative; display: inline-block; }}
-            .card-image {{ width: 40px; height: auto; cursor: pointer; }}
-            .enlarged-image {{
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                max-width: 80vw;
-                max-height: 80vh;
-                width: auto;
-                height: auto;
-                z-index: 1000;
-                box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            }}
-            .card-image-container:hover .enlarged-image {{ display: block; }}
-            .pagination {{ margin-top: 20px; text-align: center; }}
-        </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+        {}
     </head>
     <body>
         <h1>MTG Cards with Price Difference, {}</h1>
+         <div class="filters">
+        <div class="filter-group">
+            <label for="rarityFilter">Rarity:</label>
+            <select id="rarityFilter">
+                <option value="all">All</option>
+            </select>
+            
+            <label for="colorFilter">Color:</label>
+            <select id="colorFilter">
+                <option value="all">All</option>
+            </select>
+            
+            <button onclick="resetFilters()">Reset Filters</button>
+        </div>
+    </div>
         <table id="card-table">
             <thead>
                 <tr>
                     <th>Image</th>
                     <th>Name</th>
-                    <th>Vendor price (SEK)</th>
-                    <th>MCM price (SEK)</th>
-                    <th>Price Difference</th>
+                    <th data-sort-method="number">Vendor price (SEK)</th>
+                    <th data-sort-method="number">MCM price (SEK)</th>
+                    <th data-sort-method="number">Price Difference</th>
                     <th>Vendor</th>
                 </tr>
             </thead>
             <tbody>
     "#,
-        current_date, current_date
+        current_date, style_and_import, current_date
     );
 
     for card in sorted_cards {
@@ -158,56 +264,19 @@ fn generate_page_content(cards: &[&ComparedCard], current_date: &str) -> String 
                         </div>
                     </td>
                     <td>{name} {foil_text}</td>
-                    <td>{cheapest_vendor_price} SEK</td>
-                    <td>{cheapest_mcm_price:.2} SEK</td>
-                    <td>{price_diff:.2} SEK</td>
+                    <td data-sort={cheapest_vendor_price}>{cheapest_vendor_price} SEK</td>
+                    <td data-sort={cheapest_mcm_price:.2}>{cheapest_mcm_price:.2} SEK</td>
+                    <td data-sort={price_diff:.2}>{price_diff:.2} SEK</td>
                     <td>{vendor}</td>
                 </tr>
             "#
         ));
     }
 
-    content.push_str("</tbody></table>");
-
-    // Add pagination links
-    content.push_str("<div class='pagination'>");
-
-    content.push_str(
-        r#"
-        <script>
-            new Tablesort(document.getElementById('card-table'));
-        </script>
-    </body>
-    </html>
-    "#,
-    );
+    content.push_str(generate_html_footer().as_str());
 
     content
 }
-
-// fn generate_vendor_index_page(vendor: &Vendor, total_cards: usize) -> String {
-//     let mut content = format!(
-//         r#"
-//     <!DOCTYPE html>
-//     <html lang="en">
-//     <head>
-//         <meta charset="UTF-8">
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//         <title>{} - MTG-prizes. Total cards: {}</title>
-//     </head>
-//     <body>
-//         <h1>{} - MTG-prizes. Total cards: {}</h1>
-//         <ul>
-//     "#,
-//         vendor, total_cards, vendor, total_cards
-//     );
-
-//     content.push_str(
-//         "    </ul>\n    <p><a href='../index.html'>Back to main index</a></p>\n</body>\n</html>",
-//     );
-
-//     content
-// }
 
 fn generate_main_index_page(
     vendor_cards: &HashMap<Vendor, Vec<&ComparedCard>>,
@@ -242,4 +311,32 @@ fn generate_main_index_page(
     content.push_str("    </ul>\n</body>\n</html>");
 
     content
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::Path;
+
+    #[test]
+    fn test_generate_html_from_json_creates_file() {
+        let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
+        let output_dir = "/workspaces/mtg-prz-rust/test_output";
+
+        // Ensure the output directory is clean
+        // if Path::new(output_dir).exists() {
+        //     fs::remove_dir_all(output_dir).unwrap();
+        // }
+
+        // Call the function
+        generate_html_from_json(json_file_path, output_dir).unwrap();
+
+        // Check that the output directory and index file were created
+        assert!(Path::new(output_dir).exists());
+        // assert!(Path::new(&format!("{}/prices.html", output_dir)).exists());
+
+        // Clean up
+        // fs::remove_dir_all(output_dir).unwrap();
+    }
 }

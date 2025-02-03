@@ -7,7 +7,6 @@ mod scryfall;
 mod test;
 mod utils;
 
-
 use alphaspel::card_parser::download_alpha_cards;
 use cards::card::{CardName, ScryfallCard, VendorCard};
 use dotenv;

@@ -1,26 +1,29 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Currency {
     EUR,
     SEK,
 }
 
 impl Currency {
-    /// Get the exchange rate to EUR for each currency
-    fn to_eur_rate(&self) -> f64 {
+    /// Get the exchange rate based on currency
+    /// Example: 1 SEK = 0.87 EUR (1 EUR = 11.50 SEK)
+    fn exchange_rate(&self) -> f64 {
         match self {
-            Currency::EUR => 1.0, // Base currency
-            Currency::SEK => 0.1, // Example: 1 SEK = 0.1 EUR
+            Currency::EUR => 11.50,
+            Currency::SEK => 0.087,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Price {
-    amount: f64,
-    currency: Currency,
+    pub amount: f64,
+    pub currency: Currency,
 }
 
 impl Price {
@@ -31,7 +34,10 @@ impl Price {
 
     /// Convert the price to EUR for comparison
     fn to_eur(&self) -> f64 {
-        self.amount * self.currency.to_eur_rate()
+        match self.currency {
+            Currency::EUR => self.amount,
+            Currency::SEK => self.amount * self.currency.exchange_rate(),
+        }
     }
 }
 
@@ -41,14 +47,6 @@ impl PartialOrd for Price {
         self.to_eur().partial_cmp(&other.to_eur())
     }
 }
-
-// impl Ord for Price {
-//     fn cmp(&self, other: &Self) -> Ordering {
-//         self.to_eur()
-//             .partial_cmp(&other.to_eur())
-//             .expect("Comparison failed")
-//     }
-// }
 
 // Implement PartialEq for Price
 impl PartialEq for Price {
@@ -60,25 +58,11 @@ impl PartialEq for Price {
 // Implement Display for Price
 impl fmt::Display for Price {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:.2} {:?}", self.amount, self.currency)
-    }
-}
-
-// Example test case
-fn main() {
-    let price_eur = Price::new(5.0, Currency::EUR);
-    let price_sek = Price::new(60.0, Currency::SEK);
-
-    println!("Price in EUR: {}", price_eur);
-    println!("Price in SEK: {}", price_sek);
-
-    // Direct comparison
-    if price_eur < price_sek {
-        println!("EUR price is less than SEK price.");
-    } else if price_eur > price_sek {
-        println!("EUR price is greater than SEK price.");
-    } else {
-        println!("Prices are equal.");
+        let amount_in_sek = match self.currency {
+            Currency::EUR => self.amount * self.currency.exchange_rate(),
+            Currency::SEK => self.amount,
+        };
+        write!(f, "{:.2} {:?}", amount_in_sek, Currency::SEK)
     }
 }
 

@@ -6,12 +6,15 @@ RUST_LOG=debug cargo test --package mtg-rust --bin mtg-rust -- scryfall::scryfal
 Test to get tradable cards:
 RUST_LOG=debug cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delver_lense_card::tests2::test_fetch_card --exact --show-output 
 
-TODO:
-Scan cards
-Manatorsk cards
+RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delver_lense_card::tests2::test_fetch_card --exact --show-output
+
+RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delver_lense_card::tests2::test_fetch_card > output.log 2>&1
 
 to add dependency:
 cargo add <dependency name>
 
 to add dependency with feature flag:
 cargo add <dependency name> --feature <feature name>
+
+TODO:
+Get Manatorsk cards

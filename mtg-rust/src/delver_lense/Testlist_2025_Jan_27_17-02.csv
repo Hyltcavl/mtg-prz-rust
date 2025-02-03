@@ -1,6 +1,6 @@
-Name,Foil,Edition,Price,Quantity
-"Reaper King","Foil","Shadowmoor","200,0 €","1"
-"Reaper King","","Shadowmoor","2,06 €","1"
-"Counterspell","Foil","Fourth Edition","0,94 €","2"
-"Counterspell","","Ice Age","1,24 €","1"
-"Counterspell","","Masters 25","1,10 €","1"
+Name,Foil,Edition,Price,Quantity,Color,Rarity
+"Reaper King","Foil","Shadowmoor","200,0 €","1","wuberg","R"
+"Reaper King","","Shadowmoor","2,06 €","1","wuberg","R"
+"Counterspell","Foil","Fourth Edition","0,94 €","2","blue","C"
+"Counterspell","","Ice Age","1,24 €","1","blue","C"
+"Counterspell","","Masters 25","1,10 €","1","blue","C"

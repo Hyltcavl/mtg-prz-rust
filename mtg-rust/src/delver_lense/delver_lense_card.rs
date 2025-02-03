@@ -1,20 +1,15 @@
 use csv::Reader;
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fs::File, num::ParseFloatError};
+use std::{collections::HashMap, error::Error, fmt, fs::File, num::ParseFloatError};
+use urlencoding::encode;
 
 use crate::{
     cards::card::{CardName, PersonalCard, SetName, Vendor, VendorCard},
+    delver_lense::price::{Currency, Price},
+    delver_lense::show_tradable_cards::create_tradable_card_html_page,
     dl::{card_parser::fetch_and_parse, list_links::get_page_count},
+    utils::{file_management::save_to_json_file, string_manipulators::date_time_as_string},
 };
-
-use super::price::{Currency, Price};
-
-// TODO
-// DONE Add functionality to save the peronal cards not found in the saved vendor cards
-// Chain all functions in the main function
-// Clean the code
-// Make a function to look for the personal cards at the vendor site directly
-// Add Option the main main function to run the comparison and print out the reuslt
 
 #[allow(non_snake_case)]
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -24,18 +19,70 @@ pub struct DelverLenseCard {
     pub Edition: String,
     pub Price: String,
     pub Quantity: String,
+    pub Color: String,
+    pub Rarity: String,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-struct TradeableCard {
-    name: CardName,
-    set: SetName,
-    foil: bool,
-    tradeable_vendor: Vendor,
-    trade_in_price: Price,
-    mcm_price: Price,
-    cards_to_trade: i8,
-    card_ammount_requested_by_vendor: i8,
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, Copy)]
+pub enum MagicColour {
+    White,
+    Blue,
+    Black,
+    Red,
+    Green,
+    Colorless,
+    Multicolored,
+}
+impl fmt::Display for MagicColour {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MagicColour::White => write!(f, "White"),
+            MagicColour::Blue => write!(f, "Blue"),
+            MagicColour::Black => write!(f, "Black"),
+            MagicColour::Red => write!(f, "Red"),
+            MagicColour::Green => write!(f, "Green"),
+            MagicColour::Colorless => write!(f, "Colorless"),
+            MagicColour::Multicolored => write!(f, "Multicolored"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, Copy)]
+pub enum MagicRarity {
+    Common,
+    Uncommon,
+    Rare,
+    Mythic,
+}
+impl fmt::Display for MagicRarity {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MagicRarity::Common => write!(f, "Common"),
+            MagicRarity::Uncommon => write!(f, "Uncommon"),
+            MagicRarity::Rare => write!(f, "Rare"),
+            MagicRarity::Mythic => write!(f, "Mythic"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub struct TradeableCard {
+    pub name: CardName,
+    pub set: SetName,
+    pub foil: bool,
+    pub tradeable_vendor: Vendor,
+    pub trade_in_price: Price,
+    pub mcm_price: Price,
+    pub cards_to_trade: i8,
+    pub card_ammount_requested_by_vendor: i8,
+    #[serde(default = "image_url_default")]
+    pub image_url: String,
+    pub color: String,
+    pub rarity: MagicRarity,
+}
+
+fn image_url_default() -> String {
+    "https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg".to_string()
 }
 
 // Function to read a CSV file and parse it into a vector of MyData
@@ -58,16 +105,22 @@ fn read_csv(file_path: &str) -> Result<Vec<DelverLenseCard>, Box<dyn Error>> {
 
 fn get_tradable_and_leftover_cards(
     personal_cards: Vec<PersonalCard>,
-    vendor_cards: Vec<VendorCard>,
+    vendor_cards: HashMap<CardName, Vec<VendorCard>>,
 ) -> (Vec<TradeableCard>, Vec<PersonalCard>) {
     let mut leftover_cards = vec![];
 
     let t_cards = personal_cards
         .iter()
         .filter_map(|p_card| {
-            let card = vendor_cards.iter().find(|v_card| {
-                v_card.name == p_card.name && v_card.foil == p_card.foil && v_card.set == p_card.set
-            });
+            let card = vendor_cards
+                .get(&p_card.name)
+                .iter()
+                .flat_map(|v| v.iter())
+                .find(|v_card| {
+                    v_card.name == p_card.name
+                        && v_card.foil == p_card.foil
+                        && v_card.set == p_card.set
+                });
 
             match card {
                 Some(v_card) => {
@@ -78,10 +131,13 @@ fn get_tradable_and_leftover_cards(
                             foil: p_card.foil,
                             tradeable_vendor: v_card.vendor.clone(),
                             trade_in_price: Price::new(v_card.trade_in_price.into(), Currency::SEK),
-                            mcm_price: Price::new(p_card.price, Currency::SEK),
+                            mcm_price: Price::new(p_card.price, Currency::EUR),
                             cards_to_trade: p_card.count.clone(),
                             card_ammount_requested_by_vendor: v_card.max_stock
                                 - v_card.current_stock,
+                            image_url: v_card.image_url.clone(),
+                            color: p_card.color.clone(),
+                            rarity: p_card.rarity.clone(),
                         })
                     } else {
                         None
@@ -122,13 +178,17 @@ fn convert_raw_card_to_personal_card(cards: Vec<DelverLenseCard>) -> Vec<Persona
         .map(|card| PersonalCard {
             name: CardName::new(card.Name.clone()).unwrap(),
             set: SetName::new(card.Edition.clone()).unwrap(),
-            foil: match card.Foil.as_str() {
-                "Foil" => true,
-                "" => false,
-                _ => false,
-            },
+            foil: !card.Foil.is_empty(),
             price: convert_price_to_number(card.Price.clone()).unwrap(),
             count: card.Quantity.parse().unwrap(),
+            color: card.Color.as_str().parse().unwrap(),
+            rarity: match card.Rarity.as_str() {
+                "C" => MagicRarity::Common,
+                "U" => MagicRarity::Uncommon,
+                "R" => MagicRarity::Rare,
+                "M" => MagicRarity::Mythic,
+                _ => MagicRarity::Common,
+            },
         })
         .collect::<Vec<PersonalCard>>()
 }
@@ -137,11 +197,10 @@ fn convert_price_to_number(price_as_text: String) -> Result<f64, ParseFloatError
     let res = price_as_text.replace("\u{a0}€", "").replace(",", ".");
     res.parse()
 }
-use urlencoding::encode;
 
 async fn get_tradable_cards(
     file_path: &str,
-    vendor_cards: Vec<VendorCard>,
+    vendor_cards: HashMap<CardName, Vec<VendorCard>>,
 ) -> Result<Vec<TradeableCard>, Box<dyn Error>> {
     let personal_cards = main(file_path).unwrap();
     let (mut tradable_cards, leftover_personal_cards) =
@@ -169,20 +228,29 @@ async fn get_tradable_cards(
             .collect::<Vec<String>>();
 
         for url in urls {
-            log::debug!("Fetching url: {}", url);
+            log::info!("Fetching url: {}", url);
             let mut cards = fetch_and_parse(&url).await.unwrap();
-            log::debug!("Fetched cards: {:?}", &cards);
+            log::info!("Fetched cards: {:?}", &cards);
             vendor_cards_with_same_name_as_leftover.append(&mut cards);
         }
     }
+    let mut grouped_vendor_cards: HashMap<CardName, Vec<VendorCard>> = HashMap::new();
+    for card in &vendor_cards_with_same_name_as_leftover {
+        grouped_vendor_cards
+            .entry(card.name.clone())
+            .or_insert_with(Vec::new)
+            .push(card.clone());
+    }
 
-    let (mut more_tradable_cards, unwanted_cards) = get_tradable_and_leftover_cards(
-        leftover_personal_cards,
-        vendor_cards_with_same_name_as_leftover,
-    );
+    let (mut more_tradable_cards, unwanted_cards) =
+        get_tradable_and_leftover_cards(leftover_personal_cards, grouped_vendor_cards);
     tradable_cards.append(&mut more_tradable_cards);
 
     log::debug!("tradable cards: {:?}", &tradable_cards);
+
+    let path = format!("./tradable_cards_{}.json", date_time_as_string(None, None));
+    save_to_json_file(&path, &tradable_cards)?;
+    create_tradable_card_html_page(&tradable_cards)?;
 
     return Ok(tradable_cards);
 }
@@ -206,6 +274,8 @@ mod tests {
             Edition: "Shadowmoor".to_string(),
             Price: "200,00 €".to_string(),
             Quantity: "1".to_string(),
+            Color: "wuberg".to_string(),
+            Rarity: "R".to_string(),
         }
     }
     fn card_2() -> DelverLenseCard {
@@ -215,6 +285,8 @@ mod tests {
             Edition: "Shadowmoor".to_string(),
             Price: "2,06 €".to_string(),
             Quantity: "1".to_string(),
+            Color: "wuberg".to_string(),
+            Rarity: "R".to_string(),
         }
     }
     fn card_3() -> DelverLenseCard {
@@ -224,6 +296,8 @@ mod tests {
             Edition: "Fourth Edition".to_string(),
             Price: "0,94 €".to_string(),
             Quantity: "2".to_string(),
+            Color: "blue".to_string(),
+            Rarity: "C".to_string(),
         }
     }
     fn card_4() -> DelverLenseCard {
@@ -233,6 +307,8 @@ mod tests {
             Edition: "Ice Age".to_string(),
             Price: "1,24 €".to_string(),
             Quantity: "1".to_string(),
+            Color: "blue".to_string(),
+            Rarity: "C".to_string(),
         }
     }
     fn card_5() -> DelverLenseCard {
@@ -242,6 +318,8 @@ mod tests {
             Edition: "Masters 25".to_string(),
             Price: "1,10 €".to_string(),
             Quantity: "1".to_string(),
+            Color: "blue".to_string(),
+            Rarity: "C".to_string(),
         }
     }
 
@@ -264,6 +342,13 @@ mod tests {
         let card5 = counterspell_ice_age();
 
         let vendor_cards = vec![card1, card2, card3, card4, card5];
+        let mut vendor_cards_map: HashMap<CardName, Vec<VendorCard>> = HashMap::new();
+        for card in &vendor_cards {
+            vendor_cards_map
+                .entry(card.name.clone())
+                .or_insert_with(Vec::new)
+                .push(card.clone());
+        }
 
         let raw_cards = vec![card_1(), card_2(), card_3(), card_4(), card_5()];
         let personal_cards = convert_raw_card_to_personal_card(raw_cards);
@@ -274,9 +359,12 @@ mod tests {
             foil: true,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(100.0, Currency::SEK),
-            mcm_price: Price::new(200.0, Currency::SEK),
+            mcm_price: Price::new(200.0, Currency::EUR),
             cards_to_trade: 1,
             card_ammount_requested_by_vendor: 1,
+            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            color: "wuberg".to_string(),
+            rarity: MagicRarity::Rare,
         };
         let tradeable_card2 = TradeableCard {
             name: CardName::new("Reaper King".to_string()).unwrap(),
@@ -284,9 +372,12 @@ mod tests {
             foil: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
-            mcm_price: Price::new(2.06, Currency::SEK),
+            mcm_price: Price::new(2.06, Currency::EUR),
             cards_to_trade: 1,
             card_ammount_requested_by_vendor: 1,
+            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            color: "wuberg".to_string(),
+            rarity: MagicRarity::Rare,
         };
 
         let tradeable_card4 = TradeableCard {
@@ -295,14 +386,16 @@ mod tests {
             foil: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
-            mcm_price: Price::new(1.24, Currency::SEK),
+            mcm_price: Price::new(1.24, Currency::EUR),
             cards_to_trade: 1,
             card_ammount_requested_by_vendor: 2,
+            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            color: "blue".to_string(),
+            rarity: MagicRarity::Common,
         };
-
         let expected_cards = vec![tradeable_card1, tradeable_card2, tradeable_card4];
         let (result_v_cards, leftover_cards) =
-            get_tradable_and_leftover_cards(personal_cards.clone(), vendor_cards);
+            get_tradable_and_leftover_cards(personal_cards.clone(), vendor_cards_map);
 
         assert_eq!(result_v_cards, expected_cards);
         assert_eq!(
@@ -316,6 +409,13 @@ mod tests {
         let card5 = counterspell_ice_age();
 
         let vendor_cards = vec![card5];
+        let mut vendor_cards_map: HashMap<CardName, Vec<VendorCard>> = HashMap::new();
+        for card in &vendor_cards {
+            vendor_cards_map
+                .entry(card.name.clone())
+                .or_insert_with(Vec::new)
+                .push(card.clone());
+        }
 
         let raw_cards = vec![card_1(), card_4()];
         let personal_cards = convert_raw_card_to_personal_card(raw_cards);
@@ -326,9 +426,12 @@ mod tests {
             foil: true,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(100.0, Currency::SEK),
-            mcm_price: Price::new(200.0, Currency::SEK),
+            mcm_price: Price::new(200.0, Currency::EUR),
             cards_to_trade: 1,
             card_ammount_requested_by_vendor: 1,
+            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            color: "wuberg".to_string(),
+            rarity: MagicRarity::Rare,
         };
 
         let tradeable_card4 = TradeableCard {
@@ -337,16 +440,19 @@ mod tests {
             foil: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
-            mcm_price: Price::new(1.24, Currency::SEK),
+            mcm_price: Price::new(1.24, Currency::EUR),
             cards_to_trade: 1,
             card_ammount_requested_by_vendor: 2,
+            image_url: "https://astraeus.dragonslair.se/images/4026/product".to_string(),
+            color: "blue".to_string(),
+            rarity: MagicRarity::Common,
         };
 
         let expected_tradable_cards = vec![tradeable_card4];
         let expected_leftover_cards = vec![personal_cards[0].clone()];
 
         let (result_v_cards, leftover_cards) =
-            get_tradable_and_leftover_cards(personal_cards, vendor_cards);
+            get_tradable_and_leftover_cards(personal_cards, vendor_cards_map);
 
         assert_eq!(result_v_cards, expected_tradable_cards);
         assert_eq!(leftover_cards, expected_leftover_cards);
@@ -356,11 +462,8 @@ mod tests {
 #[cfg(test)]
 mod tests2 {
     use super::*;
-    use crate::{
-        cards::card, dl::list_links::get_page_count,
-        test::helpers::reaper_king_vendor_card_expensive,
-    };
-    use std::fs;
+    use crate::utils::file_management::load_from_json_file;
+    use std::collections::HashMap;
     use tokio;
 
     fn init() {
@@ -370,9 +473,14 @@ mod tests2 {
     #[tokio::test]
     async fn test_fetch_card() {
         init();
-        let file_path =
-            "/workspaces/mtg-prz-rust/mtg-rust/src/delver_lense/Testlist_2025_Jan_27_17-02.csv";
-        let tradable_cards = get_tradable_cards(file_path, vec![]).await;
+        let file_path = "/workspaces/mtg-prz-rust/Common_uncommons__2025_Feb_03_10-58.csv";
+        let vendor_cards: HashMap<CardName, Vec<VendorCard>> =
+            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(
+                "/workspaces/mtg-prz-rust/dl_cards_31_01_2025-05-39.json",
+            )
+            .unwrap();
+
+        let tradable_cards = get_tradable_cards(file_path, vendor_cards).await;
         for card in tradable_cards.unwrap() {
             log::info!("Card: {:?}", card);
         }

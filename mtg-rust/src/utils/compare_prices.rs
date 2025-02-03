@@ -365,6 +365,7 @@ mod tests {
             reaper_king_scryfall_card_expensive, reaper_king_vendor_card_cheap,
             reaper_king_vendor_card_expensive, reaper_king_vendor_card_foil,
         },
+        utils::file_management::save_to_json_file,
     };
 
     use env_logger;
@@ -468,5 +469,6 @@ mod tests {
         assert_eq!(sorted_result[0], lifecraft);
         assert_eq!(sorted_result[1], non_foil_card);
         assert_eq!(sorted_result[2], foil_card);
+
     }
 }

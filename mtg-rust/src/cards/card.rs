@@ -6,6 +6,8 @@ use std::{
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::delver_lense::delver_lense_card::MagicRarity;
+
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SetName {
     pub raw: String,
@@ -201,4 +203,6 @@ pub struct PersonalCard {
     pub foil: bool,
     pub price: f64,
     pub count: i8,
+    pub color: String,
+    pub rarity: MagicRarity,
 }
