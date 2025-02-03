@@ -365,7 +365,6 @@ mod tests {
             reaper_king_scryfall_card_expensive, reaper_king_vendor_card_cheap,
             reaper_king_vendor_card_expensive, reaper_king_vendor_card_foil,
         },
-        utils::file_management::save_to_json_file,
     };
 
     use env_logger;

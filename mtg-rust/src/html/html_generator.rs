@@ -1,8 +1,6 @@
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 
-use crate::cards::card::Vendor;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 use crate::utils::string_manipulators::date_time_as_string;
@@ -305,7 +303,6 @@ pub fn generate_html_footer() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use std::path::Path;
 
     #[test]
@@ -313,19 +310,10 @@ mod tests {
         let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
         let output_dir = "/workspaces/mtg-prz-rust/test_output";
 
-        // Ensure the output directory is clean
-        // if Path::new(output_dir).exists() {
-        //     fs::remove_dir_all(output_dir).unwrap();
-        // }
-
         // Call the function
         generate_html_from_json(json_file_path, output_dir).unwrap();
 
         // Check that the output directory and index file were created
         assert!(Path::new(output_dir).exists());
-        // assert!(Path::new(&format!("{}/prices.html", output_dir)).exists());
-
-        // Clean up
-        // fs::remove_dir_all(output_dir).unwrap();
     }
 }

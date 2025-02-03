@@ -117,89 +117,36 @@ async fn main() {
     let start_time = chrono::prelude::Local::now();
 
     // Check for environment variables
-    let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
-    let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
-    let alpha = env::var("ALPHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let (dl, scryfall, alpha) = check_env_vars();
 
-    let mut scryfall_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
-    let mut dl_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
-    let mut alpha_cards_path: Result<String, Box<dyn std::error::Error>> = Ok("".to_string());
-
-    // Use feature flags in combination with environment variables
-    if dl {
+    let dl_cards_path = if dl {
         log::info!("Downloading Dragonslair cards...");
-        dl_cards_path = prepare_dl_cards().await;
-    }
+        prepare_dl_cards().await
+    } else {
+        Ok(get_newest_file_path("dragonslair_cards", "dl_cards_"))
+    };
 
-    if scryfall {
+    let scryfall_cards_path = if scryfall {
         log::info!("Downloading Scryfall cards...");
-        scryfall_cards_path = download_scryfall_cards(None).await;
-    }
-
-    if alpha {
-        log::info!("Downloading Alphaspel cards...");
-        alpha_cards_path = download_alpha_cards("https://alphaspel.se").await;
-    }
-
-    let dl_cards: HashMap<CardName, Vec<VendorCard>>;
-    if !dl {
-        log::info!("Loading existing Dragonslair cards...");
-        let path = get_newest_file(
-            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards",
-            "dl_cards_",
-        )
-        .unwrap();
-        dl_cards =
-            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(path.to_str().unwrap())
-                .unwrap();
+        download_scryfall_cards(None).await
     } else {
-        dl_cards =
-            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(&dl_cards_path.unwrap())
-                .unwrap();
-    }
-
-    let alpha_cards: HashMap<CardName, Vec<VendorCard>>;
-    if !alpha {
-        log::info!("Loading existing Alphaspel cards...");
-        let path = get_newest_file(
-            "/workspaces/mtg-prz-rust/mtg-rust/alphaspel_cards",
-            "alphaspel_cards_",
-        )
-        .unwrap();
-        alpha_cards =
-            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(path.to_str().unwrap())
-                .unwrap();
-    } else {
-        alpha_cards =
-            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(&alpha_cards_path.unwrap())
-                .unwrap();
-    }
-
-    let scryfall_prices: HashMap<CardName, Vec<ScryfallCard>>;
-    if !scryfall {
-        log::info!("Loading existing Scryfall cards...");
-        let path = get_newest_file(
-            "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices",
+        Ok(get_newest_file_path(
+            "scryfall_prices",
             "parsed_scryfall_cards_",
-        )
-        .unwrap();
-        scryfall_prices =
-            load_from_json_file::<HashMap<CardName, Vec<ScryfallCard>>>(path.to_str().unwrap())
-                .unwrap();
+        ))
+    };
+
+    let alpha_cards_path = if alpha {
+        log::info!("Downloading Alphaspel cards...");
+        download_alpha_cards("https://alphaspel.se").await
     } else {
-        scryfall_prices = load_from_json_file::<HashMap<CardName, Vec<ScryfallCard>>>(
-            &scryfall_cards_path.unwrap(),
-        )
-        .unwrap();
-    }
+        Ok(get_newest_file_path("alphaspel_cards", "alphaspel_cards_"))
+    };
+    let dl_cards = load_cards(dl_cards_path, "Dragonslair").unwrap_or_default();
+    let alpha_cards = load_cards(alpha_cards_path, "Alphaspel").unwrap_or_default();
+    let scryfall_prices = load_cards(scryfall_cards_path, "Scryfall").unwrap_or_default();
 
     let vendor_cards = merge_card_maps(dl_cards, alpha_cards);
-
-    // let dl_keys: Vec<&CardName> = dl_cards.keys().collect();
-    // let sampled_keys: Vec<&CardName> = dl_keys.iter().take(10).cloned().collect();
-
-    // let scryfall_keys: Vec<&CardName> = scryfall_prices.keys().collect();
-    // let scryfall_sample_keys: Vec<&CardName> = scryfall_keys.iter().take(10).cloned().collect();
 
     let sample_prices: HashMap<CardName, Vec<ScryfallCard>> = scryfall_prices
         .iter()
@@ -236,6 +183,42 @@ async fn main() {
         (end_time - start_time).num_seconds(),
         compared_cards_path
     );
+}
+
+fn check_env_vars() -> (bool, bool, bool) {
+    let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
+    let alpha = env::var("ALPHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
+    (dl, scryfall, alpha)
+}
+
+fn get_newest_file_path(folder: &str, prefix: &str) -> String {
+    get_newest_file(
+        &format!("/workspaces/mtg-prz-rust/mtg-rust/{}", folder),
+        prefix,
+    )
+    .unwrap()
+    .to_str()
+    .unwrap()
+    .to_owned()
+}
+
+fn load_cards<T>(
+    path: Result<String, Box<dyn std::error::Error>>,
+    card_type: &str,
+) -> Result<HashMap<CardName, Vec<T>>, Box<dyn std::error::Error>>
+where
+    T: serde::de::DeserializeOwned,
+{
+    log::info!("Loading existing {} cards...", card_type);
+    path.and_then(|p| load_from_json_file::<HashMap<CardName, Vec<T>>>(&p).map_err(|e| e.into()))
+        .or_else(|_| {
+            log::warn!(
+                "No existing {} cards found, using empty collection.",
+                card_type
+            );
+            Ok(HashMap::new())
+        })
 }
 
 fn merge_card_maps(
