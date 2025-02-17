@@ -4,6 +4,8 @@ use std::{
     hash::{Hash, Hasher},
 };
 
+use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
+
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::delver_lense::delver_lense_card::MagicRarity;
@@ -163,6 +165,17 @@ impl fmt::Display for Vendor {
             Vendor::Dragonslair => write!(f, "Dragonslair"),
             Vendor::Alphaspel => write!(f, "Alphaspel"),
             Vendor::Cardmarket => write!(f, "Cardmarket"),
+        }
+    }
+}
+
+impl FromSql for Vendor {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        match value.as_str()? {
+            "Dragonslair" => Ok(Vendor::Dragonslair),
+            "Alphaspel" => Ok(Vendor::Alphaspel),
+            "Cardmarket" => Ok(Vendor::Cardmarket),
+            _ => Err(FromSqlError::InvalidType),
         }
     }
 }

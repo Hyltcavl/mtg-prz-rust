@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::utils::file_management::load_from_json_file;
+use crate::{delver_lense::price::Currency, utils::file_management::load_from_json_file};
 
 use super::delver_lense_card::TradeableCard;
 
@@ -141,7 +141,9 @@ fn generate_html_header() -> String {
             </select>
             
             <button onclick="resetFilters()">Reset Filters</button>
+            <button onclick="filterValueTrades()">Show Value Trades</button>
         </div>
+        <input type="checkbox" id="valueTradeFilter" class="hidden">
     </div>
 
     <table id="card-table">
@@ -155,6 +157,7 @@ fn generate_html_header() -> String {
                 <th data-sort-method="number">Tradable cards amnt</th>
                 <th data-sort-method="string">Color</th>
                 <th data-sort-method="string">Rarity</th>
+                <th data-sort-method="number">% Diff</th>
             </tr>
         </thead>
         <tbody>
@@ -205,16 +208,18 @@ pub fn generate_html_footer() -> String {
         function applyFilters() {
             const rarityFilter = document.getElementById('rarityFilter').value;
             const colorFilter = document.getElementById('colorFilter').value;
+            const showValueTrades = document.getElementById('valueTradeFilter').checked;
             const rows = document.querySelectorAll('#card-table tbody tr');
 
             rows.forEach(row => {
                 const rarity = row.querySelector('td:nth-child(8)').textContent.trim();
                 const color = row.querySelector('td:nth-child(7)').textContent.trim();
+                const isValueTrade = row.dataset.valueTrade === 'true';
                 
                 const rarityMatch = rarityFilter === 'all' || rarity === rarityFilter;
                 const colorMatch = colorFilter === 'all' || color === colorFilter;
 
-                if (rarityMatch && colorMatch) {
+                if (rarityMatch && colorMatch && (!showValueTrades || isValueTrade)) {
                     row.classList.remove('hidden');
                 } else {
                     row.classList.add('hidden');
@@ -226,8 +231,15 @@ pub fn generate_html_footer() -> String {
         function resetFilters() {
             document.getElementById('rarityFilter').value = 'all';
             document.getElementById('colorFilter').value = 'all';
+            document.getElementById('valueTradeFilter').checked = false;
             const rows = document.querySelectorAll('#card-table tbody tr');
             rows.forEach(row => row.classList.remove('hidden'));
+        }
+
+        // Filter value trades
+        function filterValueTrades() {
+            document.getElementById('valueTradeFilter').checked = true;
+            applyFilters();
         }
 
         // Initialize filters
@@ -236,6 +248,7 @@ pub fn generate_html_footer() -> String {
         // Add event listeners to filters
         document.getElementById('rarityFilter').addEventListener('change', applyFilters);
         document.getElementById('colorFilter').addEventListener('change', applyFilters);
+        document.getElementById('valueTradeFilter').addEventListener('change', applyFilters);
     </script>
     </body>
     </html>
@@ -247,19 +260,23 @@ fn generate_card_row(card: &TradeableCard) -> String {
     let image_url = card.image_url.clone();
     let name = card.name.almost_raw.clone();
     let foil_text = if card.foil { " (Foil)" } else { "" };
-    let trade_in_price = card.trade_in_price;
-    let trade_in_price_p = card.trade_in_price.amount;
+    let trade_in_price_sek = card.trade_in_price.convert_to(Currency::SEK);
 
-    let mcm_price = card.mcm_price;
-    let mcm_price_p = card.mcm_price.amount;
+    let mcm_price_sek = card.mcm_price.convert_to(Currency::SEK);
 
     let vendor_stock = card.card_ammount_requested_by_vendor;
     let tradable_stock = card.cards_to_trade;
     let color = card.color.clone().replace('"', "");
     let rarity = card.rarity;
+    let percentual_difference = if mcm_price_sek > 0.0 && trade_in_price_sek > mcm_price_sek {
+        ((trade_in_price_sek - mcm_price_sek) / mcm_price_sek) * 100.0
+    } else {
+        0.0
+    };
+    let is_value_trade = percentual_difference >= 50.0;
     format!(
         r#"
-        <tr>
+        <tr data-value-trade="{is_value_trade}">
             <td>
                 <div class="card-image-container ">
                     <img class="card-image" src="{image_url}" alt="{name}">
@@ -267,13 +284,13 @@ fn generate_card_row(card: &TradeableCard) -> String {
                 </div>
             </td>
             <td>{name} {foil_text}</td>
-            <td data-sort={trade_in_price_p}>{trade_in_price} </td>
-            <td data-sort={mcm_price_p}>{mcm_price:.2} </td>
-            <td data-sort={vendor_stock:.2}>{vendor_stock:.2} </td>
+            <td data-sort={trade_in_price_sek:.2}>{trade_in_price_sek:.2} SEK</td>
+            <td data-sort={mcm_price_sek:.2}>{mcm_price_sek:.2} SEK</td>
+            <td data-sort={vendor_stock:.2}>{vendor_stock:.2}</td>
             <td data-sort={tradable_stock}>{tradable_stock}</td>
             <td>{color:?}</td>
             <td>{rarity:?}</td>
-
+            <td data-sort={percentual_difference:.2}>{percentual_difference:.2}%</td>
         </tr>
         "#
     )

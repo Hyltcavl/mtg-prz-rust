@@ -17,4 +17,6 @@ to add dependency with feature flag:
 cargo add <dependency name> --feature <feature name>
 
 TODO:
+Add the function to be able to see what cards are new
+Be able to save my tradable cards in the repository or somewhere else
 Get Manatorsk cards

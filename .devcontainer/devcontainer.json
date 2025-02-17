@@ -2,13 +2,21 @@
   "image": "mcr.microsoft.com/devcontainers/rust:1",
   "postCreateCommand": "sh ./.devcontainer/post_create.sh",
   "features": {
-    "ghcr.io/devcontainers/features/rust:1": {}
+    "ghcr.io/devcontainers/features/rust:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
   "customizations": {
     "vscode": {
       "extensions": [
         "1YiB.rust-bundle",
-        "ms-vscode.live-server"
+        "ms-vscode.live-server",
+        "fnando.linter",
+        "dustypomerleau.rust-syntax",
+        "rust-lang.rust-analyzer",
+        "fill-labs.dependi",
+        "ms-azuretools.vscode-docker",
+        "ms-vsliveshare.vsliveshare",
+        "ritwickdey.LiveServer"
       ]
     }
   }

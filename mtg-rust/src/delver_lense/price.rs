@@ -1,6 +1,7 @@
-use std::cmp::Ordering;
 use std::fmt;
+use std::{cmp::Ordering, str::FromStr};
 
+use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
@@ -20,10 +21,40 @@ impl Currency {
     }
 }
 
+impl fmt::Display for Currency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Currency::EUR => write!(f, "EUR"),
+            Currency::SEK => write!(f, "SEK"),
+        }
+    }
+}
+impl FromStr for Currency {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "SEK" => Ok(Currency::SEK),
+            "EUR" => Ok(Currency::EUR),
+            _ => Err(()),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Price {
     pub amount: f64,
     pub currency: Currency,
+}
+
+impl FromSql for Currency {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        match value.as_str()? {
+            "EUR" => Ok(Currency::EUR),
+            "SEK" => Ok(Currency::SEK),
+            _ => Err(FromSqlError::InvalidType),
+        }
+    }
 }
 
 impl Price {
@@ -37,6 +68,19 @@ impl Price {
         match self.currency {
             Currency::EUR => self.amount,
             Currency::SEK => self.amount * self.currency.exchange_rate(),
+        }
+    }
+
+    /// Convert the price to the specified currency
+    pub fn convert_to(&self, target_currency: Currency) -> f64 {
+        if self.currency == target_currency {
+            self.amount
+        } else {
+            let amount_in_eur = self.to_eur();
+            match target_currency {
+                Currency::EUR => amount_in_eur,
+                Currency::SEK => amount_in_eur * Currency::EUR.exchange_rate(),
+            }
         }
     }
 }
@@ -79,5 +123,16 @@ mod tests {
         assert_eq!(price_eur < price_sek, true);
         assert_eq!(price_eur > price_sek, false);
         assert_eq!(price_sek2 == price_sek, true);
+    }
+
+    #[test]
+    fn test_price_conversion() {
+        let price_eur = Price::new(5.0, Currency::EUR);
+        let price_sek = Price::new(60.0, Currency::SEK);
+
+        assert_eq!(price_eur.convert_to(Currency::EUR), 5.0);
+        assert_eq!(price_eur.convert_to(Currency::SEK), 57.5);
+        assert_eq!(price_sek.convert_to(Currency::SEK), 60.0);
+        assert_eq!(price_sek.convert_to(Currency::EUR), 5.22);
     }
 }

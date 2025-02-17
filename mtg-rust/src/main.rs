@@ -6,6 +6,7 @@ mod html;
 mod scryfall;
 mod test;
 mod utils;
+pub mod db;
 
 use alphaspel::card_parser::download_alpha_cards;
 use cards::card::{CardName, ScryfallCard, VendorCard};

@@ -16,3 +16,4 @@ cards.html
 mtg-rust/tradable_cards_31_01_2025-15-56.json
 test_output/*
 Common_uncommons_*.csv
+mtg-rust/output.log

@@ -1,4 +1,250 @@
+   Compiling libc v0.2.169
+   Compiling smallvec v1.13.2
+   Compiling cfg-if v1.0.0
+   Compiling memchr v2.7.4
+   Compiling siphasher v1.0.1
+   Compiling stable_deref_trait v1.2.0
+   Compiling phf_shared v0.11.3
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.12
+   Compiling parking_lot_core v0.9.10
+   Compiling itoa v1.0.14
+   Compiling pin-project-lite v0.2.16
+   Compiling zerofrom v0.1.5
+   Compiling parking_lot v0.12.3
+   Compiling phf_generator v0.11.3
+   Compiling futures-core v0.3.31
+   Compiling yoke v0.7.5
+   Compiling futures-sink v0.3.31
+   Compiling bytes v1.10.0
+   Compiling zerovec v0.10.4
+   Compiling once_cell v1.20.3
+   Compiling slab v0.4.9
+   Compiling log v0.4.25
+   Compiling tinystr v0.7.6
+   Compiling futures-channel v0.3.31
+   Compiling socket2 v0.5.8
+   Compiling signal-hook-registry v1.4.2
+   Compiling mio v1.0.3
+   Compiling bitflags v2.8.0
+   Compiling futures-io v0.3.31
+   Compiling writeable v0.5.5
+   Compiling pin-utils v0.1.0
+   Compiling litemap v0.7.4
+   Compiling futures-task v0.3.31
+   Compiling futures-util v0.3.31
+   Compiling icu_locid v1.5.0
+   Compiling tokio v1.43.0
+   Compiling serde v1.0.217
+   Compiling phf_codegen v0.11.3
+   Compiling fnv v1.0.7
+   Compiling http v1.2.0
+   Compiling icu_provider v1.5.0
+   Compiling icu_locid_transform_data v1.5.0
+   Compiling new_debug_unreachable v1.0.6
+   Compiling icu_locid_transform v1.5.0
+   Compiling icu_collections v1.5.0
+   Compiling tracing-core v0.1.33
+   Compiling phf_macros v0.11.3
+   Compiling icu_properties_data v1.5.0
+   Compiling equivalent v1.0.1
+   Compiling hashbrown v0.15.2
+   Compiling foreign-types-shared v0.1.1
+   Compiling foreign-types v0.3.2
+   Compiling indexmap v2.7.1
+   Compiling phf v0.11.3
+   Compiling icu_properties v1.5.1
+   Compiling tracing v0.1.41
+   Compiling http-body v1.0.1
+   Compiling tokio-util v0.7.13
+   Compiling openssl-sys v0.9.105
+   Compiling string_cache_codegen v0.5.3
+   Compiling mac v0.1.1
+   Compiling precomputed-hash v0.1.1
+   Compiling utf16_iter v1.0.5
+   Compiling write16 v1.0.0
+   Compiling try-lock v0.2.5
+   Compiling atomic-waker v1.1.2
+   Compiling icu_normalizer_data v1.5.0
+   Compiling utf8_iter v1.0.4
+   Compiling markup5ever v0.14.1
+   Compiling icu_normalizer v1.5.0
+   Compiling h2 v0.4.7
+   Compiling want v0.3.1
+   Compiling futf v0.1.5
+   Compiling openssl v0.10.70
+   Compiling httparse v1.10.0
+   Compiling aho-corasick v1.1.3
+   Compiling dtoa v1.0.9
+   Compiling ryu v1.0.19
+   Compiling openssl-probe v0.1.6
+   Compiling tower-service v0.3.3
+   Compiling percent-encoding v2.3.1
+   Compiling utf-8 v0.7.6
+   Compiling regex-syntax v0.8.5
+   Compiling regex-automata v0.4.9
+   Compiling tendril v0.4.3
+   Compiling form_urlencoded v1.2.1
+   Compiling native-tls v0.2.13
+   Compiling dtoa-short v0.3.5
+   Compiling hyper v1.6.0
+   Compiling idna_adapter v1.2.0
+   Compiling string_cache v0.8.8
+   Compiling selectors v0.26.0
+   Compiling byteorder v1.5.0
+   Compiling utf8parse v0.2.2
+   Compiling fxhash v0.2.1
+   Compiling anstyle-parse v0.2.6
+   Compiling cssparser v0.34.0
+   Compiling idna v1.0.3
+   Compiling hyper-util v0.1.10
+   Compiling tokio-native-tls v0.3.1
+   Compiling regex v1.11.1
+   Compiling http-body-util v0.1.2
+   Compiling sync_wrapper v1.0.2
+   Compiling servo_arc v0.4.0
+   Compiling colorchoice v1.0.3
+   Compiling anstyle-query v1.1.2
+   Compiling rustls-pki-types v1.11.0
+   Compiling linux-raw-sys v0.4.15
+   Compiling unicode-width v0.1.14
+   Compiling tower-layer v0.3.3
+   Compiling anstyle v1.0.10
+   Compiling is_terminal_polyfill v1.70.1
+   Compiling getopts v0.2.21
+   Compiling anstream v0.6.18
+   Compiling tower v0.5.2
+   Compiling rustix v0.38.44
+   Compiling rustls-pemfile v2.2.0
+   Compiling html5ever v0.29.1
+   Compiling hyper-tls v0.6.0
+   Compiling env_filter v0.1.3
+   Compiling url v2.5.4
+   Compiling num-traits v0.2.19
+   Compiling getrandom v0.3.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling futures-executor v0.3.31
+   Compiling csv-core v0.1.11
+   Compiling encoding_rs v0.8.35
+   Compiling fastrand v2.3.0
+   Compiling ego-tree v0.10.0
+   Compiling either v1.13.0
+   Compiling mime v0.3.17
+   Compiling humantime v2.1.0
+   Compiling ipnet v2.11.0
+   Compiling iana-time-zone v0.1.61
+   Compiling base64 v0.22.1
+   Compiling chrono v0.4.39
+   Compiling reqwest v0.12.12
+   Compiling env_logger v0.11.6
+   Compiling itertools v0.14.0
+   Compiling scraper v0.22.0
+   Compiling tempfile v3.16.0
+   Compiling csv v1.3.1
+   Compiling futures v0.3.31
+   Compiling serde_json v1.0.138
+   Compiling urlencoding v2.1.3
+   Compiling dotenv v0.15.0
    Compiling mtg-rust v0.1.0 (/workspaces/mtg-prz-rust/mtg-rust)
+warning: unused import: `crate::utils::file_management::load_from_json_file`
+ --> src/delver_lense/show_tradable_cards.rs:3:5
+  |
+3 | use crate::utils::file_management::load_from_json_file;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Error`
+ --> src/utils/mtg_stock_price_checker.rs:4:18
+  |
+4 | use serde_json::{Error, Value};
+  |                  ^^^^^
+
+warning: unused variable: `unwanted_cards`
+   --> src/delver_lense/delver_lense_card.rs:245:35
+    |
+245 |     let (mut more_tradable_cards, unwanted_cards) =
+    |                                   ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_unwanted_cards`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: function `read_csv` is never used
+  --> src/delver_lense/delver_lense_card.rs:89:4
+   |
+89 | fn read_csv(file_path: &str) -> Result<Vec<DelverLenseCard>, Box<dyn Error>> {
+   |    ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: function `get_tradable_and_leftover_cards` is never used
+   --> src/delver_lense/delver_lense_card.rs:106:4
+    |
+106 | fn get_tradable_and_leftover_cards(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `main` is never used
+   --> src/delver_lense/delver_lense_card.rs:157:4
+    |
+157 | fn main(file_path: &str) -> Result<Vec<PersonalCard>, Box<dyn Error>> {
+    |    ^^^^
+
+warning: function `convert_raw_card_to_personal_card` is never used
+   --> src/delver_lense/delver_lense_card.rs:175:4
+    |
+175 | fn convert_raw_card_to_personal_card(cards: Vec<DelverLenseCard>) -> Vec<PersonalCard> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `convert_price_to_number` is never used
+   --> src/delver_lense/delver_lense_card.rs:196:4
+    |
+196 | fn convert_price_to_number(price_as_text: String) -> Result<f64, ParseFloatError> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `get_tradable_cards` is never used
+   --> src/delver_lense/delver_lense_card.rs:201:10
+    |
+201 | async fn get_tradable_cards(
+    |          ^^^^^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> src/delver_lense/price.rs:31:12
+   |
+29 | impl Price {
+   | ---------- associated function in this implementation
+30 |     /// Create a new Price instance
+31 |     pub fn new(amount: f64, currency: Currency) -> Self {
+   |            ^^^
+
+warning: function `generate_html_header` is never used
+ --> src/delver_lense/show_tradable_cards.rs:7:4
+  |
+7 | fn generate_html_header() -> String {
+  |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `generate_html_footer` is never used
+   --> src/delver_lense/show_tradable_cards.rs:164:8
+    |
+164 | pub fn generate_html_footer() -> String {
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `generate_card_row` is never used
+   --> src/delver_lense/show_tradable_cards.rs:246:4
+    |
+246 | fn generate_card_row(card: &TradeableCard) -> String {
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `generate_page_content` is never used
+   --> src/delver_lense/show_tradable_cards.rs:282:4
+    |
+282 | fn generate_page_content(cards: &[TradeableCard]) -> String {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `create_tradable_card_html_page` is never used
+   --> src/delver_lense/show_tradable_cards.rs:294:8
+    |
+294 | pub fn create_tradable_card_html_page(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 warning: field `0` is never read
   --> src/utils/mtg_stock_price_checker.rs:14:18
    |
@@ -7,7 +253,7 @@ warning: field `0` is never read
    |     |
    |     field in this variant
    |
-   = note: `#[warn(dead_code)]` on by default
+   = note: `MtgPriceError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
 help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
    |
 14 |     RequestError(()),
@@ -16,134 +262,43 @@ help: consider changing the field to be of unit type to suppress this warning wh
 warning: field `0` is never read
   --> src/utils/mtg_stock_price_checker.rs:17:16
    |
-17 |     OtherError(Error),
-   |     ---------- ^^^^^
+17 |     OtherError(serde_json::Error),
+   |     ---------- ^^^^^^^^^^^^^^^^^
    |     |
    |     field in this variant
    |
+   = note: `MtgPriceError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
 help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
    |
 17 |     OtherError(()),
    |                ~~
 
-warning: variants `NoCardFound` and `BadApiResponse` are never constructed
-  --> src/utils/mtg_stock_price_checker.rs:15:5
-   |
-13 | pub enum MtgPriceError {
-   |          ------------- variants in this enum
-14 |     RequestError(reqwest::Error),
-15 |     NoCardFound,
-   |     ^^^^^^^^^^^
-16 |     BadApiResponse(String),
-   |     ^^^^^^^^^^^^^^
-   |
-   = note: `MtgPriceError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-
-warning: `mtg-rust` (bin "mtg-rust") generated 3 warnings
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.11s
+warning: `mtg-rust` (bin "mtg-rust") generated 17 warnings (run `cargo fix --bin "mtg-rust"` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 05s
      Running `target/debug/mtg-rust`
-[2024-09-05T19:34:04Z INFO  mtg_rust] Starting
-[2024-09-05T19:34:04Z INFO  mtg_rust] Loading existing Dragonslair cards...
-[2024-09-05T19:34:04Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_05_09_2024-19:07.json
-[2024-09-05T19:34:05Z INFO  mtg_rust] Loading existing Scryfall cards...
-[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:20.json
-[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/parsed_scryfall_cards_05_09_2024-19:20.json
-[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/parsed_scryfall_cards_05_09_2024-19:15.json
-[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:15.json
-[2024-09-05T19:34:05Z INFO  mtg_rust::utils::file_management] Found file: /workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/samplecards_05_09_2024-19:25.json
-[2024-09-05T19:34:08Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Cragsmasher Yeti' because of: No price found for card 'Cragsmasher Yeti'
-[2024-09-05T19:34:08Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Cragsmasher Yeti
-[2024-09-05T19:34:08Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Lost Jitte' because of: No price found for card 'Lost Jitte'
-[2024-09-05T19:34:08Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Lost Jitte
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Charging Hooligan' because of: No price found for card 'Charging Hooligan'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Charging Hooligan
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Wildwood Mentor' because of: No price found for card 'Wildwood Mentor'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Wildwood Mentor
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Wildwood Mentor: No price found for card 'Wildwood Mentor'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Wildwood Mentor
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Yuma, Proud Protector: No price found for card 'Yuma, Proud Protector'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Yuma, Proud Protector
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Dovin, Architect of Law' because of: No price found for card 'Dovin, Architect of Law'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Dovin, Architect of Law
-[2024-09-05T19:34:09Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Legolas's Quick Reflexes' because of: No price found for card 'Legolas's Quick Reflexes'
-[2024-09-05T19:34:09Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Legolas's Quick Reflexes
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Legolas's Quick Reflexes: No price found for card 'Legolas's Quick Reflexes'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Legolas's Quick Reflexes
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Become Brutes' because of: No price found for card 'Become Brutes'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Become Brutes
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Tawnos, Urza's Apprentice' because of: No price found for card 'Tawnos, Urza's Apprentice'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Tawnos, Urza's Apprentice
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Hunting Velociraptor' because of: No price found for card 'Hunting Velociraptor'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Hunting Velociraptor
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Ransom Note' because of: No price found for card 'Ransom Note'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Ransom Note
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Sandstorm Salvager' because of: No price found for card 'Sandstorm Salvager'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Sandstorm Salvager
-[2024-09-05T19:34:10Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Sword of Wealth and Power' because of: No price found for card 'Sword of Wealth and Power'
-[2024-09-05T19:34:10Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Sword of Wealth and Power
-[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Rootpath Purifier' because of: No price found for card 'Rootpath Purifier'
-[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Rootpath Purifier
-[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Nazahn, Revered Bladesmith' because of: No price found for card 'Nazahn, Revered Bladesmith'
-[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Nazahn, Revered Bladesmith
-[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Kaust, Eyes of the Glade' because of: No price found for card 'Kaust, Eyes of the Glade'
-[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Kaust, Eyes of the Glade
-[2024-09-05T19:34:11Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Compy Swarm' because of: No price found for card 'Compy Swarm'
-[2024-09-05T19:34:11Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Compy Swarm
-[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Disciple of Caelus Nin: No price found for card 'Disciple of Caelus Nin'
-[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Disciple of Caelus Nin
-[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Generous Plunderer: No price found for card 'Generous Plunderer'
-[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Generous Plunderer
-[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Ellie and Alan, Paleontologists' because of: No price found for card 'Ellie and Alan, Paleontologists'
-[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Ellie and Alan, Paleontologists
-[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Duskana, the Rage Mother' because of: No price found for card 'Duskana, the Rage Mother'
-[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Duskana, the Rage Mother
-[2024-09-05T19:34:12Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Fomori Vault' because of: No price found for card 'Fomori Vault'
-[2024-09-05T19:34:12Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Fomori Vault
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Blaster, Combat DJ // Blaster, Morale Booster' because of: No price found for card 'Blaster, Combat DJ // Blaster, Morale Booster'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Blaster, Combat DJ // Blaster, Morale Booster
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Archaeomancer's Map: No price found for card 'Archaeomancer's Map'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Archaeomancer's Map
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Molten Duplication' because of: No price found for card 'Molten Duplication'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Molten Duplication
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Esoteric Duplicator' because of: No price found for card 'Esoteric Duplicator'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Esoteric Duplicator
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Katilda and Lier' because of: No price found for card 'Katilda and Lier'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Katilda and Lier
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Katilda and Lier: No price found for card 'Katilda and Lier'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Katilda and Lier
-[2024-09-05T19:34:13Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Permission Denied' because of: No price found for card 'Permission Denied'
-[2024-09-05T19:34:13Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Permission Denied
-[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Memory Vessel' because of: No price found for card 'Memory Vessel'
-[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Memory Vessel
-[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Grim Giganotosaurus' because of: No price found for card 'Grim Giganotosaurus'
-[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Grim Giganotosaurus
-[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Don't Move' because of: No price found for card 'Don't Move'
-[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Don't Move
-[2024-09-05T19:34:14Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Don't Move: No price found for card 'Don't Move'
-[2024-09-05T19:34:14Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Don't Move
-[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Tolarian Winds: No price found for card 'Tolarian Winds'
-[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Tolarian Winds
-[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Crusade' because of: No price found for card 'Crusade'
-[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Crusade
-[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Cresting Mosasaurus: No price found for card 'Cresting Mosasaurus'
-[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Cresting Mosasaurus
-[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Zephyr Winder' because of: No price found for card 'Zephyr Winder'
-[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Zephyr Winder
-[2024-09-05T19:34:15Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Loot, the Key to Everything' because of: No price found for card 'Loot, the Key to Everything'
-[2024-09-05T19:34:15Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Loot, the Key to Everything
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Lotus Ring' because of: No price found for card 'Lotus Ring'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Lotus Ring
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Slimefoot and Squee' because of: No price found for card 'Slimefoot and Squee'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Slimefoot and Squee
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Slimefoot and Squee: No price found for card 'Slimefoot and Squee'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Slimefoot and Squee
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Artificer's Dragon' because of: No price found for card 'Artificer's Dragon'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Artificer's Dragon
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Harvester of Misery' because of: No price found for card 'Harvester of Misery'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Harvester of Misery
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest scryfall card 'Woodcaller Automaton' because of: No price found for card 'Woodcaller Automaton'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Woodcaller Automaton
-[2024-09-05T19:34:16Z ERROR mtg_rust::utils::compare_prices] Error finding cheapest foil scryfall card for Woodcaller Automaton: No price found for card 'Woodcaller Automaton'
-[2024-09-05T19:34:16Z INFO  mtg_rust::utils::mtg_stock_price_checker] Fetching live prices for card: Woodcaller Automaton
-[2024-09-05T19:34:17Z INFO  mtg_rust::utils::compare_prices] Compared prices started at: 2024-09-05 19:34:08.685323261 +00:00. Finished at: 2024-09-05 19:34:17.085987216 +00:00. Took: 8, ComparedPrices list size: 14955
-[2024-09-05T19:34:17Z INFO  mtg_rust] Run started at: 2024-09-05 19:34:04.606155496 +00:00. Finished at: 2024-09-05 19:34:17.563626884 +00:00. Took: 12, compared prices in: "compared_prices/compared_prices_05_09_2024-19:34.json"
+[2025-02-09T20:09:35Z INFO  mtg_rust] Starting
+[2025-02-09T20:09:35Z INFO  mtg_rust] Downloading Dragonslair cards...
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 0
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 1
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 2
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 3
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 4
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 5
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 6
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 7
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 8
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 9
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 10
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 11
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 12
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 13
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 15
+[2025-02-09T20:09:35Z INFO  mtg_rust] Fetching DL cards with cmc: 16
+[2025-02-09T20:10:14Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Mistral Charger
+[2025-02-09T20:10:14Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Don't Make a Sound
+[2025-02-09T20:10:59Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Commander's Sphere
+[2025-02-09T20:11:00Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Moldervine Cloak
+[2025-02-09T20:11:41Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Sunweb
+[2025-02-09T20:12:42Z ERROR mtg_rust::dl::card_parser] Error parsing price: No price available, for card: Shroudstomper
+[2025-02-09T20:12:50Z INFO  mtg_rust] DL scan started at: 2025-02-09 20:09:35.218054387 +00:00. Finished at: 2025-02-09 20:12:50.508249873 +00:00. Took: 195 seconds and with 20587 cards on dl_cards_path: dragonslair_cards/dl_cards_09_02_2025-20-12.json
+[2025-02-09T20:12:50Z INFO  mtg_rust] Downloading Scryfall cards...

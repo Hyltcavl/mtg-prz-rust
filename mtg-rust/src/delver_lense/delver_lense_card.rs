@@ -1,4 +1,5 @@
 use csv::Reader;
+use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, error::Error, fmt, fs::File, num::ParseFloatError};
 use urlencoding::encode;
@@ -54,6 +55,19 @@ pub enum MagicRarity {
     Rare,
     Mythic,
 }
+
+impl FromSql for MagicRarity {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        match value.as_str()? {
+            "Common" => Ok(MagicRarity::Common),
+            "Uncommon" => Ok(MagicRarity::Uncommon),
+            "Rare" => Ok(MagicRarity::Rare),
+            "Mythic" => Ok(MagicRarity::Mythic),
+            _ => Err(FromSqlError::InvalidType),
+        }
+    }
+}
+
 impl fmt::Display for MagicRarity {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
