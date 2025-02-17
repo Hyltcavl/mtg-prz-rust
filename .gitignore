@@ -12,7 +12,6 @@ mtg-rust/output.log
 .vscode/settings.json
 dl_cards_*.json
 All_Cards_2025_Jan_31_16-16.csv
-cards.html
 mtg-rust/tradable_cards_31_01_2025-15-56.json
 test_output/*
 Common_uncommons_*.csv
