@@ -150,7 +150,7 @@ fn generate_html_header() -> String {
         <thead>
             <tr>
                 <th class="no-sort">Image</th>
-                <th>Name</th>
+                <th>Name/Set</th>
                 <th data-sort-method="number">Trade-in price</th>
                 <th data-sort-method="number">MCM price</th>
                 <th data-sort-method="number">Vendor requested amnt</th>
@@ -259,6 +259,7 @@ pub fn generate_html_footer() -> String {
 fn generate_card_row(card: &TradeableCard) -> String {
     let image_url = card.image_url.clone();
     let name = card.name.almost_raw.clone();
+    let set_name = card.set.raw.clone();
     let foil_text = if card.foil { " (Foil)" } else { "" };
     let trade_in_price_sek = card.trade_in_price.convert_to(Currency::SEK);
 
@@ -283,7 +284,7 @@ fn generate_card_row(card: &TradeableCard) -> String {
                     <img class="enlarged-image" src="{image_url}" alt="{name}">
                 </div>
             </td>
-            <td>{name} {foil_text}</td>
+            <td>{name} {foil_text}/{set_name} </td>
             <td data-sort={trade_in_price_sek:.2}>{trade_in_price_sek:.2} SEK</td>
             <td data-sort={mcm_price_sek:.2}>{mcm_price_sek:.2} SEK</td>
             <td data-sort={vendor_stock:.2}>{vendor_stock:.2}</td>
