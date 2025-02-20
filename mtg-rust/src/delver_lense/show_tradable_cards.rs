@@ -140,6 +140,12 @@ fn generate_html_header() -> String {
                 <option value="all">All</option>
             </select>
             
+            <label for="minPriceFilter">Min Trade-in Price:</label>
+            <input type="number" id="minPriceFilter" step="0.01" placeholder="0.00">
+            
+            <label for="minDiffFilter">Min % Diff:</label>
+            <input type="number" id="minDiffFilter" step="0.01" placeholder="0.00">
+            
             <button onclick="resetFilters()">Reset Filters</button>
             <button onclick="filterValueTrades()">Show Value Trades</button>
         </div>
@@ -209,17 +215,23 @@ pub fn generate_html_footer() -> String {
             const rarityFilter = document.getElementById('rarityFilter').value;
             const colorFilter = document.getElementById('colorFilter').value;
             const showValueTrades = document.getElementById('valueTradeFilter').checked;
+            const minPriceFilter = parseFloat(document.getElementById('minPriceFilter').value) || 0;
+            const minDiffFilter = parseFloat(document.getElementById('minDiffFilter').value) || 0;
             const rows = document.querySelectorAll('#card-table tbody tr');
 
             rows.forEach(row => {
                 const rarity = row.querySelector('td:nth-child(8)').textContent.trim();
                 const color = row.querySelector('td:nth-child(7)').textContent.trim();
+                const tradeInPrice = parseFloat(row.querySelector('td:nth-child(3)').dataset.sort);
+                const percentualDifference = parseFloat(row.querySelector('td:nth-child(9)').dataset.sort);
                 const isValueTrade = row.dataset.valueTrade === 'true';
                 
                 const rarityMatch = rarityFilter === 'all' || rarity === rarityFilter;
                 const colorMatch = colorFilter === 'all' || color === colorFilter;
+                const minPriceMatch = tradeInPrice >= minPriceFilter;
+                const minDiffMatch = percentualDifference >= minDiffFilter;
 
-                if (rarityMatch && colorMatch && (!showValueTrades || isValueTrade)) {
+                if (rarityMatch && colorMatch && minPriceMatch && minDiffMatch && (!showValueTrades || isValueTrade)) {
                     row.classList.remove('hidden');
                 } else {
                     row.classList.add('hidden');
@@ -231,7 +243,9 @@ pub fn generate_html_footer() -> String {
         function resetFilters() {
             document.getElementById('rarityFilter').value = 'all';
             document.getElementById('colorFilter').value = 'all';
+            document.getElementById('minPriceFilter').value = '';
             document.getElementById('valueTradeFilter').checked = false;
+            document.getElementById('minDiffFilter').value = '';
             const rows = document.querySelectorAll('#card-table tbody tr');
             rows.forEach(row => row.classList.remove('hidden'));
         }
@@ -249,6 +263,8 @@ pub fn generate_html_footer() -> String {
         document.getElementById('rarityFilter').addEventListener('change', applyFilters);
         document.getElementById('colorFilter').addEventListener('change', applyFilters);
         document.getElementById('valueTradeFilter').addEventListener('change', applyFilters);
+        document.getElementById('minPriceFilter').addEventListener('input', applyFilters);
+        document.getElementById('minDiffFilter').addEventListener('input', applyFilters);
     </script>
     </body>
     </html>
@@ -326,7 +342,7 @@ mod tests {
     #[test]
     fn create_html_page_for_tradable_cards() {
         let mut tradable_cards: Vec<TradeableCard> = load_from_json_file::<Vec<TradeableCard>>(
-            "/workspaces/mtg-prz-rust/mtg-rust/tradable_cards_03_02_2025-12-43.json",
+            "/workspaces/mtg-prz-rust/mtg-rust/tradable_cards_20_02_2025-16-32.json",
         )
         .unwrap();
         tradable_cards.sort_by(|a, b| a.cards_to_trade.cmp(&b.cards_to_trade));

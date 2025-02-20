@@ -487,10 +487,10 @@ mod tests2 {
     #[tokio::test]
     async fn test_fetch_card() {
         init();
-        let file_path = "/workspaces/mtg-prz-rust/Common_uncommons__2025_Feb_03_10-58.csv";
+        let file_path = "/workspaces/mtg-prz-rust/All_Cards_2025_Feb_19_16-14.csv";
         let vendor_cards: HashMap<CardName, Vec<VendorCard>> =
             load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(
-                "/workspaces/mtg-prz-rust/dl_cards_31_01_2025-05-39.json",
+                "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_09_02_2025-20-12.json",
             )
             .unwrap();
 

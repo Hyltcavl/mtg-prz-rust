@@ -1,10 +1,25 @@
 use std::error::Error;
 use std::fs;
 
+use crate::config::CONFIG;
 use crate::utils::compare_prices::ComparedCard;
 use crate::utils::file_management::load_from_json_file;
 use crate::utils::string_manipulators::date_time_as_string;
 
+// Filter cards based on nice_price_diff
+// A positive diff means that the card is atleast that much cheaper on MCM trend than the cheapest vendor price
+// A negative diff means that the card is at most that much more expensive on MCM trend than the cheapest vendor price
+// This diff is only applied on cards that have a MCM trend price of atleast 15 SEK, anything below must have a positive diff
+pub fn filter_nice_price_cards(cards: &Vec<ComparedCard>) -> Vec<&ComparedCard> {
+    cards
+        .iter()
+        .filter(|card| {
+            (card.cheapest_set_price_mcm_sek <= 30
+                && card.price_difference_to_cheapest_vendor_card > -5)
+                || card.price_difference_to_cheapest_vendor_card >= CONFIG.nice_price_diff
+        })
+        .collect()
+}
 // const CARDS_PER_PAGE: usize = 50;
 pub fn generate_html_from_json(
     json_file_path: &str,
@@ -14,10 +29,7 @@ pub fn generate_html_from_json(
     let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path)?;
 
     // Filter cards with positive price difference
-    let positive_diff_cards: Vec<&ComparedCard> = cards
-        .iter()
-        .filter(|card| card.price_difference_to_cheapest_vendor_card > 0)
-        .collect();
+    let positive_diff_cards: Vec<&ComparedCard> = filter_nice_price_cards(&cards);
 
     let current_date = date_time_as_string(None, None);
 
@@ -304,6 +316,7 @@ pub fn generate_html_footer() -> String {
 mod tests {
     use super::*;
     use std::path::Path;
+use std::env;
 
     #[test]
     fn test_generate_html_from_json_creates_file() {
@@ -315,5 +328,24 @@ mod tests {
 
         // Check that the output directory and index file were created
         assert!(Path::new(output_dir).exists());
+    }
+
+    #[test]
+    fn test_filter_nice_price_cards_default_config() {
+        let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
+        let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
+        let nice_price_cards = filter_nice_price_cards(&cards);
+        assert_eq!(nice_price_cards.len(), 7);
+    }
+
+    #[test]
+    fn test_filter_nice_price_cards_custom_config() {
+        let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
+        let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
+
+        // Temporarily change the CONFIG for this test
+        env::set_var("NICE_PRICE_DIFF", "-20");
+        let nice_price_cards = filter_nice_price_cards(&cards);
+        assert_eq!(nice_price_cards.len(), 9);
     }
 }

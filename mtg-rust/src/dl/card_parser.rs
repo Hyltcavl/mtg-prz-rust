@@ -197,9 +197,10 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             Ok(price) => price,
             Err(e) => {
                 log::error!(
-                    "Error parsing price: {}, for card: {}",
+                    "Error parsing price. Error {}, for card: {} in set {}",
                     e,
-                    card_name.almost_raw
+                    card_name.almost_raw,
+                    set_name.raw
                 );
                 continue;
             }

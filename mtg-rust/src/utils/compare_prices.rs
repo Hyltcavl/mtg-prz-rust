@@ -14,6 +14,7 @@ pub struct ComparedCard {
     pub foil: bool,
     pub vendor: Vendor,
     pub cheapest_set_price_mcm_sek: i32,
+    // Positive here is a cheaper vendor card then the MCM. The amount is the difference in SEK
     pub price_difference_to_cheapest_vendor_card: i32,
     pub vendor_cards: Vec<VendorCard>,
 }
@@ -197,13 +198,13 @@ pub async fn compare_foil_card_price(
         };
 
     //-Calculate the price difference
-    let cheapest_price_sek = cheapest_mcm_card_foil_price * currency_rate_eur_to_sek;
+    let cheapest_MCM_price_sek = cheapest_mcm_card_foil_price * currency_rate_eur_to_sek;
     Ok(ComparedCard {
         name: lowest_price_vendor_card.name.almost_raw.to_owned(),
         foil: true,
         vendor: lowest_price_vendor_card.vendor.to_owned(),
-        cheapest_set_price_mcm_sek: cheapest_price_sek.ceil() as i32,
-        price_difference_to_cheapest_vendor_card: cheapest_price_sek.ceil() as i32
+        cheapest_set_price_mcm_sek: cheapest_MCM_price_sek.ceil() as i32,
+        price_difference_to_cheapest_vendor_card: cheapest_MCM_price_sek.ceil() as i32
             - lowest_price_vendor_card.price,
         vendor_cards,
     })
@@ -304,7 +305,6 @@ pub async fn compare_prices(
 
         // TODO: Cache for scryfall cards
         // Then for each (foil and non-foil)
-
         let compare_card_price = compare_card_price(
             non_foil,
             &scryfall_card_map,
@@ -468,6 +468,5 @@ mod tests {
         assert_eq!(sorted_result[0], lifecraft);
         assert_eq!(sorted_result[1], non_foil_card);
         assert_eq!(sorted_result[2], foil_card);
-
     }
 }

@@ -18,7 +18,7 @@
           "raw": "Aether Revolt",
           "cleaned": "aether revolt"
         },
-        "price": 100,
+        "price": 13,
         "trade_in_price": 50,
         "current_stock": 1,
         "max_stock": 2
@@ -29,8 +29,8 @@
     "name": "Reaper King",
     "foil": false,
     "vendor": "Dragonslair",
-    "cheapest_set_price_mcm_sek": 6,
-    "price_difference_to_cheapest_vendor_card": 10,
+    "cheapest_set_price_mcm_sek": 9,
+    "price_difference_to_cheapest_vendor_card": -2,
     "vendor_cards": [
       {
         "name": "Reaper King",
@@ -44,8 +44,8 @@
           "raw": "Shadowmoor",
           "cleaned": "shadowmoor"
         },
-        "price": 100,
-        "trade_in_price": 50,
+        "price": 11,
+        "trade_in_price": 8,
         "current_stock": 1,
         "max_stock": 2
       },
@@ -61,8 +61,8 @@
           "raw": "Mystery booster retail edition foils",
           "cleaned": "mystery booster retail edition foils"
         },
-        "price": 50,
-        "trade_in_price": 40,
+        "price": 12,
+        "trade_in_price": 8,
         "current_stock": 1,
         "max_stock": 2
       }
@@ -87,8 +87,8 @@
           "raw": "Shadowmoor",
           "cleaned": "shadowmoor"
         },
-        "price": 200,
-        "trade_in_price": 100,
+        "price": 11,
+        "trade_in_price": 8,
         "current_stock": 1,
         "max_stock": 2
       }
@@ -184,6 +184,110 @@
         },
         "price": 200,
         "trade_in_price": 100,
+        "current_stock": 1,
+        "max_stock": 2
+      }
+    ]
+  },
+  {
+    "name": "Cheap card",
+    "foil": true,
+    "vendor": "Alphaspel",
+    "cheapest_set_price_mcm_sek": 9,
+    "price_difference_to_cheapest_vendor_card": 0,
+    "vendor_cards": [
+      {
+        "name": "Cheap card",
+        "vendor": "Alphaspel",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/4026/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Shadowmoor",
+          "cleaned": "shadowmoor"
+        },
+        "price": 9,
+        "trade_in_price": 5,
+        "current_stock": 1,
+        "max_stock": 2
+      }
+    ]
+  },
+  {
+    "name": "Expencie, but nice price",
+    "foil": true,
+    "vendor": "Alphaspel",
+    "cheapest_set_price_mcm_sek": 200,
+    "price_difference_to_cheapest_vendor_card": 50,
+    "vendor_cards": [
+      {
+        "name": "Cheap card",
+        "vendor": "Alphaspel",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/4026/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Shadowmoor",
+          "cleaned": "shadowmoor"
+        },
+        "price": 150,
+        "trade_in_price": 90,
+        "current_stock": 1,
+        "max_stock": 2
+      }
+    ]
+  },
+  {
+    "name": "Expencive, and over priced but still nice price",
+    "foil": true,
+    "vendor": "Alphaspel",
+    "cheapest_set_price_mcm_sek": 200,
+    "price_difference_to_cheapest_vendor_card": -20,
+    "vendor_cards": [
+      {
+        "name": "Cheap card",
+        "vendor": "Alphaspel",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/4026/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Shadowmoor",
+          "cleaned": "shadowmoor"
+        },
+        "price": 220,
+        "trade_in_price": 90,
+        "current_stock": 1,
+        "max_stock": 2
+      }
+    ]
+  },
+  {
+    "name": "never nice price card",
+    "foil": true,
+    "vendor": "Alphaspel",
+    "cheapest_set_price_mcm_sek": 200,
+    "price_difference_to_cheapest_vendor_card": -100,
+    "vendor_cards": [
+      {
+        "name": "Cheap card",
+        "vendor": "Alphaspel",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/4026/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Shadowmoor",
+          "cleaned": "shadowmoor"
+        },
+        "price": 300,
+        "trade_in_price": 90,
         "current_stock": 1,
         "max_stock": 2
       }

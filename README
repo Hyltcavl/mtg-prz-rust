@@ -1,6 +1,8 @@
 run command:  RUST_LOG=info DL=1 SCRYFALL=1 ALPHASPEL=1 cargo run > output.log 2>&1
 RUST_LOG=debug DL=0 SCRYFALL=0 ALPHASPEL=0 cargo run > output.log 2>&1
 
+RUST_LOG=debug DL=0 SCRYFALL=0 ALPHASPEL=0 NICE_PRICE_DIFF=-20 cargo run > output.log 2>&1
+
 RUST_LOG=debug cargo test --package mtg-rust --bin mtg-rust -- scryfall::scryfall_mcm_cards::tests --show-output 
 
 Test to get tradable cards:
@@ -17,6 +19,6 @@ to add dependency with feature flag:
 cargo add <dependency name> --feature <feature name>
 
 TODO:
-Add the function to be able to see what cards are 
-Be able to save my tradable cards in the repository or somewhere else
+implementera ett minimi filter på index sidan
+renskriv/refaktorera all kod
 Get Manatorsk cards

@@ -1,15 +1,17 @@
 mod alphaspel;
 mod cards;
+pub mod config;
+pub mod db;
 mod delver_lense;
 mod dl;
 mod html;
 mod scryfall;
 mod test;
 mod utils;
-pub mod db;
 
 use alphaspel::card_parser::download_alpha_cards;
 use cards::card::{CardName, ScryfallCard, VendorCard};
+use config::CONFIG;
 use dotenv;
 use env_logger;
 use html::html_generator::generate_html_from_json;
@@ -17,7 +19,6 @@ use log;
 use utils::compare_prices::{compare_prices, ComparedCard};
 
 use std::collections::HashMap;
-use std::env;
 use std::sync::Arc;
 
 use dl::card_parser::fetch_and_parse;
@@ -117,31 +118,26 @@ async fn main() {
 
     let start_time = chrono::prelude::Local::now();
 
-    // Check for environment variables
-    let (dl, scryfall, alpha) = check_env_vars();
-
-    let dl_cards_path = if dl {
+    // Use the global CONFIG
+    let dl_cards_path = if CONFIG.dl {
         log::info!("Downloading Dragonslair cards...");
         prepare_dl_cards().await
     } else {
-        Ok(get_newest_file_path("dragonslair_cards", "dl_cards_"))
+        get_newest_file_path("dragonslair_cards", "dl_cards_")
     };
 
-    let scryfall_cards_path = if scryfall {
+    let scryfall_cards_path = if CONFIG.scryfall {
         log::info!("Downloading Scryfall cards...");
         download_scryfall_cards(None).await
     } else {
-        Ok(get_newest_file_path(
-            "scryfall_prices",
-            "parsed_scryfall_cards_",
-        ))
+        get_newest_file_path("scryfall_prices", "parsed_scryfall_cards_")
     };
 
-    let alpha_cards_path = if alpha {
+    let alpha_cards_path = if CONFIG.alpha {
         log::info!("Downloading Alphaspel cards...");
         download_alpha_cards("https://alphaspel.se").await
     } else {
-        Ok(get_newest_file_path("alphaspel_cards", "alphaspel_cards_"))
+        get_newest_file_path("alphaspel_cards", "alphaspel_cards_")
     };
     let dl_cards = load_cards(dl_cards_path, "Dragonslair").unwrap_or_default();
     let alpha_cards = load_cards(alpha_cards_path, "Alphaspel").unwrap_or_default();
@@ -186,22 +182,14 @@ async fn main() {
     );
 }
 
-fn check_env_vars() -> (bool, bool, bool) {
-    let dl = env::var("DL").unwrap_or("1".to_owned()) == "1".to_owned();
-    let scryfall = env::var("SCRYFALL").unwrap_or("1".to_owned()) == "1".to_owned();
-    let alpha = env::var("ALPHASPEL").unwrap_or("1".to_owned()) == "1".to_owned();
-    (dl, scryfall, alpha)
-}
-
-fn get_newest_file_path(folder: &str, prefix: &str) -> String {
+fn get_newest_file_path(folder: &str, prefix: &str) -> Result<String, Box<dyn std::error::Error>> {
     get_newest_file(
         &format!("/workspaces/mtg-prz-rust/mtg-rust/{}", folder),
         prefix,
-    )
-    .unwrap()
+    )?
     .to_str()
-    .unwrap()
-    .to_owned()
+    .map(|s| s.to_owned())
+    .ok_or_else(|| "Failed to convert path to string".into())
 }
 
 fn load_cards<T>(
