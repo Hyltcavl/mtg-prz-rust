@@ -132,6 +132,7 @@ async fn main() {
     } else {
         get_newest_file_path("scryfall_prices", "parsed_scryfall_cards_")
     };
+    log::info!("Scryfall cards path: {:?}", scryfall_cards_path);
 
     let alpha_cards_path = if CONFIG.alpha {
         log::info!("Downloading Alphaspel cards...");
