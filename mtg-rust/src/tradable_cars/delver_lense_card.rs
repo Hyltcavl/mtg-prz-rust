@@ -6,9 +6,9 @@ use urlencoding::encode;
 
 use crate::{
     cards::card::{CardName, PersonalCard, SetName, Vendor, VendorCard},
-    delver_lense::price::{Currency, Price},
-    delver_lense::show_tradable_cards::create_tradable_card_html_page,
     dl::{card_parser::fetch_and_parse, list_links::get_page_count},
+    tradable_cars::price::{Currency, Price},
+    tradable_cars::show_tradable_cards::create_tradable_card_html_page,
     utils::{file_management::save_to_json_file, string_manipulators::date_time_as_string},
 };
 
@@ -272,11 +272,11 @@ async fn get_tradable_cards(
 #[cfg(test)]
 mod tests {
     use crate::{
-        delver_lense::price::Currency,
         test::helpers::{
             counterspell_forth_e, counterspell_ice_age, reaper_king_vendor_card_cheap,
             reaper_king_vendor_card_expensive, reaper_king_vendor_card_foil,
         },
+        tradable_cars::price::Currency,
     };
 
     use super::*;
@@ -342,7 +342,7 @@ mod tests {
         let cards = vec![card_1(), card_2(), card_3(), card_4(), card_5()];
         let expected_cards = convert_raw_card_to_personal_card(cards);
         let file_path =
-            "/workspaces/mtg-prz-rust/mtg-rust/src/delver_lense/Testlist_2025_Jan_27_17-02.csv";
+            "/workspaces/mtg-prz-rust/mtg-rust/src/test/list_of_cards_from_delver_lens.csv";
         let result = main(file_path);
         assert_eq!(result.unwrap(), expected_cards);
     }
@@ -488,11 +488,12 @@ mod tests2 {
     async fn test_fetch_card() {
         init();
         let file_path = "/workspaces/mtg-prz-rust/All_Cards_2025_Feb_19_16-14.csv";
-        let vendor_cards: HashMap<CardName, Vec<VendorCard>> =
-            load_from_json_file::<HashMap<CardName, Vec<VendorCard>>>(
-                "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_09_02_2025-20-12.json",
-            )
-            .unwrap();
+        let vendor_cards: HashMap<CardName, Vec<VendorCard>> = load_from_json_file::<
+            HashMap<CardName, Vec<VendorCard>>,
+        >(
+            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_09_02_2025-20-12.json",
+        )
+        .unwrap();
 
         let tradable_cards = get_tradable_cards(file_path, vendor_cards).await;
         for card in tradable_cards.unwrap() {

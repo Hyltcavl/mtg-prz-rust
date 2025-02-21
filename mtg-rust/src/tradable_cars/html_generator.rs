@@ -1,4 +1,4 @@
-use crate::delver_lense::price::Currency;
+use crate::tradable_cars::price::Currency;
 
 use super::delver_lense_card::TradeableCard;
 
@@ -11,7 +11,7 @@ pub fn generate_html_header() -> String {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tradable cards</title>
-    <link rel="stylesheet" href="/mtg-rust/static/css/styles.css">
+    <link rel="stylesheet" href="mtg-rust/static/tradable_cards_page/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>
 </head>
@@ -65,7 +65,7 @@ pub fn generate_html_footer() -> String {
     r#"
         </tbody></table>
         <div class='pagination'></div>
-        <script src="/mtg-rust/static/js/filters.js"></script>
+        <script src="/mtg-rust/static/tradable_cards_page/filters.js"></script>
         </body>
     </html>
     "#

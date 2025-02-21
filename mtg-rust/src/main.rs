@@ -2,11 +2,11 @@ mod alphaspel;
 mod cards;
 pub mod config;
 pub mod db;
-mod delver_lense;
 mod dl;
 mod html;
 mod scryfall;
 mod test;
+mod tradable_cars;
 mod utils;
 
 use alphaspel::card_parser::download_alpha_cards;
@@ -144,17 +144,6 @@ async fn main() {
     let scryfall_prices = load_cards(scryfall_cards_path, "Scryfall").unwrap_or_default();
 
     let vendor_cards = merge_card_maps(dl_cards, alpha_cards);
-
-    let sample_prices: HashMap<CardName, Vec<ScryfallCard>> = scryfall_prices
-        .iter()
-        .take(10)
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect();
-    let parsed_file_path = format!(
-        "scryfall_prices/samplecards_{}.json",
-        date_time_as_string(None, None)
-    );
-    save_to_json_file(&parsed_file_path, &sample_prices).unwrap();
 
     let compared_prices: Vec<ComparedCard> = compare_prices(
         vendor_cards,

@@ -14,9 +14,14 @@ pub fn filter_nice_price_cards(cards: &Vec<ComparedCard>) -> Vec<&ComparedCard> 
     cards
         .iter()
         .filter(|card| {
-            (card.cheapest_set_price_mcm_sek <= 30
-                && card.price_difference_to_cheapest_vendor_card > -5)
-                || card.price_difference_to_cheapest_vendor_card >= CONFIG.nice_price_diff
+            if card.cheapest_set_price_mcm_sek <= 10 {
+                card.price_difference_to_cheapest_vendor_card > -1
+            } else if card.cheapest_set_price_mcm_sek <= 30 {
+                card.price_difference_to_cheapest_vendor_card > -5
+            } else {
+                card.cheapest_set_price_mcm_sek >= 30
+                    && card.price_difference_to_cheapest_vendor_card >= CONFIG.nice_price_diff
+            }
         })
         .collect()
 }
@@ -51,118 +56,6 @@ fn generate_page_content(
             .cmp(&b.cheapest_set_price_mcm_sek)
     });
 
-    let style_and_import = r#"
-    <style>
-        table { 
-            border-collapse: collapse; 
-            width: 70%; 
-            margin: 0 auto; 
-        }
-        th, td { 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-            text-align: left; 
-        }
-        th { 
-            cursor: pointer;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-        }
-        th[role="columnheader"]:not(.no-sort):after {
-            content: '';
-            float: right;
-            margin-top: 7px;
-            border-width: 0 4px 4px;
-            border-style: solid;
-            border-color: #404040 transparent;
-            visibility: hidden;
-            opacity: 0;
-            user-select: none;
-        }
-        th[aria-sort="ascending"]:not(.no-sort):after {
-            border-bottom: none;
-            border-width: 4px 4px 0;
-        }
-        th[aria-sort]:not(.no-sort):after {
-            visibility: visible;
-            opacity: 0.4;
-        }
-        th[role="columnheader"]:not(.no-sort):hover:after {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .card-image-container { 
-            position: relative; 
-            display: inline-block; 
-        }
-        .card-image { 
-            width: 40px; 
-            height: auto; 
-            cursor: pointer; 
-        }
-        .enlarged-image {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            max-width: 80vw;
-            max-height: 80vh;
-            width: auto;
-            height: auto;
-            z-index: 1000;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        .card-image-container:hover .enlarged-image { 
-            display: block; 
-        }
-        .pagination { 
-            margin-top: 20px; 
-            text-align: center; 
-        }
-        h1 {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .filters {
-            width: 70%;
-            margin: 20px auto;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 5px;
-        }
-        .filter-group {
-            margin: 10px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        select, button {
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #45a049;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>"#.to_string();
-
     let mut content = format!(
         r#"
     <!DOCTYPE html>
@@ -171,7 +64,9 @@ fn generate_page_content(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MTG Card Price Comparison, {} </title>
-        {}
+        <link rel="stylesheet" href="/mtg-rust/static/nice_price_cards_page/style.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>"
     </head>
     <body>
         <h1>MTG-prizes {}, Total cards: {}, Total nice price cards: {}</h1>
@@ -200,7 +95,6 @@ fn generate_page_content(
             <tbody>
     "#,
         current_date,
-        style_and_import,
         current_date,
         cards.len(),
         total_with_diff
@@ -250,62 +144,7 @@ pub fn generate_html_footer() -> String {
     r#"
         </tbody></table>
         <div class='pagination'></div>
-        <script>
-        // Initialize Tablesort
-        new Tablesort(document.getElementById('card-table'), {
-            descending: true
-        });
-
-        // Function to populate filter dropdowns dynamically
-        function populateFilters() {
-            const rows = document.querySelectorAll('#card-table tbody tr');
-            const vendorSet = new Set();
-            
-            // Collect unique values
-            rows.forEach(row => {
-                const vendor = row.querySelector('td:nth-child(6)').textContent.trim();                
-                vendorSet.add(vendor);
-            });
-
-            // Populate vendor filter
-            const vendorFilter = document.getElementById('vendorFilter');
-            vendorFilter.innerHTML = '<option value="all">All</option>';
-            Array.from(vendorSet).sort().forEach(vendor => {
-                vendorFilter.innerHTML += `<option value="${vendor}">${vendor}</option>`;
-            });
-        }
-
-        // Filter function
-        function applyFilters() {
-            const vendorFilter = document.getElementById('vendorFilter').value;
-            const rows = document.querySelectorAll('#card-table tbody tr');
-
-            rows.forEach(row => {
-                const vendor = row.querySelector('td:nth-child(6)').textContent.trim();
-                
-                const vendorMatch = vendorFilter === 'all' || vendor === vendorFilter;
-
-                if (vendorMatch) {
-                    row.classList.remove('hidden');
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-        }
-
-        // Reset filters
-        function resetFilters() {
-            document.getElementById('vendorFilter').value = 'all';
-            const rows = document.querySelectorAll('#card-table tbody tr');
-            rows.forEach(row => row.classList.remove('hidden'));
-        }
-
-        // Initialize filters
-        populateFilters();
-
-        // Add event listeners to filters
-        document.getElementById('vendorFilter').addEventListener('change', applyFilters);
-    </script>
+        <script src="/mtg-rust/static/nice_price_cards_page/filter.js"></script>
     </body>
     </html>
     "#
@@ -315,13 +154,13 @@ pub fn generate_html_footer() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::env;
     use std::path::Path;
-use std::env;
 
     #[test]
     fn test_generate_html_from_json_creates_file() {
         let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
-        let output_dir = "/workspaces/mtg-prz-rust/test_output";
+        let output_dir = "/workspaces/mtg-prz-rust";
 
         // Call the function
         generate_html_from_json(json_file_path, output_dir).unwrap();
@@ -346,6 +185,6 @@ use std::env;
         // Temporarily change the CONFIG for this test
         env::set_var("NICE_PRICE_DIFF", "-20");
         let nice_price_cards = filter_nice_price_cards(&cards);
-        assert_eq!(nice_price_cards.len(), 9);
+        assert_eq!(nice_price_cards.len(), 8);
     }
 }

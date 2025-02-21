@@ -56,6 +56,7 @@ pub fn get_newest_file(
 }
 
 pub fn save_to_json_file<T: Serialize>(path: &str, data: &T) -> io::Result<()> {
+    log::info!("Saving to file: {}", path);
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent)?;
     }

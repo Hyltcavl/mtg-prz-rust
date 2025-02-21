@@ -19,6 +19,4 @@ to add dependency with feature flag:
 cargo add <dependency name> --feature <feature name>
 
 TODO:
-implementera ett minimi filter på index sidan
-renskriv/refaktorera all kod
 Get Manatorsk cards

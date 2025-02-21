@@ -1,5 +1,5 @@
 use super::delver_lense_card::TradeableCard;
-use crate::delver_lense::html_generator::generate_page_content;
+use crate::tradable_cars::html_generator::generate_page_content;
 use std::fs;
 
 pub fn create_tradable_card_html_page(

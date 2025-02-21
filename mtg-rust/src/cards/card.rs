@@ -8,7 +8,7 @@ use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::delver_lense::delver_lense_card::MagicRarity;
+use crate::tradable_cars::delver_lense_card::MagicRarity;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SetName {
@@ -46,7 +46,7 @@ pub struct CardName {
 
 impl CardName {
     pub fn new(raw: String) -> Result<Self, String> {
-        let name_without_disclaimers = Self::remove_name_disclaimers(&raw);
+        let name_without_disclaimers = Self::rm(&raw);
         let cleaned_name = Self::clean_name(&name_without_disclaimers);
 
         if name_without_disclaimers.is_empty() || cleaned_name.is_empty() {
@@ -63,6 +63,40 @@ impl CardName {
         })
     }
 
+    // TODO: meybe use this instead of remove name disclaimers
+    fn remove_parentheses_content(name: &str) -> String {
+        let mut chars = name.chars().peekable();
+        let mut result = String::new();
+        let mut inside_parentheses = false;
+
+        while let Some(&c) = chars.peek() {
+            match c {
+                '(' => {
+                    inside_parentheses = true;
+                }
+                ')' => {
+                    inside_parentheses = false;
+                    chars.next(); // Skip the closing parenthesis
+                    continue;
+                }
+                _ => {
+                    if !inside_parentheses {
+                        result.push(c);
+                    }
+                }
+            }
+            chars.next();
+        }
+
+        result.trim().to_string()
+    }
+
+    // TODO: meybe use this instead of remove name disclaimers
+    fn rm(str: &str) -> String {
+        str.find("(")
+            .map_or_else(|| str.to_string(), |start| str[..start].trim().to_string())
+    }
+
     fn remove_name_disclaimers(name: &str) -> String {
         let disclaimers = [
             "(Prerelease Zendikar Rising)",
@@ -75,11 +109,31 @@ impl CardName {
             "(Foil Etched)",
             "(Borderless)",
             "(Full art)",
+            "( Full art )",
             "(Alernate Art)",
+            "(Alternate Art)",
+            "( Extended art )",
             "(japansk)",
+            "(Japansk)",
+            "(Tysk)",
             "(Retro)",
             "(Extended art)",
             "(Theme Booster)",
+            "(Promo)",
+            "(Oil Slick Raised Foil)",
+            "(Store Championship)",
+            "(Full-Art)",
+            "(Theme Booster Exclusive)",
+            "(War of the Spark Prerelease)",
+            "(FNM)",
+            "( Theme Booster Exclusive )",
+            "( Guild Kit )",
+            "(Launch Promo)",
+            "(Ravnica Allegiance Prerelease)",
+            "(b)",
+            "(FNM)",
+            "(Phyrexian)",
+            "(Core Set 2019 Prerelease)",
         ];
 
         let mut cleaned_raw = name.to_string();

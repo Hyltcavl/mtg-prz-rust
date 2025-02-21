@@ -1,6 +1,6 @@
 use crate::cards::card::{CardName, SetName, VendorCard};
-use crate::delver_lense::delver_lense_card::TradeableCard;
-use crate::delver_lense::price::Price;
+use crate::tradable_cars::delver_lense_card::TradeableCard;
+use crate::tradable_cars::price::Price;
 use rusqlite::types::ToSql;
 use rusqlite::{params, Connection, Result};
 
@@ -190,7 +190,7 @@ impl Database {
 mod tests {
     use crate::{
         cards::card::{CardName, SetName, Vendor},
-        delver_lense::{
+        tradable_cars::{
             delver_lense_card::{MagicRarity, TradeableCard},
             price::{Currency, Price},
         },

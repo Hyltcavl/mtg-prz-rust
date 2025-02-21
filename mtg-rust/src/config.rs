@@ -6,6 +6,7 @@ pub struct Config {
     pub scryfall: bool,
     pub alpha: bool,
     pub nice_price_diff: i32,
+    pub external_price_check: bool,
 }
 
 impl Default for Config {
@@ -15,6 +16,7 @@ impl Default for Config {
             scryfall: true,
             alpha: true,
             nice_price_diff: 0,
+            external_price_check: true
         }
     }
 }
@@ -38,6 +40,9 @@ impl Config {
         }
         if let Ok(nice_price_diff) = env::var("NICE_PRICE_DIFF") {
             self.nice_price_diff = nice_price_diff.parse().unwrap_or(0);
+        }
+        if let Ok(external_price_check) = env::var("EXTERNAL_PRICE_CHECK") {
+            self.external_price_check = external_price_check == "1";
         }
     }
 }

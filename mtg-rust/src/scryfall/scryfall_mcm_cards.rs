@@ -2,13 +2,14 @@ use log;
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::io::Write;
 
 use crate::cards::card::{CardName, Prices, ScryfallCard, SetName};
 use crate::utils::file_management::{load_from_json_file, save_to_json_file};
 use crate::utils::string_manipulators::{clean_string, date_time_as_string};
 
 use chrono::Local;
-use std::fs;
+use std::fs::{self, File};
 use std::path::Path;
 
 #[cfg(not(test))]
@@ -83,19 +84,16 @@ async fn get_scryfall_price_file(
         .text()
         .await?;
 
-    log::debug!("Download completed");
-    // Parse the string response into a JSON value
-    let json: serde_json::Value = serde_json::from_str(&all_cards)?;
+    log::debug!("Downloaded scryfall price file");
 
-    // Write the downloaded scryfall price file to a local json file
     let current_time = Local::now().format("%Y-%m-%d_%H:%M:%S").to_string();
+
     let path = format!(
         "scryfall_prices_raw/scryfall_download_{}.json",
         current_time
     );
-
-    // Use save_to_json_file to save the parsed JSON
-    save_to_json_file(&path, &json)?;
+    let mut file = File::create(path.clone())?;
+    file.write_all(all_cards.as_bytes())?;
 
     Ok(path)
 }

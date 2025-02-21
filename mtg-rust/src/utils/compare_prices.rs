@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     cards::card::{CardName, ScryfallCard, Vendor, VendorCard},
+    config::CONFIG,
     utils::mtg_stock_price_checker::MtgPriceFetcher,
 };
 
@@ -156,24 +157,15 @@ pub async fn compare_foil_card_price(
                     e
                 );
 
-                //With cache
-                // let mtg_stock_prices = match cache.get(&card_name) {
-                //     Some(prices) => prices,
-                //     None => {
-                //         let mtgstock = get_live_card_prices(&card_name).await;
-                //         match mtgstock {
-                //             Ok(prices) => &prices,
-                //             Err(e) => {
-                //                 log::error!(
-                //                     "Error fetching live prices for {}: {}",
-                //                     card_name,
-                //                     e
-                //                 );
-                //                 continue;
-                //             }
-                //         }
-                //     }
-                // };
+                if CONFIG.external_price_check {
+                    return Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        format!(
+                            "Won't fetch price for '{}', external price check is disabled",
+                            card_name.almost_raw
+                        ),
+                    )));
+                }
 
                 // No cache checking
                 let mtg_stock_prices = fetcher
@@ -224,7 +216,7 @@ pub async fn compare_card_price(
         .ok_or_else(|| {
             Box::new(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
-                "No vendor cards available to find the lowest price",
+                "No vendor cards available to find the lowest priced one",
             ))
         })?;
 
@@ -249,6 +241,16 @@ pub async fn compare_card_price(
                     card_name.almost_raw,
                     e
                 );
+
+                if CONFIG.external_price_check {
+                    return Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        format!(
+                            "Won't fetch price for '{}', external price check is disabled",
+                            card_name.almost_raw
+                        ),
+                    )));
+                }
 
                 let mtg_stock_prices = fetcher
                     .get_live_card_prices(&card_name.almost_raw, "https://api.mtgstocks.com/")
@@ -289,6 +291,7 @@ pub async fn compare_prices(
     scryfall_card_map: HashMap<CardName, Vec<ScryfallCard>>,
     base_url: &str,
 ) -> Vec<ComparedCard> {
+    log::info!("Comparing prices...");
     let start_time = chrono::prelude::Local::now();
     let client = Client::new();
     let fetcher = MtgPriceFetcher::new(client);
@@ -297,34 +300,14 @@ pub async fn compare_prices(
     let currency_rate_eur_to_sek = get_currency_rate_eur_to_sec(base_url).await.unwrap_or(11.5);
 
     for (card_name, vendor_card_list) in vendor_card_list {
-        log::debug!("Working on card {}", card_name.almost_raw);
+        log::debug!("Comparing prices for '{}'", card_name.almost_raw);
 
         // Separate foil and non-foil cards
         let (foil, non_foil): (Vec<VendorCard>, Vec<VendorCard>) =
             vendor_card_list.into_iter().partition(|card| card.foil);
 
-        // TODO: Cache for scryfall cards
-        // Then for each (foil and non-foil)
-        let compare_card_price = compare_card_price(
-            non_foil,
-            &scryfall_card_map,
-            currency_rate_eur_to_sek,
-            &fetcher,
-        )
-        .await;
-
-        match compare_card_price {
-            Ok(card_price) => {
-                compared_cards.push(card_price);
-            }
-            Err(e) => log::debug!(
-                "Unable to process card '{}' because of: {}",
-                card_name.almost_raw,
-                e
-            ),
-        }
-
-        let compare_foil_card_price =
+        if foil.len() > 0 {
+            let compare_foil_card_price =
             compare_foil_card_price(foil, &scryfall_card_map, currency_rate_eur_to_sek, &fetcher)
                 .await;
 
@@ -333,11 +316,34 @@ pub async fn compare_prices(
                 compared_cards.push(card_price);
             }
             Err(e) => log::debug!(
-                "Unable to process foil card '{}' because of error: {}",
+                "Unable to get price for FOIL version of '{}' because of: {}",
                 card_name.almost_raw,
                 e
             ),
         }
+        } else {log::debug!("No foil version of '{}' found in vendor cards", card_name.almost_raw);}
+
+        if non_foil.len() > 0 {
+            let compare_card_price = compare_card_price(
+                non_foil,
+                &scryfall_card_map,
+                currency_rate_eur_to_sek,
+                &fetcher,
+            )
+            .await;
+    
+            match compare_card_price {
+                Ok(card_price) => {
+                    compared_cards.push(card_price);
+                }
+                Err(e) => log::debug!(
+                    "Unable to get price for NON foil version of '{}' because of: {}",
+                    card_name.almost_raw,
+                    e
+                ),
+            }
+        } else {log::debug!("No non-foil version of '{}' found in vendor cards", card_name.almost_raw);}
+
     }
     let end_time = chrono::prelude::Local::now();
 
