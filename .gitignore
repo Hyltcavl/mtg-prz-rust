@@ -17,3 +17,4 @@ test_output/*
 Common_uncommons_*.csv
 mtg-rust/output.log
 All_Cards_2025_Feb_19_16-14.csv
+mtg-rust/tradable_cards_20_02_2025-16-32.json
