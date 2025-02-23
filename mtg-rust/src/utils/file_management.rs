@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, Write};
 use std::path::PathBuf;
 use std::{
     fs::{self, OpenOptions},
@@ -75,7 +75,40 @@ pub fn save_to_json_file<T: Serialize>(path: &str, data: &T) -> io::Result<()> {
 }
 
 pub fn load_from_json_file<T: DeserializeOwned>(filename: &str) -> io::Result<T> {
-    let file = File::open(filename)?;
+    log::info!("Loading from file: {}", filename);
+    let file = File::open(filename).map_err(|e| {
+        log::error!("Failed to open file: {}", e);
+        e
+    })?;
+    let reader = BufReader::new(file);
+    let data = serde_json::from_reader(reader).map_err(|e| {
+        log::error!("Failed to read from file: {}", e);
+        e
+    })?;
+    Ok(data)
+}
+
+pub async fn download_and_save_file(
+    url: &str,
+    path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let client = reqwest::Client::new();
+    let response = client.get(url).send().await?.bytes().await?;
+    if let Some(parent) = Path::new(path).parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(path)?;
+    let mut writer = BufWriter::new(file);
+    writer.write_all(&response)?;
+    Ok(())
+}
+
+pub fn read_json_file<T: DeserializeOwned>(path: &str) -> Result<T, Box<dyn std::error::Error>> {
+    let file = File::open(path)?;
     let reader = BufReader::new(file);
     let data = serde_json::from_reader(reader)?;
     Ok(data)

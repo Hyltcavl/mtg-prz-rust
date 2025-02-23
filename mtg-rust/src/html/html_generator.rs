@@ -66,7 +66,7 @@ fn generate_page_content(
         <title>MTG Card Price Comparison, {} </title>
         <link rel="stylesheet" href="/mtg-rust/static/nice_price_cards_page/style.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>
     </head>
     <body>
         <h1>MTG-prizes {}, Total cards: {}, Total nice price cards: {}</h1>

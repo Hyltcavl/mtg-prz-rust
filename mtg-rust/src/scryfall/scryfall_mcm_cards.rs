@@ -2,18 +2,19 @@ use log;
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::io::Write;
 
 use crate::cards::card::{CardName, Prices, ScryfallCard, SetName};
-use crate::utils::file_management::{load_from_json_file, save_to_json_file};
+use crate::utils::file_management::{
+    download_and_save_file, read_json_file, save_to_json_file,
+};
 use crate::utils::string_manipulators::{clean_string, date_time_as_string};
 
 use chrono::Local;
-use std::fs::{self, File};
-use std::path::Path;
 
 #[cfg(not(test))]
 fn get_existing_scryfall_file() -> Option<String> {
+    use std::{fs, path::Path};
+
     let current_date = Local::now().format("%Y-%m-%d").to_string();
     let directory = Path::new("scryfall_prices_raw");
 
@@ -76,24 +77,13 @@ async fn get_scryfall_price_file(
     // Get the latest price list uri of the smallest size
     let download_uri = json["data"][2]["download_uri"].as_str().unwrap();
     log::debug!("Downloading 'smaller list' from URL: {:?}", download_uri);
-    let all_cards = client
-        .get(download_uri)
-        .headers(header_map)
-        .send()
-        .await?
-        .text()
-        .await?;
-
-    log::debug!("Downloaded scryfall price file");
-
     let current_time = Local::now().format("%Y-%m-%d_%H:%M:%S").to_string();
-
     let path = format!(
         "scryfall_prices_raw/scryfall_download_{}.json",
         current_time
     );
-    let mut file = File::create(path.clone())?;
-    file.write_all(all_cards.as_bytes())?;
+    download_and_save_file(download_uri, &path).await?;
+    log::info!("Saved raw scryfall price file to: {}", path);
 
     Ok(path)
 }
@@ -103,12 +93,15 @@ pub async fn download_scryfall_cards(
     url: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let path = get_scryfall_price_file(None, url).await?;
-    // let path = "/workspaces/mtg-prz-rust/mtg-rust/scryfall_prices/_original_scryfall_prices_27_08_2024-15:04.json".to_owned();
+    let cards: serde_json::Value = read_json_file(&path)?;
     let mut scryfall_card_list = Vec::new();
-    // let file = File::open(path)?;
-    // let reader = BufReader::new(file);
-    // let cards: serde_json::Value = serde_json::from_reader(reader)?;
-    let cards = load_from_json_file::<serde_json::Value>(&path)?;
+
+    // let cards = load_from_json_file::<serde_json::Value>(&path).map_err(|err| {
+    //     log::info!("Failed to load raw scryfall price file: {}", err);
+    //     log::error!("Failed to load raw scryfall price file: {}", err);
+    //     err
+    // })?;
+    log::info!("Loaded raw scryfall price file, creating parsed scrayfall cards");
     if let Value::Array(cards_array) = cards {
         for obj in cards_array {
             if is_not_token(&obj) && is_not_basic_land(&obj) && is_not_artseries(&obj) {
@@ -197,7 +190,7 @@ fn is_not_token(obj: &Value) -> bool {
 #[cfg(test)]
 mod tests {
 
-    use std::io::BufReader;
+    use std::{fs, io::BufReader};
 
     use super::*;
     use env_logger;
