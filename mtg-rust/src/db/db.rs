@@ -265,7 +265,6 @@ mod tests {
 mod tests2 {
     use super::*;
     use crate::utils::file_management::load_from_json_file;
-    use std::collections::HashMap;
     use tokio;
 
     fn init() {

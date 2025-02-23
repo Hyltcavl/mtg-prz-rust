@@ -1,20 +1,15 @@
 use std::error::Error;
-// use std::fs::File;
-// use std::io::Write;
-// use std::time::Instant;
 use std::{collections::HashMap, sync::Arc};
 
 use chrono::Local;
 use futures::future::join_all;
 use regex::Regex;
-// use reqwest::Client;
 use scraper::{Html, Selector};
-// use serde_json::json;
 use tokio::sync::Semaphore;
 
 use crate::{
     cards::card::{CardName, SetName, Vendor, VendorCard},
-    utils::{file_management::save_to_json_file, string_manipulators::date_time_as_string},
+    utils::{file_management::save_to_file, string_manipulators::date_time_as_string},
 };
 
 const PROMO_PATTERNS: [&str; 4] = [
@@ -267,7 +262,7 @@ pub async fn download_alpha_cards(base_url: &str) -> Result<String, Box<dyn Erro
         date_time_as_string(None, None)
     );
 
-    save_to_json_file(&alpha_cards_path, &grouped_cards)?;
+    save_to_file(&alpha_cards_path, &grouped_cards)?;
 
     // let duration = start_time.elapsed();
     let end_time = chrono::prelude::Local::now();

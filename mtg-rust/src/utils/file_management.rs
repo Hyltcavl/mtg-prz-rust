@@ -55,7 +55,7 @@ pub fn get_newest_file(
     newest_file.ok_or_else(|| "No valid files found".into())
 }
 
-pub fn save_to_json_file<T: Serialize>(path: &str, data: &T) -> io::Result<()> {
+pub fn save_to_file<T: Serialize>(path: &str, data: &T) -> io::Result<()> {
     log::info!("Saving to file: {}", path);
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent)?;
@@ -107,13 +107,6 @@ pub async fn download_and_save_file(
     Ok(())
 }
 
-pub fn read_json_file<T: DeserializeOwned>(path: &str) -> Result<T, Box<dyn std::error::Error>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let data = serde_json::from_reader(reader)?;
-    Ok(data)
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -143,7 +136,7 @@ mod tests {
         map.insert(reaper_king_vendor_card_cheap().name, vendor_cards);
 
         // Save to JSON file
-        save_to_json_file::<HashMap<CardName, Vec<VendorCard>>>("cards.json", &map).unwrap();
+        save_to_file::<HashMap<CardName, Vec<VendorCard>>>("cards.json", &map).unwrap();
 
         // Load from JSON file
         let loaded_map =

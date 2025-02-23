@@ -4,9 +4,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 use crate::cards::card::{CardName, Prices, ScryfallCard, SetName};
-use crate::utils::file_management::{
-    download_and_save_file, read_json_file, save_to_json_file,
-};
+use crate::utils::file_management::{download_and_save_file, load_from_json_file, save_to_file};
 use crate::utils::string_manipulators::{clean_string, date_time_as_string};
 
 use chrono::Local;
@@ -93,7 +91,7 @@ pub async fn download_scryfall_cards(
     url: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let path = get_scryfall_price_file(None, url).await?;
-    let cards: serde_json::Value = read_json_file(&path)?;
+    let cards: serde_json::Value = load_from_json_file(&path)?;
     let mut scryfall_card_list = Vec::new();
 
     // let cards = load_from_json_file::<serde_json::Value>(&path).map_err(|err| {
@@ -163,7 +161,7 @@ pub async fn download_scryfall_cards(
     // let grouped_cards_as_string = serde_json::to_string(&grouped_cards)?;
 
     // write_to_file(&parsed_file_path, &grouped_cards_as_string)?;
-    save_to_json_file(&parsed_file_path, &grouped_cards)?;
+    save_to_file(&parsed_file_path, &grouped_cards)?;
 
     log::info!(
         "Parsed Scryfall data and saved to file {}",

@@ -3,7 +3,8 @@ use crate::tradable_cars::price::Currency;
 use super::delver_lense_card::TradeableCard;
 
 pub fn generate_html_header() -> String {
-    r#"
+    format!(
+        r#"
     <!DOCTYPE html>
 <html lang="en">
 
@@ -11,9 +12,11 @@ pub fn generate_html_header() -> String {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tradable cards</title>
-    <link rel="stylesheet" href="mtg-rust/static/tradable_cards_page/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>
+    <style> 
+            {}
+    </style>
 </head>
 
 <body>
@@ -58,18 +61,25 @@ pub fn generate_html_header() -> String {
             </tr>
         </thead>
         <tbody>
-    "#.to_string()
+    "#,
+        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/tradable_cards_page/styles.css")
+            .replace("\n", " ")
+    )
 }
 
 pub fn generate_html_footer() -> String {
-    r#"
+    format!(
+        r#"
         </tbody></table>
         <div class='pagination'></div>
-        <script src="/mtg-rust/static/tradable_cards_page/filters.js"></script>
+        <script>
+        {}
+        </script>
         </body>
     </html>
-    "#
-    .to_string()
+    "#,
+        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/tradable_cards_page/filters.js")
+    )
 }
 
 pub fn generate_card_row(card: &TradeableCard) -> String {

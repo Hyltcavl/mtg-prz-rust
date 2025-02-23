@@ -3,7 +3,7 @@ use std::fs;
 
 use crate::config::CONFIG;
 use crate::utils::compare_prices::ComparedCard;
-use crate::utils::file_management::load_from_json_file;
+use crate::utils::file_management::{load_from_json_file, save_to_file};
 use crate::utils::string_manipulators::date_time_as_string;
 
 // Filter cards based on nice_price_diff
@@ -67,6 +67,9 @@ fn generate_page_content(
         <link rel="stylesheet" href="/mtg-rust/static/nice_price_cards_page/style.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>
+        <style> 
+            {}
+        </style>
     </head>
     <body>
         <h1>MTG-prizes {}, Total cards: {}, Total nice price cards: {}</h1>
@@ -95,6 +98,7 @@ fn generate_page_content(
             <tbody>
     "#,
         current_date,
+        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/nice_price_cards_page/style.css"),
         current_date,
         cards.len(),
         total_with_diff
@@ -141,14 +145,18 @@ fn generate_page_content(
 }
 
 pub fn generate_html_footer() -> String {
-    r#"
+    format!(
+        r#"
         </tbody></table>
         <div class='pagination'></div>
-        <script src="/mtg-rust/static/nice_price_cards_page/filter.js"></script>
+        <script>
+        {}
+        </script>
     </body>
     </html>
-    "#
-    .to_string()
+    "#,
+        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/nice_price_cards_page/filter.js")
+    )
 }
 
 #[cfg(test)]

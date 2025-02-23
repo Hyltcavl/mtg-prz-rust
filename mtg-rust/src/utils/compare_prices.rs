@@ -190,13 +190,13 @@ pub async fn compare_foil_card_price(
         };
 
     //-Calculate the price difference
-    let cheapest_MCM_price_sek = cheapest_mcm_card_foil_price * currency_rate_eur_to_sek;
+    let cheapest_mcm_price_sek = cheapest_mcm_card_foil_price * currency_rate_eur_to_sek;
     Ok(ComparedCard {
         name: lowest_price_vendor_card.name.almost_raw.to_owned(),
         foil: true,
         vendor: lowest_price_vendor_card.vendor.to_owned(),
-        cheapest_set_price_mcm_sek: cheapest_MCM_price_sek.ceil() as i32,
-        price_difference_to_cheapest_vendor_card: cheapest_MCM_price_sek.ceil() as i32
+        cheapest_set_price_mcm_sek: cheapest_mcm_price_sek.ceil() as i32,
+        price_difference_to_cheapest_vendor_card: cheapest_mcm_price_sek.ceil() as i32
             - lowest_price_vendor_card.price,
         vendor_cards,
     })
@@ -307,21 +307,30 @@ pub async fn compare_prices(
             vendor_card_list.into_iter().partition(|card| card.foil);
 
         if foil.len() > 0 {
-            let compare_foil_card_price =
-            compare_foil_card_price(foil, &scryfall_card_map, currency_rate_eur_to_sek, &fetcher)
-                .await;
+            let compare_foil_card_price = compare_foil_card_price(
+                foil,
+                &scryfall_card_map,
+                currency_rate_eur_to_sek,
+                &fetcher,
+            )
+            .await;
 
-        match compare_foil_card_price {
-            Ok(card_price) => {
-                compared_cards.push(card_price);
+            match compare_foil_card_price {
+                Ok(card_price) => {
+                    compared_cards.push(card_price);
+                }
+                Err(e) => log::debug!(
+                    "Unable to get price for FOIL version of '{}' because of: {}",
+                    card_name.almost_raw,
+                    e
+                ),
             }
-            Err(e) => log::debug!(
-                "Unable to get price for FOIL version of '{}' because of: {}",
-                card_name.almost_raw,
-                e
-            ),
+        } else {
+            log::debug!(
+                "No foil version of '{}' found in vendor cards",
+                card_name.almost_raw
+            );
         }
-        } else {log::debug!("No foil version of '{}' found in vendor cards", card_name.almost_raw);}
 
         if non_foil.len() > 0 {
             let compare_card_price = compare_card_price(
@@ -331,7 +340,7 @@ pub async fn compare_prices(
                 &fetcher,
             )
             .await;
-    
+
             match compare_card_price {
                 Ok(card_price) => {
                     compared_cards.push(card_price);
@@ -342,8 +351,12 @@ pub async fn compare_prices(
                     e
                 ),
             }
-        } else {log::debug!("No non-foil version of '{}' found in vendor cards", card_name.almost_raw);}
-
+        } else {
+            log::debug!(
+                "No non-foil version of '{}' found in vendor cards",
+                card_name.almost_raw
+            );
+        }
     }
     let end_time = chrono::prelude::Local::now();
 

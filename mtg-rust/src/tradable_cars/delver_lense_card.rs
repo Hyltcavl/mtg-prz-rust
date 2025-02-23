@@ -9,7 +9,7 @@ use crate::{
     dl::{card_parser::fetch_and_parse, list_links::get_page_count},
     tradable_cars::price::{Currency, Price},
     tradable_cars::show_tradable_cards::create_tradable_card_html_page,
-    utils::{file_management::save_to_json_file, string_manipulators::date_time_as_string},
+    utils::{file_management::save_to_file, string_manipulators::date_time_as_string},
 };
 
 #[allow(non_snake_case)]
@@ -256,14 +256,14 @@ async fn get_tradable_cards(
             .push(card.clone());
     }
 
-    let (mut more_tradable_cards, unwanted_cards) =
+    let (mut more_tradable_cards, _unwanted_cards) =
         get_tradable_and_leftover_cards(leftover_personal_cards, grouped_vendor_cards);
     tradable_cards.append(&mut more_tradable_cards);
 
     log::debug!("tradable cards: {:?}", &tradable_cards);
 
     let path = format!("./tradable_cards_{}.json", date_time_as_string(None, None));
-    save_to_json_file(&path, &tradable_cards)?;
+    save_to_file(&path, &tradable_cards)?;
     create_tradable_card_html_page(&tradable_cards)?;
 
     return Ok(tradable_cards);
@@ -434,7 +434,7 @@ mod tests {
         let raw_cards = vec![card_1(), card_4()];
         let personal_cards = convert_raw_card_to_personal_card(raw_cards);
 
-        let tradeable_card1 = TradeableCard {
+        let _tradeable_card1 = TradeableCard {
             name: CardName::new("Reaper King".to_string()).unwrap(),
             set: SetName::new("Shadowmoor".to_string()).unwrap(),
             foil: true,
@@ -491,7 +491,7 @@ mod tests2 {
         let vendor_cards: HashMap<CardName, Vec<VendorCard>> = load_from_json_file::<
             HashMap<CardName, Vec<VendorCard>>,
         >(
-            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_09_02_2025-20-12.json",
+            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_21_02_2025-13-46.json",
         )
         .unwrap();
 

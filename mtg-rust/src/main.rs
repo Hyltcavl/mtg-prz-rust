@@ -10,9 +10,8 @@ mod tradable_cars;
 mod utils;
 
 use alphaspel::card_parser::download_alpha_cards;
-use cards::card::{CardName, ScryfallCard, VendorCard};
+use cards::card::{CardName, VendorCard};
 use config::CONFIG;
-use dotenv;
 use env_logger;
 use html::html_generator::generate_html_from_json;
 use log;
@@ -25,7 +24,7 @@ use dl::card_parser::fetch_and_parse;
 use dl::list_links::get_page_count;
 use futures::future::join_all;
 use tokio::sync::Semaphore;
-use utils::file_management::{get_newest_file, load_from_json_file, save_to_json_file};
+use utils::file_management::{get_newest_file, load_from_json_file, save_to_file};
 use utils::string_manipulators::date_time_as_string;
 
 use scryfall::scryfall_mcm_cards::download_scryfall_cards;
@@ -95,7 +94,7 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
         date_time_as_string(None, None)
     );
 
-    save_to_json_file(&dl_cards_path, &grouped_cards)?;
+    save_to_file(&dl_cards_path, &grouped_cards)?;
 
     // write_to_file(&dl_cards_path, &cards_as_string)?;
     let end_time = chrono::prelude::Local::now();
@@ -114,7 +113,6 @@ async fn prepare_dl_cards() -> Result<String, Box<dyn std::error::Error>> {
 async fn main() {
     env_logger::init();
     log::info!("Starting");
-    let _ = dotenv::dotenv();
 
     let start_time = chrono::prelude::Local::now();
 
@@ -158,7 +156,7 @@ async fn main() {
         date_time_as_string(None, None)
     );
 
-    let _ = save_to_json_file::<Vec<ComparedCard>>(&compared_cards_path, &compared_prices).unwrap();
+    let _ = save_to_file::<Vec<ComparedCard>>(&compared_cards_path, &compared_prices).unwrap();
 
     let _ = generate_html_from_json(&compared_cards_path, "../");
 

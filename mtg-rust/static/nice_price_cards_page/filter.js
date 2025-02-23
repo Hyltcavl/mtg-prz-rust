@@ -7,10 +7,10 @@ new Tablesort(document.getElementById('card-table'), {
 function populateFilters() {
     const rows = document.querySelectorAll('#card-table tbody tr');
     const vendorSet = new Set();
-    
+
     // Collect unique values
     rows.forEach(row => {
-        const vendor = row.querySelector('td:nth-child(6)').textContent.trim();                
+        const vendor = row.querySelector('td:nth-child(6)').textContent.trim();
         vendorSet.add(vendor);
     });
 
@@ -29,7 +29,7 @@ function applyFilters() {
 
     rows.forEach(row => {
         const vendor = row.querySelector('td:nth-child(6)').textContent.trim();
-        
+
         const vendorMatch = vendorFilter === 'all' || vendor === vendorFilter;
 
         if (vendorMatch) {
