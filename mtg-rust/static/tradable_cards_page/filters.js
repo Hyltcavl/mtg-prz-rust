@@ -8,12 +8,12 @@ function populateFilters() {
     const rows = document.querySelectorAll('#card-table tbody tr');
     const raritySet = new Set();
     const colorSet = new Set();
-    
+
     // Collect unique values
     rows.forEach(row => {
         const rarity = row.querySelector('td:nth-child(8)').textContent.trim();
         const color = row.querySelector('td:nth-child(7)').textContent.trim();
-        
+
         raritySet.add(rarity);
         colorSet.add(color);
     });
@@ -48,7 +48,7 @@ function applyFilters() {
         const tradeInPrice = parseFloat(row.querySelector('td:nth-child(3)').dataset.sort);
         const percentualDifference = parseFloat(row.querySelector('td:nth-child(9)').dataset.sort);
         const isValueTrade = row.dataset.valueTrade === 'true';
-        
+
         const rarityMatch = rarityFilter === 'all' || rarity === rarityFilter;
         const colorMatch = colorFilter === 'all' || color === colorFilter;
         const minPriceMatch = tradeInPrice >= minPriceFilter;

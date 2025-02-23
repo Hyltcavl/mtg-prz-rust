@@ -62,8 +62,7 @@ pub fn generate_html_header() -> String {
         </thead>
         <tbody>
     "#,
-        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/tradable_cards_page/styles.css")
-            .replace("\n", " ")
+        include_str!("../../../mtg-rust/static/tradable_cards_page/styles.css")
     )
 }
 
@@ -78,7 +77,7 @@ pub fn generate_html_footer() -> String {
         </body>
     </html>
     "#,
-        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/tradable_cards_page/filters.js")
+        include_str!("../../../mtg-rust/static/tradable_cards_page/filters.js")
     )
 }
 

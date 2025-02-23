@@ -98,7 +98,7 @@ fn generate_page_content(
             <tbody>
     "#,
         current_date,
-        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/nice_price_cards_page/style.css"),
+        include_str!("../../../mtg-rust/static/nice_price_cards_page/style.css"),
         current_date,
         cards.len(),
         total_with_diff
@@ -155,7 +155,7 @@ pub fn generate_html_footer() -> String {
     </body>
     </html>
     "#,
-        include_str!("/workspaces/mtg-prz-rust/mtg-rust/static/nice_price_cards_page/filter.js")
+        include_str!("../../../mtg-rust/static/nice_price_cards_page/filter.js")
     )
 }
 
