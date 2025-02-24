@@ -242,7 +242,7 @@ pub async fn compare_card_price(
                     e
                 );
 
-                if CONFIG.external_price_check {
+                if !CONFIG.external_price_check {
                     return Err(Box::new(std::io::Error::new(
                         std::io::ErrorKind::Other,
                         format!(
