@@ -189,10 +189,10 @@ where
 {
     log::info!("Loading existing {} cards...", card_type);
     path.and_then(|p| load_from_json_file::<HashMap<CardName, Vec<T>>>(&p).map_err(|e| e.into()))
-        .or_else(|_| {
+        .or_else(|e| {
             log::warn!(
-                "No existing {} cards found, using empty collection.",
-                card_type
+                "No existing {} cards found or failed to load due to error: {}. Using empty collection.",
+                card_type, e
             );
             Ok(HashMap::new())
         })

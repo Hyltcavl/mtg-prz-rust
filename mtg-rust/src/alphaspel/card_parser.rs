@@ -157,10 +157,31 @@ fn get_card_information(product: scraper::ElementRef) -> Result<VendorCard, Box<
 
 // Returns a list of all available set pages which has cards.
 async fn get_all_card_pages(base_url: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let sets_page = reqwest::get(format!("{base_url}/1978-mtg-loskort/"))
+    let url = format!("{base_url}/1978-mtg-loskort/");
+    log::info!("Fetching all card pages from: {}", &url);
+    let client = reqwest::Client::new();
+    let mut header_map = reqwest::header::HeaderMap::new();
+    header_map.insert(reqwest::header::ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7".parse()?);
+    let sets_page = client
+        .get(url)
+        .headers(header_map.clone())
+        .send()
         .await?
         .text()
         .await?;
+
+    // let sets_page = reqwest::Client::new()
+    //     .get(format!("{base_url}/1978-mtg-loskort/"))
+    //     .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+    //     .header(":authority", "alphaspel.se")
+    //     .header(":method", "GET")
+    //     .header(":path", "/1978-mtg-loskort/")
+    //     .header(":scheme", "https")
+    //     .header("accept-encoding","gzip, deflate, br, zstd")
+    //     .send()
+    //     .await?
+    //     .text()
+    //     .await?;
 
     let document = Html::parse_document(&sets_page);
     // let selector = Selector::parse(".nav.nav-list a").unwrap();
@@ -179,36 +200,49 @@ pub async fn download_alpha_cards(base_url: &str) -> Result<String, Box<dyn Erro
     let start_time = chrono::prelude::Local::now();
     let start_time_as_string = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
 
-    log::info!("Alphaspel scan started at: {}", start_time_as_string,);
+    log::info!("Alphaspel scan started at: {}", start_time_as_string);
 
     let pages = get_all_card_pages(base_url).await?;
-
+    log::info!("Found {} pages", pages.len());
     let mut grouped_cards: HashMap<String, Vec<VendorCard>> = HashMap::new();
 
     let semaphore = Arc::new(Semaphore::new(20));
 
-    // let mut links_and_page_numbers: HashMap<String, u32> = HashMap::new();
-    // let mut index = 0;
     let futures = pages.into_iter().map(|set_href| {
         let semaphore_clone = Arc::clone(&semaphore);
         async move {
             let _permit = semaphore_clone.acquire().await.unwrap(); //Get a permit to run in parallel
 
             let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page=1");
-            let set_initial_page = reqwest::get(&link).await.unwrap().text().await.unwrap();
-            let document = Html::parse_document(&set_initial_page);
-            let selector = Selector::parse("ul.pagination li").unwrap();
+            log::info!("Processing link {}", &link);
+            match reqwest::get(&link).await {
+                Ok(response) => match response.text().await {
+                    Ok(set_initial_page) => {
+                        let document = Html::parse_document(&set_initial_page);
+                        let selector = Selector::parse("ul.pagination li").unwrap();
 
-            let mut max_page = 0;
-            for element in document.select(&selector) {
-                if let Ok(num) = element.text().collect::<String>().trim().parse::<u32>() {
-                    if num > max_page {
-                        max_page = num;
+                        let mut max_page = 0;
+                        for element in document.select(&selector) {
+                            if let Ok(num) =
+                                element.text().collect::<String>().trim().parse::<u32>()
+                            {
+                                if num > max_page {
+                                    max_page = num;
+                                }
+                            }
+                        }
+                        (set_href, max_page)
                     }
+                    Err(e) => {
+                        log::error!("Error reading response text for {}: {}", link, e);
+                        (set_href, 0)
+                    }
+                },
+                Err(e) => {
+                    log::error!("Error fetching page {}: {}", link, e);
+                    (set_href, 0)
                 }
             }
-
-            (set_href, max_page)
         }
     });
 
@@ -225,23 +259,24 @@ pub async fn download_alpha_cards(base_url: &str) -> Result<String, Box<dyn Erro
             for x in 1..=*pages as i32 {
                 let link = format!("{base_url}{set_href}?order_by=stock_a&ordering=desc&page={x}");
                 log::info!("Processing link {}", &link);
-                let set_page = reqwest::get(&link)
-                    .await
-                    .unwrap()
-                    .text()
-                    .await
-                    .unwrap_or_else(|e| {
-                        log::error!("Error fetching page: {}, with error: {}", &link, e);
-                        return "".to_string();
-                    });
-                let document = Html::parse_document(&set_page);
-                let product_selector = &Selector::parse(".products.row .product").unwrap();
-                let products = document.select(product_selector);
+                match reqwest::get(&link).await {
+                    Ok(response) => match response.text().await {
+                        Ok(set_page) => {
+                            let document = Html::parse_document(&set_page);
+                            let product_selector =
+                                &Selector::parse(".products.row .product").unwrap();
+                            let products = document.select(product_selector);
 
-                for product in products {
-                    if let Ok(card) = get_card_information(product) {
-                        cards.push(card);
-                    }
+                            for product in products {
+                                match get_card_information(product) {
+                                    Ok(card) => cards.push(card),
+                                    Err(e) => log::error!("Error parsing card: {}", e),
+                                }
+                            }
+                        }
+                        Err(e) => log::error!("Error reading response text for {}: {}", link, e),
+                    },
+                    Err(e) => log::error!("Error fetching page {}: {}", link, e),
                 }
             }
             cards
@@ -264,10 +299,9 @@ pub async fn download_alpha_cards(base_url: &str) -> Result<String, Box<dyn Erro
 
     save_to_file(&alpha_cards_path, &grouped_cards)?;
 
-    // let duration = start_time.elapsed();
     let end_time = chrono::prelude::Local::now();
     log::info!(
-        "Alphaspel scan started at: {}. Finished at: {}. Took: {} seconds and with {} cards on dl_cards_path: {}",
+        "Alphaspel scan started at: {}. Finished at: {}. Took: {} seconds and with {} cards stored on: {}",
         start_time_as_string,
         end_time,
         (end_time - start_time).num_seconds(),
@@ -384,6 +418,7 @@ mod tests {
             "/2583-9th-edition/".to_string(),
             "/3612-adventures-in-the-forgotten-realms/".to_string(),
             "/2331-aether-revolt/".to_string(),
+            "/5112-aetherdrift/".to_string(),
             "/2174-alara-reborn/".to_string(),
             "/2145-alliances/".to_string(),
             "/2895-alpha/".to_string(),
@@ -424,8 +459,10 @@ mod tests {
             "/3981-commander-legends-battle-for-baldurs-gate-commander-decks/".to_string(),
             "/4594-commander-masters/".to_string(),
             "/3613-commander-adventures-in-the-forgotten-realms/".to_string(),
+            "/5113-commander-aetherdrift/".to_string(),
             "/4922-commander-bloomburrow/".to_string(),
             "/4033-commander-dominaria-united/".to_string(),
+            "/4983-commander-duskmourn/".to_string(),
             "/3773-commander-innistrad-crimson-vow/".to_string(),
             "/3708-commander-innistrad-midnight-hunt/".to_string(),
             "/3888-commander-kamigawa-neon-dynasty/".to_string(),
@@ -479,6 +516,7 @@ mod tests {
             "/2558-duel-decks-venser-vs-koth/".to_string(),
             "/2089-duel-decks-zendikar-vs-eldrazi/".to_string(),
             "/2564-duels-of-the-planeswalkers/".to_string(),
+            "/4980-duskmourn-house-of-horror/".to_string(),
             "/2252-eldritch-moon/".to_string(),
             "/4600-enchanting-tales/".to_string(),
             "/2247-eternal-masters/".to_string(),
@@ -490,6 +528,7 @@ mod tests {
             "/2173-fifth-dawn/".to_string(),
             "/2575-foreign-black-bordered/".to_string(),
             "/4596-foreign-white-bordered/".to_string(),
+            "/5049-foundations-jumpstart/".to_string(),
             "/2194-from-the-vault-angels/".to_string(),
             "/2004-from-the-vault-annihilation/".to_string(),
             "/2789-from-the-vault-dragons/".to_string(),
@@ -514,6 +553,7 @@ mod tests {
             "/2523-iconic-masters/".to_string(),
             "/3098-ikoria-lair-of-behemoths/".to_string(),
             "/2058-innistrad/".to_string(),
+            "/5091-innistrad-remastered/".to_string(),
             "/3770-innistrad-crimson-vow/".to_string(),
             "/4494-innistrad-double-feature/".to_string(),
             "/3662-innistrad-midnight-hunt/".to_string(),
@@ -539,6 +579,7 @@ mod tests {
             "/2094-magic-2013/".to_string(),
             "/2055-magic-2014/".to_string(),
             "/1980-magic-2015/".to_string(),
+            "/5035-magic-the-gathering-foundations/".to_string(),
             "/4524-march-of-the-machine/".to_string(),
             "/4543-march-of-the-machine-the-aftermath/".to_string(),
             "/2608-masters-25/".to_string(),
@@ -582,6 +623,7 @@ mod tests {
             "/2791-ravnica-allegiance/".to_string(),
             "/2812-ravnica-allegiance-guild-kits/".to_string(),
             "/4694-ravnica-remasterd/".to_string(),
+            "/5053-ravnica-cluedo-edition/".to_string(),
             "/2056-return-to-ravnica/".to_string(),
             "/2147-revised-3rd/".to_string(),
             "/2126-rise-of-the-eldrazi/".to_string(),
@@ -634,6 +676,8 @@ mod tests {
             "/2212-visions/".to_string(),
             "/2892-war-of-the-spark/".to_string(),
             "/2748-weatherlight/".to_string(),
+            "/5083-welcome-deck-2016/".to_string(),
+            "/5082-welcome-deck-2017/".to_string(),
             "/4599-wilds-of-eldraine/".to_string(),
             "/4648-world-cup-decks/".to_string(),
             "/2335-worldwake/".to_string(),
