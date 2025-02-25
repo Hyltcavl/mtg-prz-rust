@@ -84,6 +84,7 @@ pub struct TradeableCard {
     pub name: CardName,
     pub set: SetName,
     pub foil: bool,
+    pub prerelease: bool,
     pub tradeable_vendor: Vendor,
     pub trade_in_price: Price,
     pub mcm_price: Price,
@@ -143,6 +144,7 @@ fn get_tradable_and_leftover_cards(
                             name: v_card.name.clone(),
                             set: v_card.set.clone(),
                             foil: p_card.foil,
+                            prerelease: v_card.prerelease,
                             tradeable_vendor: v_card.vendor.clone(),
                             trade_in_price: Price::new(v_card.trade_in_price.into(), Currency::SEK),
                             mcm_price: Price::new(p_card.price, Currency::EUR),
@@ -371,6 +373,7 @@ mod tests {
             name: CardName::new("Reaper King".to_string()).unwrap(),
             set: SetName::new("Shadowmoor".to_string()).unwrap(),
             foil: true,
+            prerelease: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(100.0, Currency::SEK),
             mcm_price: Price::new(200.0, Currency::EUR),
@@ -384,6 +387,7 @@ mod tests {
             name: CardName::new("Reaper King".to_string()).unwrap(),
             set: SetName::new("Shadowmoor".to_string()).unwrap(),
             foil: false,
+            prerelease: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
             mcm_price: Price::new(2.06, Currency::EUR),
@@ -398,6 +402,7 @@ mod tests {
             name: CardName::new("Counterspell".to_string()).unwrap(),
             set: SetName::new("Ice Age".to_string()).unwrap(),
             foil: false,
+            prerelease: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
             mcm_price: Price::new(1.24, Currency::EUR),
@@ -438,6 +443,7 @@ mod tests {
             name: CardName::new("Reaper King".to_string()).unwrap(),
             set: SetName::new("Shadowmoor".to_string()).unwrap(),
             foil: true,
+            prerelease: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(100.0, Currency::SEK),
             mcm_price: Price::new(200.0, Currency::EUR),
@@ -452,6 +458,7 @@ mod tests {
             name: CardName::new("Counterspell".to_string()).unwrap(),
             set: SetName::new("Ice Age".to_string()).unwrap(),
             foil: false,
+            prerelease: false,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price::new(50.0, Currency::SEK),
             mcm_price: Price::new(1.24, Currency::EUR),
@@ -491,7 +498,7 @@ mod tests2 {
         let vendor_cards: HashMap<CardName, Vec<VendorCard>> = load_from_json_file::<
             HashMap<CardName, Vec<VendorCard>>,
         >(
-            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_21_02_2025-13-46.json",
+            "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_25_02_2025-16-14.json",
         )
         .unwrap();
 

@@ -101,6 +101,7 @@ impl Database {
                 name: CardName::new(row.get(1)?).unwrap(),
                 set: SetName::new(row.get(2)?).unwrap(),
                 foil: row.get(3)?,
+                prerelease: false,
                 tradeable_vendor: row.get(4)?,
                 trade_in_price: Price {
                     amount: row.get(5)?,
@@ -206,6 +207,7 @@ mod tests {
         let tradable_card = TradeableCard {
             name: CardName::new("Chulane, Teller of Tales".to_string()).unwrap(),
             set: SetName::new("Throne of Eldraine".to_string()).unwrap(),
+            prerelease: false,
             foil: true,
             tradeable_vendor: Vendor::Dragonslair,
             trade_in_price: Price {

@@ -109,7 +109,7 @@ pub fn generate_card_row(card: &TradeableCard) -> String {
                     <img class="enlarged-image" src="{image_url}" alt="{name}">
                 </div>
             </td>
-            <td>{name} {foil_text}/{set_name} </td>
+            <td>{name}{foil_text}/{set_name} </td>
             <td data-sort={trade_in_price_sek:.2}>{trade_in_price_sek:.2} SEK</td>
             <td data-sort={mcm_price_sek:.2}>{mcm_price_sek:.2} SEK</td>
             <td data-sort={vendor_stock:.2}>{vendor_stock:.2}</td>
