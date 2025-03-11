@@ -1,0 +1,140 @@
+[
+  {
+    "name": "Greenbelt Guardian",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 0.08,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 3,
+    "image_url": "https://astraeus.dragonslair.se/images/130421/product",
+    "color": "Green",
+    "rarity": "Uncommon"
+  },
+  {
+    "name": "Haunt the Network",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 0.07,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 1,
+    "image_url": "https://astraeus.dragonslair.se/images/130590/product",
+    "color": "Blue/Black",
+    "rarity": "Uncommon"
+  },
+  {
+    "name": "Sabotage Strategist",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 0.06,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 1,
+    "image_url": "https://astraeus.dragonslair.se/images/129873/product",
+    "color": "Blue",
+    "rarity": "Uncommon"
+  },
+  {
+    "name": "Stock Up",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 2.14,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 4,
+    "image_url": "https://astraeus.dragonslair.se/images/129924/product",
+    "color": "Blue",
+    "rarity": "Uncommon"
+  },
+  {
+    "name": "Dredger's Insight",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 0.3,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 4,
+    "image_url": "https://astraeus.dragonslair.se/images/130402/product",
+    "color": "Green",
+    "rarity": "Uncommon"
+  },
+  {
+    "name": "Nesting Bot",
+    "set": {
+      "raw": "Aetherdrift",
+      "cleaned": "aetherdrift"
+    },
+    "foil": false,
+    "prerelease": false,
+    "tradeable_vendor": "Dragonslair",
+    "trade_in_price": {
+      "amount": 2.0,
+      "currency": "SEK"
+    },
+    "mcm_price": {
+      "amount": 0.18,
+      "currency": "EUR"
+    },
+    "cards_to_trade": 1,
+    "card_ammount_requested_by_vendor": 4,
+    "image_url": "https://astraeus.dragonslair.se/images/129738/product",
+    "color": "White",
+    "rarity": "Uncommon"
+  }
+]

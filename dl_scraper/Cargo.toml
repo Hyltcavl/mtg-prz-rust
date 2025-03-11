@@ -1,0 +1,9 @@
+[package]
+name = "dl_scraper"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arc = "0.0.1"
+reqwest = "0.12.12"
+scraper = "0.23.1"

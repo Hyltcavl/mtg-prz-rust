@@ -494,7 +494,7 @@ mod tests2 {
     #[tokio::test]
     async fn test_fetch_card() {
         init();
-        let file_path = "/workspaces/mtg-prz-rust/All_Cards_2025_Feb_19_16-14.csv";
+        let file_path = "/workspaces/mtg-prz-rust/Draftshaft_2025_Mar_10_17-33.csv";
         let vendor_cards: HashMap<CardName, Vec<VendorCard>> = load_from_json_file::<
             HashMap<CardName, Vec<VendorCard>>,
         >(
