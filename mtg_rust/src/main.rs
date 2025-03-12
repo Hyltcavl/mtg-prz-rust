@@ -5,7 +5,6 @@ pub mod db;
 mod dl;
 mod html;
 mod scryfall;
-mod test;
 mod tradable_cars;
 mod utils;
 
@@ -172,7 +171,7 @@ async fn main() {
 
 fn get_newest_file_path(folder: &str, prefix: &str) -> Result<String, Box<dyn std::error::Error>> {
     get_newest_file(
-        &format!("/workspaces/mtg-prz-rust/mtg-rust/{}", folder),
+        &format!("/workspaces/mtg-prz-rust/mtg_rust/{}", folder),
         prefix,
     )?
     .to_str()

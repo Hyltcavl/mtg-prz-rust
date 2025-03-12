@@ -10,8 +10,8 @@ use crate::utils::string_manipulators::{clean_string, date_time_as_string};
 use chrono::Local;
 
 #[cfg(not(test))]
+use std::{fs, path::Path};
 fn get_existing_scryfall_file() -> Option<String> {
-    use std::{fs, path::Path};
 
     let current_date = Local::now().format("%Y-%m-%d").to_string();
     let directory = Path::new("scryfall_prices_raw");

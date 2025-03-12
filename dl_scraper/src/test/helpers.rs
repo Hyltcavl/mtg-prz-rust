@@ -1,4 +1,4 @@
-use crate::cards::card::{CardName, Prices, ScryfallCard, SetName, Vendor, VendorCard};
+use crate::cards::{cardname::CardName, scryfallcard::{Prices, ScryfallCard}, setname::SetName, vendor::Vendor, vendorcard::VendorCard};
 
 pub fn reaper_king_card_name() -> CardName {
     CardName::new("Reaper King".to_string()).unwrap()

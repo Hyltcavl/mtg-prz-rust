@@ -1,4 +1,4 @@
-run command:  RUST_LOG=info DL=1 SCRYFALL=1 ALPHASPEL=1 cargo run > output.log 2>&1
+MagicRarityrun command:  RUST_LOG=info DL=1 SCRYFALL=1 ALPHASPEL=1 cargo run > output.log 2>&1
 RUST_LOG=debug DL=0 SCRYFALL=0 ALPHASPEL=0 cargo run > output.log 2>&1
 
 RUST_LOG=debug DL=0 SCRYFALL=0 ALPHASPEL=0 NICE_PRICE_DIFF=-20 cargo run > output.log 2>&1
@@ -24,3 +24,5 @@ cargo add <dependency name> --feature <feature name>
 
 TODO:
 Get Manatorsk cards
+
+proflogger with macro #[profile(info)] is used to see the time taken by each function : https://docs.rs/proflogger/latest/proflogger/ 

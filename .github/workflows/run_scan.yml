@@ -23,18 +23,18 @@ jobs:
         override: true
 
     - name: Build and run
-      run: cd mtg-rust && RUST_LOG=info cargo run
+      run: cd mtg_rust && RUST_LOG=info cargo run
 
     - name: Upload scan Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dl_cards
-        path: mtg-rust/dragonslair_cards
+        path: mtg_rust/dragonslair_cards
 
     - name: Upload scan Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mtg-rust/compared_prices
+        name: mtg_rust/compared_prices
         path: compared_prices
 
     # - name: Upload scan Artifacts
