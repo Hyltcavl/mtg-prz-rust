@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
+// use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
 use serde::{Deserialize, Serialize};
 
 use super::currency::Currency;
@@ -12,15 +12,15 @@ pub struct Price {
     pub currency: Currency,
 }
 
-impl FromSql for Currency {
-    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
-        match value.as_str()? {
-            "EUR" => Ok(Currency::EUR),
-            "SEK" => Ok(Currency::SEK),
-            _ => Err(FromSqlError::InvalidType),
-        }
-    }
-}
+// impl FromSql for Currency {
+//     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+//         match value.as_str()? {
+//             "EUR" => Ok(Currency::EUR),
+//             "SEK" => Ok(Currency::SEK),
+//             _ => Err(FromSqlError::InvalidType),
+//         }
+//     }
+// }
 
 impl Price {
     /// Create a new Price instance

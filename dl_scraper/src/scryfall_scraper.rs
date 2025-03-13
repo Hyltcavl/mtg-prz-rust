@@ -1,3 +1,8 @@
+use crate::cards::scryfallcard::Prices;
+use crate::cards::setname::SetName;
+use crate::date_time_as_string;
+use crate::utilities::string_manipulators::clean_string;
+use crate::utilities::file_management::save_to_file;
 use chrono::{format, Local};
 use log::{self, info};
 use reqwest;
@@ -8,7 +13,7 @@ use std::{fs, path::Path};
 
 use crate::cards::cardname::CardName;
 use crate::cards::scryfallcard::ScryfallCard;
-use crate::utilities::file_management::download_and_save_file;
+use crate::utilities::file_management::{download_and_save_file, load_from_json_file};
 
 const PRICES_DIR: &str = "scryfall_prices_raw";
 const FILE_PREFIX: &str = "scryfall_download";
@@ -98,6 +103,94 @@ impl ScryfallScraper {
         Ok(path.to_str().unwrap().to_string())
     }
 
+    fn is_not_artseries(&self, obj: &Value) -> bool {
+        obj["layout"] != "art_series"
+    }
+
+    fn is_not_basic_land(&self, obj: &Value) -> bool {
+        !obj["type_line"]
+            .as_str()
+            .unwrap_or("Not what we are looking for")
+            .starts_with("Basic Land")
+    }
+
+    fn is_not_token(&self, obj: &Value) -> bool {
+        obj["layout"] != "token"
+    }
+    pub fn convert_to_domain_version(
+        &self,
+        path: &str,
+    ) -> Result<HashMap<CardName, Vec<ScryfallCard>>, Box<dyn std::error::Error>> {
+        let mut scryfall_card_list = Vec::new();
+
+        let cards: serde_json::Value = load_from_json_file(&path)?;
+        if let Value::Array(cards_array) = cards {
+            for obj in cards_array {
+                if self.is_not_token(&obj)
+                    && self.is_not_basic_land(&obj)
+                    && self.is_not_artseries(&obj)
+                {
+                    let name = clean_string(obj["name"].as_str().unwrap()).to_string();
+                    let set = clean_string(obj["set_name"].as_str().unwrap()).to_string();
+                    // let prices = obj["prices"].clone();
+                    let eur: Option<f64> = obj["prices"]["eur"]
+                        .as_str()
+                        .and_then(|s| s.parse().ok())
+                        .or_else(|| obj["prices"]["eur"].as_f64());
+
+                    let eur_foil: Option<f64> = obj["prices"]["eur_foil"]
+                        .as_str()
+                        .and_then(|s| s.parse().ok())
+                        .or_else(|| obj["prices"]["eur_foil"].as_f64());
+
+                    let prices = Prices {
+                        eur: eur,
+                        eur_foil: eur_foil,
+                    };
+                    let image_url = obj["image_uris"]["normal"]
+                        .as_str()
+                        .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
+                        .to_string();
+
+                    let card_name = match CardName::new(name.clone()) {
+                        Ok(name) => name,
+                        Err(e) => {
+                            log::debug!("Error parsing card name: '{}', with error: {}", name, e);
+                            continue;
+                        }
+                    };
+
+                    let set_name = SetName::new(set)?;
+                    let card = ScryfallCard {
+                        name: card_name,
+                        set: set_name,
+                        image_url: image_url,
+                        prices: prices,
+                    };
+                    scryfall_card_list.push(card);
+                }
+            }
+        }
+
+        // Group scryfall cards by name
+        let mut grouped_cards: HashMap<CardName, Vec<ScryfallCard>> = HashMap::new();
+        for card in scryfall_card_list {
+            grouped_cards
+                .entry(card.name.clone())
+                .or_insert_with(Vec::new)
+                .push(card);
+        }
+
+        let parsed_file_path = format!(
+            "scryfall_prices/parsed_scryfall_cards_{}.json",
+            date_time_as_string(None, None)
+        );
+
+        save_to_file(&parsed_file_path, &grouped_cards)?;
+
+        Ok(grouped_cards)
+    }
+
     async fn get_scryfall_cards() -> HashMap<CardName, Vec<ScryfallCard>> {
         HashMap::new()
     }
@@ -171,8 +264,7 @@ mod tests {
             )
             .create();
 
-        let html_content =
-            include_str!("/workspaces/mtg-prz-rust/dl_scraper/src/test/scryfall_card_resp.json");
+        let html_content = include_str!("test/scryfall_card_resp.json");
         let _cards_mock = ctx
             .server
             .mock("GET", "/all-cards")
@@ -201,5 +293,34 @@ mod tests {
         let result = ctx.scraper.get_large_scryfall_cards_file().await.unwrap();
         assert_eq!(result, file_path.to_str().unwrap());
         mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_should_create_domain_version_of_scryfall_cards_list() {
+        let mut ctx = TestContext::new();
+
+        // Setup existing file
+
+        let file_path = ctx.create_mock_file(include_str!("test/scryfall_card_resp.json"));
+
+        let parsed_cards = ctx
+            .scraper
+            .convert_to_domain_version(file_path.to_str().unwrap())
+            .unwrap();
+
+        // Execute and verify
+        // assert_eq!(result, file_path.to_str().unwrap());
+
+        // Assert the parsed data
+        assert_eq!(parsed_cards.len(), 2); // one basic land, one token and 2 cards
+        let kor_card = parsed_cards
+            .get(&CardName::new("Kor Outfitter".to_string()).unwrap())
+            .unwrap()
+            .first()
+            .unwrap();
+        assert_eq!(kor_card.set.raw, "Zendikar");
+        assert_eq!(kor_card.prices.eur, Some(0.19));
+        assert_eq!(kor_card.prices.eur_foil, Some(1.83));
+        assert_eq!(kor_card.image_url, "https://cards.scryfall.io/normal/front/0/0/00006596-1166-4a79-8443-ca9f82e6db4e.jpg?1562609251");
     }
 }

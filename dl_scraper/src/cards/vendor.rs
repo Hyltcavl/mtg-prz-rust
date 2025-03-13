@@ -1,7 +1,7 @@
-use rusqlite::types::FromSql;
-use rusqlite::types::FromSqlError;
-use rusqlite::types::FromSqlResult;
-use rusqlite::types::ValueRef;
+// use rusqlite::types::FromSql;
+// use rusqlite::types::FromSqlError;
+// use rusqlite::types::FromSqlResult;
+// use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -22,13 +22,13 @@ impl fmt::Display for Vendor {
     }
 }
 
-impl FromSql for Vendor {
-    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
-        match value.as_str()? {
-            "Dragonslair" => Ok(Vendor::Dragonslair),
-            "Alphaspel" => Ok(Vendor::Alphaspel),
-            "Cardmarket" => Ok(Vendor::Cardmarket),
-            _ => Err(FromSqlError::InvalidType),
-        }
-    }
-}
+// impl FromSql for Vendor {
+//     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+//         match value.as_str()? {
+//             "Dragonslair" => Ok(Vendor::Dragonslair),
+//             "Alphaspel" => Ok(Vendor::Alphaspel),
+//             "Cardmarket" => Ok(Vendor::Cardmarket),
+//             _ => Err(FromSqlError::InvalidType),
+//         }
+//     }
+// }
