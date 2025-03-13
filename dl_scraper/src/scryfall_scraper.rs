@@ -12,11 +12,15 @@ use std::vec;
 use std::{fs, path::Path};
 
 use crate::cards::cardname::CardName;
+use crate::cards::currency::Currency;
+use crate::cards::price::Price;
 use crate::cards::scryfallcard::ScryfallCard;
 use crate::utilities::file_management::{download_and_save_file, load_from_json_file};
 
-const PRICES_DIR: &str = "scryfall_prices_raw";
-const FILE_PREFIX: &str = "scryfall_download";
+const RAW_CARDS_DIR: &str = "scryfall_cards_raw";
+const SCRYFALL_CARDS_DIR: &str = "scryfall_cards";
+const RAW_FILE_PREFIX: &str = "scryfall_raw_download";
+const FILE_PREFIX: &str = "scryfall_cards";
 
 pub struct ScryfallScraper {
     client: reqwest::Client,
@@ -45,14 +49,15 @@ impl ScryfallScraper {
     }
 
     fn get_prices_directory(&self) -> std::path::PathBuf {
-        Path::new(&self.directory_path).join(PRICES_DIR)
+        Path::new(&self.directory_path).join(RAW_CARDS_DIR)
     }
 
     fn create_file_path(&self, timestamp: &str) -> std::path::PathBuf {
         self.get_prices_directory()
-            .join(format!("{}_{}.json", FILE_PREFIX, timestamp))
+            .join(format!("{}_{}.json", RAW_FILE_PREFIX, timestamp))
     }
 
+    /// Returns the path to the file uf ut exists (The file is in raw format and quite big)
     fn get_existing_scryfall_file(&self) -> Option<String> {
         let current_date = Local::now().format("%Y-%m-%d").to_string();
         let directory = self.get_prices_directory();
@@ -60,7 +65,7 @@ impl ScryfallScraper {
         fs::read_dir(directory).ok()?.find_map(|entry| {
             let entry = entry.ok()?;
             let file_name = entry.file_name().into_string().ok()?;
-            if file_name.starts_with(&format!("{}_{}", FILE_PREFIX, current_date))
+            if file_name.starts_with(&format!("{}_{}", RAW_FILE_PREFIX, current_date))
                 && file_name.ends_with(".json")
             {
                 Some(entry.path().to_str()?.to_string())
@@ -70,7 +75,7 @@ impl ScryfallScraper {
         })
     }
 
-    pub async fn get_large_scryfall_cards_file(
+    pub async fn get_raw_scryfall_cards_file(
         &self,
     ) -> Result<String, Box<dyn std::error::Error>> {
         if let Some(existing_file) = self.get_existing_scryfall_file() {
@@ -117,10 +122,10 @@ impl ScryfallScraper {
     fn is_not_token(&self, obj: &Value) -> bool {
         obj["layout"] != "token"
     }
-    pub fn convert_to_domain_version(
+    pub fn convert_raw_to_domain_cards(
         &self,
         path: &str,
-    ) -> Result<HashMap<CardName, Vec<ScryfallCard>>, Box<dyn std::error::Error>> {
+    ) -> Result<(HashMap<CardName, Vec<ScryfallCard>>, String), Box<dyn std::error::Error>> {
         let mut scryfall_card_list = Vec::new();
 
         let cards: serde_json::Value = load_from_json_file(&path)?;
@@ -144,9 +149,16 @@ impl ScryfallScraper {
                         .or_else(|| obj["prices"]["eur_foil"].as_f64());
 
                     let prices = Prices {
-                        eur: eur,
-                        eur_foil: eur_foil,
+                        eur: match eur {
+                            Some(v) => Some(Price::new(v,Currency::EUR)),
+                            None => Default::default(),
+                        },
+                        eur_foil: match eur_foil {
+                            Some(v) => Some(Price::new(v, Currency::EUR)),
+                            None => Default::default(),
+                        }
                     };
+                        
                     let image_url = obj["image_uris"]["normal"]
                         .as_str()
                         .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
@@ -182,13 +194,13 @@ impl ScryfallScraper {
         }
 
         let parsed_file_path = format!(
-            "scryfall_prices/parsed_scryfall_cards_{}.json",
-            date_time_as_string(None, None)
+            "{}/{}_{}.json",
+            SCRYFALL_CARDS_DIR, FILE_PREFIX, date_time_as_string(None, None)
         );
 
         save_to_file(&parsed_file_path, &grouped_cards)?;
 
-        Ok(grouped_cards)
+        Ok((grouped_cards, parsed_file_path))
     }
 
     async fn get_scryfall_cards() -> HashMap<CardName, Vec<ScryfallCard>> {
@@ -232,7 +244,7 @@ mod tests {
         }
 
         fn setup_prices_directory(&self) -> std::path::PathBuf {
-            let prices_dir = self.temp_dir.path().join(PRICES_DIR);
+            let prices_dir = self.temp_dir.path().join(RAW_CARDS_DIR);
             fs::create_dir_all(&prices_dir).unwrap();
             prices_dir
         }
@@ -240,7 +252,7 @@ mod tests {
         fn create_mock_file(&self, content: &str) -> std::path::PathBuf {
             let prices_dir = self.setup_prices_directory();
             let current_date = Local::now().format("%Y-%m-%d").to_string();
-            let file_name = format!("{}_{}.json", FILE_PREFIX, current_date);
+            let file_name = format!("{}_{}.json", RAW_FILE_PREFIX, current_date);
             let file_path = prices_dir.join(file_name);
             fs::write(&file_path, content).unwrap();
             file_path
@@ -273,7 +285,7 @@ mod tests {
             .create();
 
         // Execute and verify
-        let result = ctx.scraper.get_large_scryfall_cards_file().await.unwrap();
+        let result = ctx.scraper.get_raw_scryfall_cards_file().await.unwrap();
         assert!(fs::metadata(&result).is_ok());
         assert!(!fs::read_to_string(&result).unwrap().is_empty());
         mock.assert();
@@ -290,26 +302,28 @@ mod tests {
         let mock = ctx.server.mock("GET", "/bulk-data").expect(0).create();
 
         // Execute and verify
-        let result = ctx.scraper.get_large_scryfall_cards_file().await.unwrap();
+        let result = ctx.scraper.get_raw_scryfall_cards_file().await.unwrap();
         assert_eq!(result, file_path.to_str().unwrap());
         mock.assert();
     }
 
     #[tokio::test]
     async fn test_should_create_domain_version_of_scryfall_cards_list() {
-        let mut ctx = TestContext::new();
+        let ctx = TestContext::new();
 
         // Setup existing file
 
         let file_path = ctx.create_mock_file(include_str!("test/scryfall_card_resp.json"));
 
-        let parsed_cards = ctx
+        let (parsed_cards, path) = ctx
             .scraper
-            .convert_to_domain_version(file_path.to_str().unwrap())
+            .convert_raw_to_domain_cards(file_path.to_str().unwrap())
             .unwrap();
 
         // Execute and verify
         // assert_eq!(result, file_path.to_str().unwrap());
+        assert!(fs::metadata(&path).is_ok());
+        assert!(!fs::read_to_string(&path).unwrap().is_empty());
 
         // Assert the parsed data
         assert_eq!(parsed_cards.len(), 2); // one basic land, one token and 2 cards
@@ -319,8 +333,8 @@ mod tests {
             .first()
             .unwrap();
         assert_eq!(kor_card.set.raw, "Zendikar");
-        assert_eq!(kor_card.prices.eur, Some(0.19));
-        assert_eq!(kor_card.prices.eur_foil, Some(1.83));
+        assert_eq!(kor_card.prices.eur, Some(Price::new(0.19, Currency::EUR)));
+        assert_eq!(kor_card.prices.eur_foil, Some(Price::new(1.83, Currency::EUR)));
         assert_eq!(kor_card.image_url, "https://cards.scryfall.io/normal/front/0/0/00006596-1166-4a79-8443-ca9f82e6db4e.jpg?1562609251");
     }
 }

@@ -1,4 +1,6 @@
 use crate::cards::{cardname::CardName, scryfallcard::{Prices, ScryfallCard}, setname::SetName, vendor::Vendor, vendorcard::VendorCard};
+use crate::cards::currency::Currency;
+use crate::cards::price::Price;
 
 pub fn reaper_king_card_name() -> CardName {
     CardName::new("Reaper King".to_string()).unwrap()
@@ -103,8 +105,8 @@ pub fn reaper_king_scryfall_card_expensive() -> ScryfallCard {
         set: reaper_king_set_name(),
         image_url: "www.google.com".to_string(),
         prices: Prices {
-            eur: Some(1.0),
-            eur_foil: Some(2.0),
+            eur: Some(Price::new(1.0, Currency::EUR)),
+            eur_foil: Some(Price::new(2.0,Currency::EUR)),
         },
     }
 }
@@ -115,8 +117,8 @@ pub fn reaper_king_scryfall_card_cheap() -> ScryfallCard {
         set: reaper_king_set_name_2(),
         image_url: "www.google.com".to_string(),
         prices: Prices {
-            eur: Some(0.5),
-            eur_foil: Some(1.0),
+            eur: Some(Price::new(0.5, Currency::EUR)),
+            eur_foil: Some(Price::new(1.0,Currency::EUR)),
         },
     }
 }
@@ -152,8 +154,8 @@ pub fn lifecraft_c_scryfall_card() -> ScryfallCard {
         set: lifecraft_c_set_name(),
         image_url: "www.google.com".to_string(),
         prices: Prices {
-            eur: Some(1.0),
-            eur_foil: Some(2.0),
+            eur: Some(Price::new(1.0, Currency::EUR)),
+            eur_foil: Some(Price::new(2.0,Currency::EUR)),
         },
     }
 }

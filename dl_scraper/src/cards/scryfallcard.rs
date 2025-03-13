@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-
+use crate::cards::price::Price;
 use super::{cardname::CardName, setname::SetName};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -12,6 +12,6 @@ pub struct ScryfallCard {
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Prices {
-    pub eur: Option<f64>,
-    pub eur_foil: Option<f64>,
+    pub eur: Option<Price>,
+    pub eur_foil: Option<Price>,
 }
