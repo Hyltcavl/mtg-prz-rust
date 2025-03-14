@@ -1,8 +1,8 @@
 use crate::cards::scryfallcard::Prices;
 use crate::cards::setname::SetName;
 use crate::date_time_as_string;
-use crate::utilities::string_manipulators::clean_string;
 use crate::utilities::file_management::save_to_file;
+use crate::utilities::string_manipulators::clean_string;
 use chrono::{format, Local};
 use log::{self, info};
 use reqwest;
@@ -21,6 +21,7 @@ const RAW_CARDS_DIR: &str = "scryfall_cards_raw";
 const SCRYFALL_CARDS_DIR: &str = "scryfall_cards";
 const RAW_FILE_PREFIX: &str = "scryfall_raw_download";
 const FILE_PREFIX: &str = "scryfall_cards";
+const SCRYFALL_API_URL: &str = "https://api.scryfall.com";
 
 pub struct ScryfallScraper {
     client: reqwest::Client,
@@ -29,12 +30,12 @@ pub struct ScryfallScraper {
 }
 
 impl ScryfallScraper {
-    pub fn new(base_url: &str, client: reqwest::Client, directory_path: Option<String>) -> Self {
+    pub fn new(base_url: Option<&str>, client: reqwest::Client, directory_path: Option<String>) -> Self {
         ScryfallScraper {
             client,
-            base_url: base_url.to_string(),
+            base_url: base_url.unwrap_or(SCRYFALL_API_URL).to_string(),
             directory_path: directory_path
-                .unwrap_or_else(|| "/workspaces/mtg-prz-rust/scryfall/".to_string()),
+                .unwrap_or("/workspaces/mtg-prz-rust/scryfall/".to_string()),
         }
     }
 
@@ -75,9 +76,7 @@ impl ScryfallScraper {
         })
     }
 
-    pub async fn get_raw_scryfall_cards_file(
-        &self,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn get_raw_scryfall_cards_file(&self) -> Result<String, Box<dyn std::error::Error>> {
         if let Some(existing_file) = self.get_existing_scryfall_file() {
             info!("Using existing Scryfall price file: {}", existing_file);
             return Ok(existing_file);
@@ -150,15 +149,15 @@ impl ScryfallScraper {
 
                     let prices = Prices {
                         eur: match eur {
-                            Some(v) => Some(Price::new(v,Currency::EUR)),
+                            Some(v) => Some(Price::new(v, Currency::EUR)),
                             None => Default::default(),
                         },
                         eur_foil: match eur_foil {
                             Some(v) => Some(Price::new(v, Currency::EUR)),
                             None => Default::default(),
-                        }
+                        },
                     };
-                        
+
                     let image_url = obj["image_uris"]["normal"]
                         .as_str()
                         .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
@@ -195,7 +194,9 @@ impl ScryfallScraper {
 
         let parsed_file_path = format!(
             "{}/{}_{}.json",
-            SCRYFALL_CARDS_DIR, FILE_PREFIX, date_time_as_string(None, None)
+            SCRYFALL_CARDS_DIR,
+            FILE_PREFIX,
+            date_time_as_string(None, None)
         );
 
         save_to_file(&parsed_file_path, &grouped_cards)?;
@@ -334,7 +335,10 @@ mod tests {
             .unwrap();
         assert_eq!(kor_card.set.raw, "Zendikar");
         assert_eq!(kor_card.prices.eur, Some(Price::new(0.19, Currency::EUR)));
-        assert_eq!(kor_card.prices.eur_foil, Some(Price::new(1.83, Currency::EUR)));
+        assert_eq!(
+            kor_card.prices.eur_foil,
+            Some(Price::new(1.83, Currency::EUR))
+        );
         assert_eq!(kor_card.image_url, "https://cards.scryfall.io/normal/front/0/0/00006596-1166-4a79-8443-ca9f82e6db4e.jpg?1562609251");
     }
 }

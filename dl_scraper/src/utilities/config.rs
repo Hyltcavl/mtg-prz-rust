@@ -2,7 +2,7 @@ use std::env;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub dl: bool,
+    pub dragonslair: bool,
     pub scryfall: bool,
     pub alpha: bool,
     pub nice_price_diff: i32,
@@ -12,7 +12,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            dl: true,
+            dragonslair: true,
             scryfall: true,
             alpha: true,
             nice_price_diff: 0,
@@ -29,13 +29,13 @@ impl Config {
     }
 
     fn update_from_env(&mut self) {
-        if let Ok(dl) = env::var("DL") {
-            self.dl = dl == "1";
+        if let Ok(dragonslair) = env::var("DL") {
+            self.dragonslair = dragonslair == "1";
         }
-        if let Ok(scryfall) = env::var("SCRYFALL") {
+        if let Ok(scryfall) = env::var("SF") {
             self.scryfall = scryfall == "1";
         }
-        if let Ok(alpha) = env::var("ALPHASPEL") {
+        if let Ok(alpha) = env::var("AS") {
             self.alpha = alpha == "1";
         }
         if let Ok(nice_price_diff) = env::var("NICE_PRICE_DIFF") {

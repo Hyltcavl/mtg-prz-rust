@@ -16,6 +16,7 @@ use futures::stream::{self, StreamExt};
 use log::info;
 use proflogger::profile;
 use reqwest::Client;
+use scryfall_scraper::ScryfallScraper;
 use utilities::file_management::load_from_json_file;
 use utilities::{file_management::get_newest_file, file_management::save_to_file};
 
@@ -39,7 +40,7 @@ async fn get_dragonslair_cards() -> HashMap<CardName, Vec<VendorCard>> {
 
     let end_time = chrono::prelude::Local::now();
     info!(
-        "DL scan started at: {}. Finished at: {}. Took: {} seconds and with {} cards on dl_cards_path: {}",
+        "DL scrape started at: {}. Finished at: {}. Took: {} seconds and with {} cards on dl_cards_path: {}",
         start_time,
         end_time,
         (end_time - start_time).num_seconds(),
@@ -47,6 +48,33 @@ async fn get_dragonslair_cards() -> HashMap<CardName, Vec<VendorCard>> {
         dl_cards_path
     );
     dragoslair_cards
+}
+
+async fn get_scryfall_cards() -> HashMap<CardName, Vec<VendorCard>> {
+    let start_time = chrono::prelude::Local::now();
+    info!("Starting at {}", start_time);
+
+    let scryfall_scraper = ScryfallScraper::new(None, reqwest::Client::new(),None);
+    let path_to_raw_scryfall_cards_file = scryfall_scraper.get_raw_scryfall_cards_file().await.unwrap();
+    let (scryfall_cards, path) = scryfall_scraper.convert_raw_to_domain_cards(&path_to_raw_scryfall_cards_file).await.unwrap();
+
+    let scryfall_cards_path = format!(
+        "/workspaces/mtg-prz-rust/scryfall_prices/parsed_scryfall_cards_{}.json",
+        date_time_as_string(None, None)
+    );
+
+    save_to_file(&scryfall_cards_path, &scryfall_scraper).unwrap();
+
+    let end_time = chrono::prelude::Local::now();
+    info!(
+        "Scryfall scrape started at: {}. Finished at: {}. Took: {} seconds and with {} cards on scryfall_cards_path: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        scryfall_scraper.len(),
+        scryfall_cards_path
+    );
+    scryfall_scraper
 }
 
 fn get_data_from_most_recent_file<T>(
@@ -85,6 +113,19 @@ async fn main() {
             Ok(cards) => cards,
             Err(e) => {
                 log::error!("Failed to load Dragonslair cards: {}", e);
+                HashMap::new()
+            }
+        }
+    };
+
+    let scryfall_cards_path = if CONFIG.scryfall {
+        log::info!("Downloading Scryfall cards...");
+        get_scryfall_cards().await
+    } else {
+        match get_data_from_most_recent_file("scryfall_prices", "parsed_scryfall_cards_") {
+            Ok(cards) => cards,
+            Err(e) => {
+                log::error!("Failed to load Scryfall cards: {}", e);
                 HashMap::new()
             }
         }
