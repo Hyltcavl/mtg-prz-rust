@@ -1,7 +1,6 @@
 use crate::cards::card_parser::fetch_and_parse;
 use crate::cards::cardname::CardName;
 use crate::cards::vendorcard::VendorCard;
-use crate::utilities::string_manipulators::date_time_as_string;
 use futures::stream::{self, StreamExt};
 use log::info;
 use reqwest::Client;
@@ -142,8 +141,8 @@ impl DragonslairScraper {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
-    use serde_json::to_string;
     use std::fs;
     use tokio;
 
@@ -182,7 +181,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_page_count_no_pages() {
         let html_content = fs::read_to_string(
-            "/workspaces/mtg-prz-rust/mtg-rust/src/test/get_pages_no_pages.html",
+            "/workspaces/mtg-prz-rust/dl_scraper/src/test/get_pages_no_pages.html",
         )
         .unwrap();
         let mut server = std::thread::spawn(|| mockito::Server::new())

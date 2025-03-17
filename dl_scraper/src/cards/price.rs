@@ -96,8 +96,8 @@ mod tests {
         let price_sek = Price::new(60.0, Currency::SEK);
 
         assert_eq!(price_eur.convert_to(Currency::EUR), 5.0);
-        assert_eq!(price_eur.convert_to(Currency::SEK), 57.5);
+        assert_eq!(price_eur.convert_to(Currency::SEK), 55.152);
         assert_eq!(price_sek.convert_to(Currency::SEK), 60.0);
-        assert_eq!(price_sek.convert_to(Currency::EUR), 5.22);
+        assert_eq!(price_sek.convert_to(Currency::EUR), 5.43952746);
     }
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SetName {
     pub raw: String,
     pub cleaned: String,
@@ -25,5 +25,11 @@ impl SetName {
             .trim()
             .to_string()
             .to_lowercase()
+    }
+}
+
+impl PartialEq for SetName {
+    fn eq(&self, other: &Self) -> bool {
+        self.cleaned == other.cleaned
     }
 }

@@ -16,6 +16,12 @@ RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delv
 
 RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delver_lense_card::tests2::test_fetch_card --exact --show-output > output.log 2>&1
 
+
+/running fast:
+
+RUST_LOG=trace DL=0 AS=0 SF=0 EXTERNAL_PRICE_CHECK=0 cargo run > output.log 2>&1
+
+
 to add dependency:
 cargo add <dependency name>
 
@@ -23,6 +29,8 @@ to add dependency with feature flag:
 cargo add <dependency name> --feature <feature name>
 
 TODO:
-Get Manatorsk cards
 
-proflogger with macro #[profile(info)] is used to see the time taken by each function : https://docs.rs/proflogger/latest/proflogger/ 
+- add compare on collectorsnumber to allow for borderless and other card variants in the compare
+- Refactor and reimplement the compare in the new setup
+- re implement the alphaspel cards
+- Get Manatorsk cards

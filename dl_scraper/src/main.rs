@@ -1,5 +1,8 @@
 mod cards;
+mod comparer;
 mod dragonslair_scraper;
+mod html_generator;
+mod mtg_stock_price_checker;
 mod scryfall_scraper;
 mod test;
 mod utilities;
@@ -10,29 +13,36 @@ use crate::cards::cardname::CardName;
 use crate::cards::vendorcard::VendorCard;
 use crate::utilities::{config::CONFIG, string_manipulators::date_time_as_string};
 
-use crate::cards::card_parser::fetch_and_parse;
+use cards::compared_card::ComparedCard;
+use cards::scryfallcard::ScryfallCard;
+
+use comparer::Comparer;
 use dragonslair_scraper::DragonslairScraper;
-use futures::stream::{self, StreamExt};
+
+use html_generator::generate_nice_price_page;
 use log::info;
-use proflogger::profile;
 use reqwest::Client;
 use scryfall_scraper::ScryfallScraper;
+use utilities::constants::{
+    COMPARED_CARDS_DIR, COMPARED_FILE_PREFIX, DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX,
+    MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR, SCRYFALL_CARDS_PROCESSED_DIR,
+    SCRYFALL_CARDS_RAW_DIR, SCRYFALL_FILE_PREFIX,
+};
 use utilities::file_management::load_from_json_file;
 use utilities::{file_management::get_newest_file, file_management::save_to_file};
 
-async fn get_dragonslair_cards() -> HashMap<CardName, Vec<VendorCard>> {
+async fn get_dragonslair_cards_and_save_to_file() -> HashMap<CardName, Vec<VendorCard>> {
     let start_time = chrono::prelude::Local::now();
     info!("Starting at {}", start_time);
 
-    let scraper = DragonslairScraper::new(
-        "https://astraeus.dragonslair.se",
-        Some([0].to_vec()),
-        Client::new(),
-    );
+    let scraper = DragonslairScraper::new("https://astraeus.dragonslair.se", None, Client::new());
     let dragoslair_cards = scraper.get_available_cards().await.unwrap();
 
     let dl_cards_path = format!(
-        "/workspaces/mtg-prz-rust/dragonslair_cards/dl_cards_{}.json",
+        "{}/{}/{}{}.json",
+        REPOSITORY_ROOT_PATH,
+        DRAGONSLAIR_CARDS_FOLDER,
+        DRAGONSLAIR_CARDS_PREFIX,
         date_time_as_string(None, None)
     );
 
@@ -50,20 +60,29 @@ async fn get_dragonslair_cards() -> HashMap<CardName, Vec<VendorCard>> {
     dragoslair_cards
 }
 
-async fn get_scryfall_cards() -> HashMap<CardName, Vec<VendorCard>> {
+async fn get_scryfall_cards_and_save_to_file(
+) -> HashMap<CardName, Vec<cards::scryfallcard::ScryfallCard>> {
     let start_time = chrono::prelude::Local::now();
     info!("Starting at {}", start_time);
 
-    let scryfall_scraper = ScryfallScraper::new(None, reqwest::Client::new(),None);
-    let path_to_raw_scryfall_cards_file = scryfall_scraper.get_raw_scryfall_cards_file().await.unwrap();
-    let (scryfall_cards, path) = scryfall_scraper.convert_raw_to_domain_cards(&path_to_raw_scryfall_cards_file).await.unwrap();
+    let scryfall_scraper = ScryfallScraper::new(None, reqwest::Client::new(), None);
+    let path_to_raw_scryfall_cards_file = scryfall_scraper
+        .get_raw_scryfall_cards_file()
+        .await
+        .unwrap();
+    let scryfall_cards = scryfall_scraper
+        .convert_raw_to_domain_cards(&path_to_raw_scryfall_cards_file)
+        .unwrap();
 
     let scryfall_cards_path = format!(
-        "/workspaces/mtg-prz-rust/scryfall_prices/parsed_scryfall_cards_{}.json",
+        "{}/{}/{}{}.json",
+        REPOSITORY_ROOT_PATH,
+        SCRYFALL_CARDS_PROCESSED_DIR,
+        SCRYFALL_FILE_PREFIX,
         date_time_as_string(None, None)
     );
 
-    save_to_file(&scryfall_cards_path, &scryfall_scraper).unwrap();
+    save_to_file(&scryfall_cards_path, &scryfall_cards).unwrap();
 
     let end_time = chrono::prelude::Local::now();
     info!(
@@ -71,10 +90,42 @@ async fn get_scryfall_cards() -> HashMap<CardName, Vec<VendorCard>> {
         start_time,
         end_time,
         (end_time - start_time).num_seconds(),
-        scryfall_scraper.len(),
+        scryfall_cards.len(),
         scryfall_cards_path
     );
-    scryfall_scraper
+    scryfall_cards
+}
+
+async fn compare_cards_and_save_to_file(
+    scryfall_cards: HashMap<CardName, Vec<ScryfallCard>>,
+    vendor_cards: HashMap<CardName, Vec<VendorCard>>,
+) -> HashMap<CardName, Vec<ComparedCard>> {
+    let start_time = chrono::prelude::Local::now();
+    info!("Starting at {}", start_time);
+
+    let comparer = Comparer::new(scryfall_cards, MTG_STOCKS_BASE_URL.to_string());
+    let compared_cards = comparer.compare_vendor_cards(vendor_cards).await;
+
+    let cards_path = format!(
+        "{}/{}/{}{}.json",
+        REPOSITORY_ROOT_PATH,
+        COMPARED_CARDS_DIR,
+        COMPARED_FILE_PREFIX,
+        date_time_as_string(None, None)
+    );
+
+    save_to_file(&cards_path, &compared_cards).unwrap();
+
+    let end_time = chrono::prelude::Local::now();
+    info!(
+        "Comparing cards started at: {}. Finished at: {}. Took: {} seconds and with {} cards in dir: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        compared_cards.len(),
+        cards_path
+    );
+    compared_cards
 }
 
 fn get_data_from_most_recent_file<T>(
@@ -102,12 +153,12 @@ where
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     info!("Starting");
 
-    let dl_cards_path = if CONFIG.dl {
-        get_dragonslair_cards().await
+    let dl_cards_path = if CONFIG.dragonslair {
+        get_dragonslair_cards_and_save_to_file().await
     } else {
         match get_data_from_most_recent_file("dragonslair_cards", "dl_cards_") {
             Ok(cards) => cards,
@@ -120,9 +171,9 @@ async fn main() {
 
     let scryfall_cards_path = if CONFIG.scryfall {
         log::info!("Downloading Scryfall cards...");
-        get_scryfall_cards().await
+        get_scryfall_cards_and_save_to_file().await
     } else {
-        match get_data_from_most_recent_file("scryfall_prices", "parsed_scryfall_cards_") {
+        match get_data_from_most_recent_file(SCRYFALL_CARDS_PROCESSED_DIR, SCRYFALL_FILE_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
                 log::error!("Failed to load Scryfall cards: {}", e);
@@ -130,6 +181,12 @@ async fn main() {
             }
         }
     };
+
+    let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards_path).await;
+
+    let _ = generate_nice_price_page(compared_cards, "../", "index.html", CONFIG.nice_price_diff);
+
+    Ok(())
     // let scryfall_cards_path = if CONFIG.scryfall {
     //     log::info!("Downloading Scryfall cards...");
     //     download_scryfall_cards(None).await

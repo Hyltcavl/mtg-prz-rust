@@ -12,8 +12,8 @@ impl Currency {
     /// Example: 1 SEK = 0.87 EUR (1 EUR = 11.50 SEK)
     pub fn exchange_rate(&self) -> f64 {
         match self {
-            Currency::EUR => 11.50,
-            Currency::SEK => 0.087,
+            Currency::EUR => 11.0304,
+            Currency::SEK => 0.090658791,
         }
     }
 }

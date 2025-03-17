@@ -84,7 +84,7 @@ impl Serialize for CardName {
         S: Serializer,
     {
         // Serialize CardName as a string (you can choose which field to use)
-        serializer.serialize_str(&self.almost_raw)
+        serializer.serialize_str(&self.raw)
     }
 }
 impl<'de> Deserialize<'de> for CardName {

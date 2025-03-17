@@ -8,3 +8,4 @@ pub mod scryfallcard;
 pub mod setname;
 pub mod vendor;
 pub mod vendorcard;
+pub mod compared_card;

@@ -15,9 +15,9 @@ pub fn filter_nice_price_cards(cards: &Vec<ComparedCard>) -> Vec<&ComparedCard> 
         .iter()
         .filter(|card| {
             if card.cheapest_set_price_mcm_sek <= 10 {
-                card.price_difference_to_cheapest_vendor_card > -1
-            } else if card.cheapest_set_price_mcm_sek <= 30 {
-                card.price_difference_to_cheapest_vendor_card > -5
+                card.price_difference_to_cheapest_vendor_card < 0
+            } else if card.cheapest_set_price_mcm_sek <= 25 {
+                card.price_difference_to_cheapest_vendor_card <= 5
             } else {
                 card.cheapest_set_price_mcm_sek >= 30
                     && card.price_difference_to_cheapest_vendor_card >= CONFIG.nice_price_diff
