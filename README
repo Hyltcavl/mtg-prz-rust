@@ -30,7 +30,10 @@ cargo add <dependency name> --feature <feature name>
 
 TODO:
 
-- add compare on collectorsnumber to allow for borderless and other card variants in the compare
 - Refactor and reimplement the compare in the new setup
 - re implement the alphaspel cards
 - Get Manatorsk cards
+
+Known issues:
+- DL card names have varying qualitites, and double faced cards usually only have the name of one of the faces while the scryfall cards usually have both \(also some variation there\).
+- Collector numbers on DL might not match the collector number on the scryfall card, but then it defaults to the name and set name that might be too including some times. 

@@ -20,13 +20,20 @@ pub fn filter_nice_price_cards(
         .values()
         .flatten()
         .filter(|card| {
-            if card.vendor_card.price <= 10.0 {
-                card.price_difference_to_cheapest_vendor_card <= 0
-            } else if card.vendor_card.price <= 30.0 {
-                card.price_difference_to_cheapest_vendor_card <= 5
+            let price_sek = card.vendor_card.price.convert_to(Currency::SEK); // Compare price in SEK
+            let price_diff = card.price_difference_to_cheapest_vendor_card;
+
+            println!(
+                "Checking card: {}, price: {:.2} SEK, price_diff: {}",
+                card.vendor_card.name.raw, price_sek, price_diff
+            );
+
+            if price_sek <= 10.0 {
+                price_diff <= 0
+            } else if price_sek <= 30.0 {
+                price_diff <= 5
             } else {
-                card.vendor_card.price >= 30.0
-                    && card.price_difference_to_cheapest_vendor_card <= nice_price_limit
+                price_sek > 30.0 && price_diff <= nice_price_limit
             }
         })
         .collect()
@@ -259,7 +266,9 @@ mod tests {
         let cards =
             load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
         let nice_price_cards = filter_nice_price_cards(&cards, 0);
-        assert_eq!(nice_price_cards.len(), 3);
+        // assert_eq!(cards["Mist-Syndicate Naga"][0].vendor_card.price, 30.0);
+        // assert_eq!(cards["Mist-Syndicate Naga"][0].price_difference_to_cheapest_vendor_card, 2);
+        assert_eq!(nice_price_cards.len(), 4);
     }
 
     // #[test]

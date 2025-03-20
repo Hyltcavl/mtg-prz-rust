@@ -759,5 +759,56 @@
       },
       "price_difference_to_cheapest_vendor_card": 80
     }
+  ],
+  "Mist-Syndicate Naga": [
+    {
+      "vendor_card": {
+        "name": "Mist-Syndicate Naga",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/55359/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Modern Horizons",
+          "cleaned": "modern horizons"
+        },
+        "price": {
+          "amount": 30.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 15,
+        "current_stock": 1,
+        "max_stock": 4,
+        "collector_number": {
+          "raw_value": "MH1-058",
+          "cleaned_value": "mh1-058"
+        }
+      },
+      "scryfall_card": {
+        "name": "MistSyndicate Naga",
+        "set": {
+          "raw": "Modern Horizons",
+          "cleaned": "modern horizons"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/6/5/65c8f074-e260-4f8e-85d1-1904ca928b51.jpg?1562201419",
+        "prices": {
+          "eur": {
+            "amount": 2.47,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 4.98,
+            "currency": "EUR"
+          }
+        },
+        "collector_number": {
+          "raw_value": "mh1-058",
+          "cleaned_value": "mh1-058"
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 2
+    }
   ]
 }

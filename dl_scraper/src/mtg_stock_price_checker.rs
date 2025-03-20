@@ -1,3 +1,4 @@
+use log::info;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -36,7 +37,7 @@ impl MtgPriceFetcher {
     ) -> Result<Price, Box<dyn std::error::Error>> {
         log::info!("Fetching live prices for card: {}", card_name.almost_raw);
 
-        // // Check cache first
+        // Check cache first
         let cached_prices: Option<Price> = {
             let cache = self.cache.lock().await;
             let prices = cache.get(&card_name).cloned();
@@ -73,40 +74,11 @@ impl MtgPriceFetcher {
         }
     }
 
-    // pub async fn get_live_card_prices(
-    //     &self,
-    //     card_name: &str,
-    //     base_url: &str,
-    // ) -> Result<Vec<MtgStocksCard>, Box<dyn std::error::Error>> {
-    //     log::info!("Fetching live prices for card: {}", card_name);
-
-    //     // Check cache first
-    //     let cached_prices = {
-    //         let cache = self.cache.lock().await;
-    //         cache.get(card_name).cloned()
-    //     };
-
-    //     if let Some(prices) = cached_prices {
-    //         log::debug!("Returning cached prices for card: {:?}", prices);
-    //         return Ok(prices);
-    //     }
-    //     let slug = self.get_card_search_uri(card_name).await?;
-    //     let list = self.get_list_of_prices_for_card(&slug).await?;
-
-    //     // Update cache
-    //     {
-    //         let mut cache = self.cache.lock().await;
-    //         cache.insert(card_name.to_string(), list.clone());
-    //     }
-
-    //     log::debug!("Fetched live prices for card: {:?}", list);
-    //     Ok(list)
-    // }
-
     async fn get_card_search_uri(
         &self,
         card_name: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        info!("Fetching slug for {}", card_name);
         let card_name_utf8 =
             form_urlencoded::byte_serialize(card_name.as_bytes()).collect::<String>();
         let url = format!(
@@ -143,6 +115,7 @@ impl MtgPriceFetcher {
         &self,
         slug: &str,
     ) -> Result<Vec<MtgStocksCard>, Box<dyn std::error::Error>> {
+        info!("Fetching prices for {}", slug);
         let slug_utf8 = form_urlencoded::byte_serialize(slug.as_bytes()).collect::<String>();
         let url = format!("{}/prints/{}", self.base_url, slug_utf8);
 
@@ -156,22 +129,6 @@ impl MtgPriceFetcher {
         if response.status().is_success() {
             let response = response.text().await?;
             let data: Value = serde_json::from_str(&response)?;
-            // let mut cardlist = Vec::new();
-
-            // Add the main card data
-            // cardlist.push(MtgStocksCard {
-            //     set: SetName::new(data["card_set"]["name"].to_string()).unwrap(),
-            //     price: Price::new(
-            //         match data["latest_price_mkm"]["avg"].as_f64() {
-            //             Some(price) => price,
-            //             None => {
-            //                 log::warn!("latest_price_mkm avg not found, using default value of 1000.0");
-            //                 1000.0
-            //             }
-            //         },
-            //         Currency::EUR,
-            //     ),
-            // });
 
             // Add data for all sets
             let prices: Vec<MtgStocksCard> = data["sets"]
