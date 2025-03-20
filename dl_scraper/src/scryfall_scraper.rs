@@ -1,16 +1,16 @@
+use crate::cards::collector_number::CollectorNumber;
 use crate::cards::scryfallcard::Prices;
 use crate::cards::setname::SetName;
 use crate::utilities::constants::{
-    REPOSITORY_ROOT_PATH, SCRYFALL_API_URL, SCRYFALL_CARDS_PROCESSED_DIR, SCRYFALL_CARDS_RAW_DIR,
-    SCRYFALL_RAW_FILE_PREFIX,
+    REPOSITORY_ROOT_PATH, SCRYFALL_API_URL, SCRYFALL_CARDS_DIR, SCRYFALL_RAW_FILE_PREFIX,
 };
 use crate::utilities::string_manipulators::clean_string;
 use chrono::Local;
-use log::{self, info};
+use log::{self, error, info};
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::{fs, path::Path};
+use std::fs;
 
 use crate::cards::cardname::CardName;
 use crate::cards::currency::Currency;
@@ -21,7 +21,7 @@ use crate::utilities::file_management::{download_and_save_file, load_from_json_f
 pub struct ScryfallScraper {
     client: reqwest::Client,
     base_url: String,
-    directory_path: String,
+    scryfall_cards_path: String,
 }
 
 impl ScryfallScraper {
@@ -33,7 +33,8 @@ impl ScryfallScraper {
         ScryfallScraper {
             client,
             base_url: base_url.unwrap_or(SCRYFALL_API_URL).to_string(),
-            directory_path: directory_path.unwrap_or("/workspaces/mtg-prz-rust/".to_string()),
+            scryfall_cards_path: directory_path
+                .unwrap_or(format!("{}/{}", REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR)),
         }
     }
 
@@ -47,29 +48,22 @@ impl ScryfallScraper {
         header_map
     }
 
-    fn create_file_path(&self, timestamp: &str) -> std::path::PathBuf {
-        std::path::PathBuf::from(format!(
-            "{}/{}/{}{}.json",
-            REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_PROCESSED_DIR, SCRYFALL_RAW_FILE_PREFIX, timestamp
-        ))
-    }
-
-    /// Returns the path to the file uf ut exists (The file is in raw format and quite big)
+    /// Returns the path to the file if it exists (The file is in raw format and quite big)
     fn get_existing_scryfall_file(&self) -> Option<String> {
         let current_date = Local::now().format("%Y-%m-%d").to_string();
-        let directory = format!("{}/{}", REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_PROCESSED_DIR);
-
-        fs::read_dir(directory).ok()?.find_map(|entry| {
-            let entry = entry.ok()?;
-            let file_name = entry.file_name().into_string().ok()?;
-            if file_name.starts_with(&format!("{}_{}", SCRYFALL_RAW_FILE_PREFIX, current_date))
-                && file_name.ends_with(".json")
-            {
-                Some(entry.path().to_str()?.to_string())
-            } else {
-                None
-            }
-        })
+        fs::read_dir(&self.scryfall_cards_path)
+            .ok()?
+            .find_map(|entry| {
+                let entry = entry.ok()?;
+                let file_name = entry.file_name().into_string().ok()?;
+                if file_name.starts_with(&format!("{}_{}", SCRYFALL_RAW_FILE_PREFIX, current_date))
+                    && file_name.ends_with(".json")
+                {
+                    Some(entry.path().to_str()?.to_string())
+                } else {
+                    None
+                }
+            })
     }
 
     pub async fn get_raw_scryfall_cards_file(&self) -> Result<String, Box<dyn std::error::Error>> {
@@ -94,14 +88,15 @@ impl ScryfallScraper {
             .ok_or("Missing download_uri")?;
 
         let current_time = Local::now().format("%Y-%m-%d_%H:%M:%S").to_string();
-        let path = self.create_file_path(&current_time);
-        let directory = format!("{}/{}", REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_PROCESSED_DIR);
+        let file_name = format!("{}_{}.json", SCRYFALL_RAW_FILE_PREFIX, &current_time);
+        let path = format!("{}/{}", self.scryfall_cards_path, file_name);
 
-        fs::create_dir_all(directory)?;
-        download_and_save_file(download_uri, path.to_str().unwrap()).await?;
+        // Create all directories in the path
+        fs::create_dir_all(&self.scryfall_cards_path)?;
+        download_and_save_file(download_uri, &path).await?;
 
-        info!("Saved raw scryfall price file to: {}", path.display());
-        Ok(path.to_str().unwrap().to_string())
+        info!("Saved raw scryfall price file to: {}", &path);
+        Ok(path)
     }
 
     fn is_not_artseries(&self, obj: &Value) -> bool {
@@ -160,7 +155,7 @@ impl ScryfallScraper {
                         .unwrap_or("https://www.google.com/url?sa=i&url=https%3A%2F%2Fanswers.microsoft.com%2Fen-us%2Fwindows%2Fforum%2Fall%2Fhigh-ram-usage-40-50-without-any-program%2F1dcf1e4d-f78e-4a06-a4e8-71f3972cc852&psig=AOvVaw0f3g3-hf1qnv6thWr6iQC2&ust=1724858067666000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjH-Ja7lYgDFQAAAAAdAAAAABAE")
                         .to_string();
 
-                    let card_name = match CardName::new(name.clone()) {
+                    let name = match CardName::new(name.clone()) {
                         Ok(name) => name,
                         Err(e) => {
                             log::debug!("Error parsing card name: '{}', with error: {}", name, e);
@@ -168,12 +163,28 @@ impl ScryfallScraper {
                         }
                     };
 
-                    let set_name = SetName::new(set)?;
+                    let short_set_name = clean_string(obj["set"].as_str().unwrap()).to_string();
+                    let mut number =
+                        clean_string(obj["collector_number"].as_str().unwrap()).to_string();
+                    while number.len() < 3 {
+                        number = format!("0{}", number);
+                    }
+                    let collector_number =
+                        match CollectorNumber::new(&format!("{}-{}", short_set_name, number)) {
+                            Ok(c) => Some(c),
+                            Err(e) => {
+                                error!("Error creating collector number: {}", e);
+                                None
+                            }
+                        };
+
+                    let set = SetName::new(set)?;
                     let card = ScryfallCard {
-                        name: card_name,
-                        set: set_name,
-                        image_url: image_url,
-                        prices: prices,
+                        name,
+                        set,
+                        image_url,
+                        prices,
+                        collector_number,
                     };
                     scryfall_card_list.push(card);
                 }
@@ -201,7 +212,7 @@ mod tests {
     use env_logger;
     use mockito;
     use serde_json::json;
-    use tempfile::tempdir;
+    use tempfile::{tempdir, TempDir};
 
     struct TestContext {
         server: mockito::ServerGuard,
@@ -230,17 +241,17 @@ mod tests {
             }
         }
 
-        fn setup_prices_directory(&self) -> std::path::PathBuf {
-            let prices_dir = self.temp_dir.path().join(SCRYFALL_CARDS_RAW_DIR);
-            fs::create_dir_all(&prices_dir).unwrap();
-            prices_dir
-        }
+        // fn setup_prices_directory(&self) -> std::path::PathBuf {
+        //     let prices_dir = self.temp_dir.path().join(SCRYFALL_CARDS_DIR);
+        //     fs::create_dir_all(&prices_dir).unwrap();
+        //     prices_dir
+        // }
 
-        fn create_mock_file(&self, content: &str) -> std::path::PathBuf {
-            let prices_dir = self.setup_prices_directory();
+        fn create_mock_file(&self, temp_dir: &TempDir, content: &str) -> std::path::PathBuf {
+            // let prices_dir = self.setup_prices_directory();
             let current_date = Local::now().format("%Y-%m-%d").to_string();
             let file_name = format!("{}_{}.json", SCRYFALL_RAW_FILE_PREFIX, current_date);
-            let file_path = prices_dir.join(file_name);
+            let file_path = temp_dir.path().join(file_name);
             fs::write(&file_path, content).unwrap();
             file_path
         }
@@ -282,8 +293,25 @@ mod tests {
     async fn test_reuse_existing_file() {
         let mut ctx = TestContext::new();
 
-        // Setup existing file
-        let file_path = ctx.create_mock_file("test content");
+        // Setup existing file with minimal valid card data
+        let file_path = ctx.create_mock_file(
+            &ctx.temp_dir,
+            r#"[
+            {
+                "name": "Test Card",
+                "set_name": "Test Set",
+                "layout": "normal",
+                "type_line": "Creature",
+                "prices": {
+                    "eur": "1.23",
+                    "eur_foil": "2.34"
+                },
+                "image_uris": {
+                    "normal": "https://example.com/card.jpg"
+                }
+            }
+        ]"#,
+        );
 
         // Setup mock that should never be called
         let mock = ctx.server.mock("GET", "/bulk-data").expect(0).create();
@@ -300,7 +328,8 @@ mod tests {
 
         // Setup existing file
 
-        let file_path = ctx.create_mock_file(include_str!("test/scryfall_card_resp.json"));
+        let file_path =
+            ctx.create_mock_file(&ctx.temp_dir, include_str!("test/scryfall_card_resp.json"));
 
         let parsed_cards = ctx
             .scraper

@@ -10,11 +10,13 @@ pub struct CardName {
     pub raw: String,
     pub almost_raw: String,
     pub cleaned: String,
+    double_faced: bool,
 }
 
 impl CardName {
     pub fn new(raw: String) -> Result<Self, String> {
         let name_without_disclaimers = Self::remove_things_in_parenthesies_after_name(&raw);
+        let double_faced = name_without_disclaimers.clone().contains("//");
         let cleaned_name = Self::clean_name(&name_without_disclaimers);
 
         if name_without_disclaimers.is_empty() || cleaned_name.is_empty() {
@@ -29,6 +31,7 @@ impl CardName {
             raw,
             almost_raw: name_without_disclaimers,
             cleaned: cleaned_name,
+            double_faced,
         })
     }
 
@@ -56,6 +59,9 @@ impl CardName {
 impl PartialEq for CardName {
     fn eq(&self, other: &Self) -> bool {
         self.cleaned == other.cleaned
+        // Check if names contain names only if its a dubble faced card
+            || (self.double_faced && (self.cleaned.contains(&other.cleaned) || other.cleaned.contains(&self.cleaned)))
+            || (other.double_faced && (self.cleaned.contains(&other.cleaned) || other.cleaned.contains(&self.cleaned)))
     }
 }
 

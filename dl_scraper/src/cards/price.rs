@@ -64,6 +64,34 @@ impl PartialEq for Price {
     }
 }
 
+// Implement PartialEq between Price and f64
+impl PartialEq<f64> for Price {
+    fn eq(&self, other: &f64) -> bool {
+        self.to_eur() == *other
+    }
+}
+
+// Implement PartialEq between f64 and Price (for symmetry)
+impl PartialEq<Price> for f64 {
+    fn eq(&self, other: &Price) -> bool {
+        *self == other.to_eur()
+    }
+}
+
+// Implement PartialOrd between Price and f64
+impl PartialOrd<f64> for Price {
+    fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
+        self.to_eur().partial_cmp(other)
+    }
+}
+
+// Implement PartialOrd between f64 and Price (for symmetry)
+impl PartialOrd<Price> for f64 {
+    fn partial_cmp(&self, other: &Price) -> Option<Ordering> {
+        self.partial_cmp(&other.to_eur())
+    }
+}
+
 // Implement Display for Price
 impl fmt::Display for Price {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -99,5 +127,18 @@ mod tests {
         assert_eq!(price_eur.convert_to(Currency::SEK), 55.152);
         assert_eq!(price_sek.convert_to(Currency::SEK), 60.0);
         assert_eq!(price_sek.convert_to(Currency::EUR), 5.43952746);
+    }
+
+    #[test]
+    fn test_price_comparison_with_f64() {
+        let price_eur = Price::new(5.0, Currency::EUR);
+        let price_sek = Price::new(60.0, Currency::SEK);
+
+        assert_eq!(price_eur == 5.0, true);
+        assert_eq!(price_sek == 5.43952746, true);
+        assert!(price_eur < 6.0);
+        assert!(price_sek > 5.0);
+        assert!(4.0 < price_eur);
+        assert!(6.0 > price_sek);
     }
 }

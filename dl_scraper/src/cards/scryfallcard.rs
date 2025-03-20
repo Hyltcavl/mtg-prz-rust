@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
+use super::{cardname::CardName, collector_number::CollectorNumber, setname::SetName};
 use crate::cards::price::Price;
-use super::{cardname::CardName, setname::SetName};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ScryfallCard {
@@ -8,6 +8,7 @@ pub struct ScryfallCard {
     pub set: SetName,
     pub image_url: String,
     pub prices: Prices,
+    pub collector_number: Option<CollectorNumber>,
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]

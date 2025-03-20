@@ -7,7 +7,7 @@ use reqwest::Client;
 use crate::{
     cards::{
         cardname::CardName, compared_card::ComparedCard, currency::Currency, price::Price,
-        scryfallcard::ScryfallCard, vendor, vendorcard::VendorCard,
+        scryfallcard::ScryfallCard, vendorcard::VendorCard,
     },
     mtg_stock_price_checker::MtgPriceFetcher,
     utilities::config::CONFIG,
@@ -55,7 +55,7 @@ impl Comparer {
         &self,
         vendor_cards: HashMap<CardName, Vec<VendorCard>>,
     ) -> HashMap<CardName, Vec<ComparedCard>> {
-        // Separate foil and non-foil cards
+        // Separate foil and non-foil cardss
         let (foil_cards, non_foil_cards) = self.separete_foil_and_non_foil_cards(vendor_cards);
         let price_fetcher = MtgPriceFetcher::new(Client::new(), self.mtg_stock_url.clone());
 
@@ -86,7 +86,6 @@ impl Comparer {
     ) -> Vec<ComparedCard> {
         stream::iter(vendor_cards.iter())
             .map(|(card_name, vendor_card_list)| {
-                debug!("Scryfall card found for: {}", card_name.almost_raw);
                 let scryfall_cards = match self.mcm_cards.get(card_name) {
                     Some(cards) => cards.clone(),
                     None => {
@@ -155,7 +154,8 @@ impl Comparer {
         // Find matching Scryfall card by set
         let matching_scryfall_card = scryfall_cards
             .iter()
-            .find(|card| card.set == vendor_card.set)
+            .find(|card| card.collector_number == vendor_card.collector_number)
+            .or_else(|| scryfall_cards.iter().find(|card| card.set == vendor_card.set))
             .cloned()
             .or_else(|| {
                 debug!(
@@ -183,8 +183,9 @@ impl Comparer {
         Some(ComparedCard {
             vendor_card: vendor_card.clone(),
             scryfall_card: matching_scryfall_card,
-            price_difference_to_cheapest_vendor_card: vendor_card.price
-                - (mcm_price.convert_to(Currency::SEK) as i32),
+            price_difference_to_cheapest_vendor_card: (vendor_card.price.convert_to(Currency::SEK)
+                - mcm_price.convert_to(Currency::SEK))
+                as i32,
         })
     }
 
@@ -290,48 +291,54 @@ mod tests {
 
         let result = comparer.compare_vendor_cards(vendor_card_list).await;
 
-        let price_diff = reaper_king_vendor_card_expensive().price
+        let price_diff = (reaper_king_vendor_card_expensive()
+            .price
+            .convert_to(Currency::SEK)
             - reaper_king_scryfall_card_expensive()
                 .prices
                 .eur
                 .unwrap()
-                .convert_to(Currency::SEK) as i32;
+                .convert_to(Currency::SEK)) as i32;
         let non_foil_card = ComparedCard {
             vendor_card: reaper_king_vendor_card_expensive(),
             scryfall_card: reaper_king_scryfall_card_expensive(),
             price_difference_to_cheapest_vendor_card: price_diff,
         };
 
-        let price_diff_foil = reaper_king_vendor_card_cheap().price
+        let price_diff_foil = (reaper_king_vendor_card_cheap()
+            .price
+            .convert_to(Currency::SEK)
             - reaper_king_scryfall_card_cheap()
                 .prices
                 .eur
                 .unwrap()
-                .convert_to(Currency::SEK) as i32;
+                .convert_to(Currency::SEK)) as i32;
         let foil_card = ComparedCard {
             vendor_card: reaper_king_vendor_card_cheap(),
             scryfall_card: reaper_king_scryfall_card_cheap(),
             price_difference_to_cheapest_vendor_card: price_diff_foil,
         };
 
-        let price_diff_lifecraft = lifecraft_c_vendor_card().price
+        let price_diff_lifecraft = (lifecraft_c_vendor_card().price.convert_to(Currency::SEK)
             - lifecraft_c_scryfall_card()
                 .prices
                 .eur_foil
                 .unwrap()
-                .convert_to(Currency::SEK) as i32;
+                .convert_to(Currency::SEK)) as i32;
         let lifecraft = ComparedCard {
             vendor_card: lifecraft_c_vendor_card(),
             scryfall_card: lifecraft_c_scryfall_card(),
             price_difference_to_cheapest_vendor_card: price_diff_lifecraft,
         };
 
-        let price_diff_sunken_ruins = vendor_card_sunken_ruins_foil().price
+        let price_diff_sunken_ruins = (vendor_card_sunken_ruins_foil()
+            .price
+            .convert_to(Currency::SEK)
             - scryfall_card_sunken_ruins()
                 .prices
                 .eur_foil
                 .unwrap()
-                .convert_to(Currency::SEK) as i32;
+                .convert_to(Currency::SEK)) as i32;
         let sunken_ruins_diff = ComparedCard {
             vendor_card: vendor_card_sunken_ruins_foil(),
             scryfall_card: scryfall_card_sunken_ruins(),

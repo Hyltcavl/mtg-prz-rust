@@ -25,8 +25,7 @@ use reqwest::Client;
 use scryfall_scraper::ScryfallScraper;
 use utilities::constants::{
     COMPARED_CARDS_DIR, COMPARED_FILE_PREFIX, DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX,
-    MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR, SCRYFALL_CARDS_PROCESSED_DIR,
-    SCRYFALL_CARDS_RAW_DIR, SCRYFALL_FILE_PREFIX,
+    MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR, SCRYFALL_FILE_PREFIX,
 };
 use utilities::file_management::load_from_json_file;
 use utilities::{file_management::get_newest_file, file_management::save_to_file};
@@ -77,7 +76,7 @@ async fn get_scryfall_cards_and_save_to_file(
     let scryfall_cards_path = format!(
         "{}/{}/{}{}.json",
         REPOSITORY_ROOT_PATH,
-        SCRYFALL_CARDS_PROCESSED_DIR,
+        SCRYFALL_CARDS_DIR,
         SCRYFALL_FILE_PREFIX,
         date_time_as_string(None, None)
     );
@@ -173,7 +172,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::info!("Downloading Scryfall cards...");
         get_scryfall_cards_and_save_to_file().await
     } else {
-        match get_data_from_most_recent_file(SCRYFALL_CARDS_PROCESSED_DIR, SCRYFALL_FILE_PREFIX) {
+        match get_data_from_most_recent_file(SCRYFALL_CARDS_DIR, SCRYFALL_FILE_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
                 log::error!("Failed to load Scryfall cards: {}", e);

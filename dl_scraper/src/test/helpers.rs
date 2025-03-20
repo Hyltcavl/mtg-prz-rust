@@ -1,3 +1,4 @@
+use crate::cards::collector_number::CollectorNumber;
 use crate::cards::currency::Currency;
 use crate::cards::price::Price;
 use crate::cards::{
@@ -30,7 +31,7 @@ pub fn reaper_king_set_name_2() -> SetName {
 //         prerelease: false,
 //         showcase: false,
 //         set: SetName::new("Magic 25".to_string()).unwrap(),
-//         price: 100,
+//         price: Price::new(100, Currency::SEK),
 //         trade_in_price: 50,
 //         current_stock: 6,
 //         max_stock: 4,
@@ -47,7 +48,7 @@ pub fn reaper_king_set_name_2() -> SetName {
 //         prerelease: false,
 //         showcase: false,
 //         set: SetName::new("Ice Age".to_string()).unwrap(),
-//         price: 100,
+//         price: Price::new(100, Currency::SEK),
 //         trade_in_price: 50,
 //         current_stock: 2,
 //         max_stock: 4,
@@ -64,10 +65,11 @@ pub fn reaper_king_vendor_card_expensive() -> VendorCard {
         prerelease: false,
         showcase: false,
         set: reaper_king_set_name(),
-        price: 100,
+        price: Price::new(100.0, Currency::SEK),
         trade_in_price: 50,
         current_stock: 1,
         max_stock: 2,
+        collector_number: Some(CollectorNumber::new("SHM-260").unwrap()),
     }
 }
 
@@ -81,10 +83,11 @@ pub fn reaper_king_vendor_card_cheap() -> VendorCard {
         prerelease: false,
         showcase: false,
         set: reaper_king_set_name_2(),
-        price: 50,
+        price: Price::new(50.0, Currency::SEK),
         trade_in_price: 40,
         current_stock: 1,
         max_stock: 2,
+        collector_number: Some(CollectorNumber::new("FMB1-111").unwrap()),
     }
 }
 
@@ -98,10 +101,11 @@ pub fn reaper_king_vendor_card_foil() -> VendorCard {
         prerelease: false,
         showcase: false,
         set: reaper_king_set_name(),
-        price: 200,
+        price: Price::new(200.0, Currency::SEK),
         trade_in_price: 100,
         current_stock: 1,
         max_stock: 2,
+        collector_number: Some(CollectorNumber::new("SHM-260").unwrap()),
     }
 }
 
@@ -114,6 +118,7 @@ pub fn reaper_king_scryfall_card_expensive() -> ScryfallCard {
             eur: Some(Price::new(1.0, Currency::EUR)),
             eur_foil: Some(Price::new(2.0, Currency::EUR)),
         },
+        collector_number: Some(CollectorNumber::new("SHM-260").unwrap()),
     }
 }
 
@@ -126,6 +131,7 @@ pub fn reaper_king_scryfall_card_cheap() -> ScryfallCard {
             eur: Some(Price::new(0.3, Currency::EUR)),
             eur_foil: Some(Price::new(1.0, Currency::EUR)),
         },
+        collector_number: Some(CollectorNumber::new("PLST-260").unwrap()),
     }
 }
 
@@ -151,10 +157,11 @@ pub fn vendor_card_sunken_ruins_foil() -> VendorCard {
         prerelease: false,
         showcase: false,
         set: setname_sunken_ruins(),
-        price: 180,
+        price: Price::new(180.0, Currency::SEK),
         trade_in_price: 100,
         current_stock: 1,
         max_stock: 1,
+        collector_number: Some(CollectorNumber::new("2XM-326").unwrap()),
     }
 }
 
@@ -167,6 +174,7 @@ pub fn scryfall_card_sunken_ruins() -> ScryfallCard {
             eur: Some(Price::new(17.71, Currency::EUR)),
             eur_foil: Some(Price::new(20.65, Currency::EUR)),
         },
+        collector_number: Some(CollectorNumber::new("2XM-326").unwrap()),
     }
 }
 
@@ -184,10 +192,11 @@ pub fn lifecraft_c_vendor_card() -> VendorCard {
         prerelease: false,
         showcase: false,
         set: lifecraft_c_set_name(),
-        price: 100,
+        price: Price::new(100.0, Currency::SEK),
         trade_in_price: 50,
         current_stock: 1,
         max_stock: 2,
+        collector_number: Some(CollectorNumber::new("AER-113").unwrap()),
     }
 }
 
@@ -200,6 +209,7 @@ pub fn lifecraft_c_scryfall_card() -> ScryfallCard {
             eur: Some(Price::new(1.0, Currency::EUR)),
             eur_foil: Some(Price::new(2.0, Currency::EUR)),
         },
+        collector_number: Some(CollectorNumber::new("AER-113").unwrap()),
     }
 }
 
@@ -212,5 +222,6 @@ pub fn lifecraft_scryfall_card_no_price() -> ScryfallCard {
             eur: None,
             eur_foil: None,
         },
+        collector_number: Some(CollectorNumber::new("ras-113").unwrap()),
     }
 }

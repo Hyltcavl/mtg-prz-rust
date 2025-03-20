@@ -1,10 +1,14 @@
+use log::{debug, error, warn};
 use regex::Regex;
 use reqwest;
 use scraper::{Html, Selector};
 use std::error::Error;
 use tokio::time::Instant;
 
-use crate::cards::{cardname::CardName, setname::SetName, vendor::Vendor};
+use crate::cards::{
+    cardname::CardName, collector_number::CollectorNumber, currency::Currency, price::Price,
+    setname::SetName, vendor::Vendor,
+};
 
 use super::vendorcard::VendorCard; // Add this line to import VendorCard
 
@@ -134,7 +138,11 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             .iter()
             .find(|pattern| pattern.is_match(&name))
         {
-            log::error!("Skipping unwanted card: {}. Matched pattern: {}", name, pattern.as_str());
+            warn!(
+                "Skipping unwanted card: {}. Matched pattern: {}",
+                name,
+                pattern.as_str()
+            );
             continue; // Skip unwanted cards
         }
 
@@ -146,7 +154,7 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
         let card_name = match CardName::new(name.clone()) {
             Ok(card_name) => card_name,
             Err(e) => {
-                log::debug!("Error parsing card name: '{}', with error: {}", name, e);
+                debug!("Error parsing card name: '{}', with error: {}", name, e);
                 continue;
             }
         };
@@ -187,22 +195,41 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             set = other_set;
         }
 
+        let collector_number = tr_elements
+            .select(&Selector::parse("td")?)
+            .nth(2) // Get the third td element (0-based index)
+            .map(|element| element.text().collect::<String>().trim().to_string())
+            .and_then(|text| {
+                if text.is_empty() {
+                    None
+                } else {
+                    match CollectorNumber::new(&text) {
+                        Ok(res) => Some(res),
+                        Err(err) => {
+                            warn!(
+                                "Unable to get collector number from: '{}' due to error: {}",
+                                card_name.raw, err,
+                            );
+                            None
+                        }
+                    }
+                }
+            });
+
         let set_name = match SetName::new(set) {
             Ok(set_name) => set_name,
             Err(e) => {
-                log::error!("Error parsing set name: {}", e);
+                error!("Error parsing set name: {}", e);
                 continue;
             }
         };
 
         let price = match get_price(tr_elements) {
-            Ok(price) => price,
+            Ok(price) => Price::new(price.into(), Currency::SEK),
             Err(e) => {
-                log::error!(
+                error!(
                     "Error parsing price. Error {}, for card: {} in set {}",
-                    e,
-                    card_name.almost_raw,
-                    set_name.raw
+                    e, card_name.almost_raw, set_name.raw
                 );
                 continue;
             }
@@ -249,6 +276,7 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
             trade_in_price: trade_in_price,
             current_stock: stock.first().unwrap_or(&0).to_owned(),
             max_stock: stock.last().unwrap_or(&0).to_owned(),
+            collector_number: collector_number,
         };
 
         cards_on_the_page.push(card);
@@ -326,6 +354,5 @@ mod tests {
         info!("{:?}", result);
         assert_eq!(result[0].name.cleaned, "lightning bolt");
         assert_eq!(result.len(), 4);
-
     }
 }

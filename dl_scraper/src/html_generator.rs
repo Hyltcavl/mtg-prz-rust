@@ -20,12 +20,12 @@ pub fn filter_nice_price_cards(
         .values()
         .flatten()
         .filter(|card| {
-            if card.vendor_card.price <= 10 {
+            if card.vendor_card.price <= 10.0 {
                 card.price_difference_to_cheapest_vendor_card <= 0
-            } else if card.vendor_card.price <= 30 {
+            } else if card.vendor_card.price <= 30.0 {
                 card.price_difference_to_cheapest_vendor_card <= 5
             } else {
-                card.vendor_card.price >= 30
+                card.vendor_card.price >= 30.0
                     && card.price_difference_to_cheapest_vendor_card <= nice_price_limit
             }
         })
@@ -167,7 +167,7 @@ pub fn generate_html_footer() -> String {
 mod tests {
     use tempfile::tempdir;
 
-    use crate::utilities::file_management::{load_from_json_file, save_to_file};
+    use crate::utilities::file_management::load_from_json_file;
 
     use super::*;
     use std::path::Path;

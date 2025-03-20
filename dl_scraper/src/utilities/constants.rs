@@ -2,8 +2,6 @@ pub const DRAGONSLAIR_CARDS_FOLDER: &str = "dragonslair_cards";
 pub const DRAGONSLAIR_CARDS_PREFIX: &str = "dl_cards_";
 
 pub const SCRYFALL_CARDS_DIR: &str = "scryfall_cards";
-pub const SCRYFALL_CARDS_RAW_DIR: &str = "scryfall_cards/scryfall_cards_raw";
-pub const SCRYFALL_CARDS_PROCESSED_DIR: &str = "scryfall_cards/scryfall_cards";
 
 pub const SCRYFALL_FILE_PREFIX: &str = "scryfall_cards_";
 pub const SCRYFALL_RAW_FILE_PREFIX: &str = "scryfall_raw_download";
