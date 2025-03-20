@@ -1,5 +1,7 @@
 use std::env;
 
+use log::error;
+
 #[derive(Debug, Clone)]
 pub struct Config {
     pub dragonslair: bool,
@@ -7,6 +9,7 @@ pub struct Config {
     pub alpha: bool,
     pub nice_price_diff: i32,
     pub external_price_check: bool,
+    pub delver_lense_path: String,
 }
 
 impl Default for Config {
@@ -17,6 +20,7 @@ impl Default for Config {
             alpha: true,
             nice_price_diff: 0,
             external_price_check: true,
+            delver_lense_path: "".to_string(),
         }
     }
 }
@@ -43,6 +47,16 @@ impl Config {
         }
         if let Ok(external_price_check) = env::var("EXTERNAL_PRICE_CHECK") {
             self.external_price_check = external_price_check == "1";
+        }
+        if let Ok(delver_lense_check) = env::var("DELVER_LENSE_PATH") {
+            if std::path::Path::new(&delver_lense_check).is_file()
+                && delver_lense_check.ends_with(".csv")
+            {
+                self.delver_lense_path = delver_lense_check;
+            } else if !&delver_lense_check.is_empty() {
+                error!("Supplied incorrect path to delver lense card file");
+                self.delver_lense_path = "".to_string();
+            }
         }
     }
 }

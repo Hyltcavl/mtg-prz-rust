@@ -5,9 +5,11 @@ mod html_generator;
 mod mtg_stock_price_checker;
 mod scryfall_scraper;
 mod test;
+mod tradable_cards;
 mod utilities;
 
 use std::collections::HashMap;
+use std::fs;
 
 use crate::cards::cardname::CardName;
 use crate::cards::vendorcard::VendorCard;
@@ -23,9 +25,13 @@ use html_generator::generate_nice_price_page;
 use log::info;
 use reqwest::Client;
 use scryfall_scraper::ScryfallScraper;
+use tradable_cards::delver_lense_converter::DelverLenseConverter;
+use tradable_cards::html_generator::generate_page_content;
+use tradable_cards::tradable_card_comparer::TradableCardsComparer;
 use utilities::constants::{
     COMPARED_CARDS_DIR, COMPARED_FILE_PREFIX, DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX,
-    MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR, SCRYFALL_FILE_PREFIX,
+    DRAGONSLAIR_URL, MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR,
+    SCRYFALL_FILE_PREFIX,
 };
 use utilities::file_management::load_from_json_file;
 use utilities::{file_management::get_newest_file, file_management::save_to_file};
@@ -34,7 +40,7 @@ async fn get_dragonslair_cards_and_save_to_file() -> HashMap<CardName, Vec<Vendo
     let start_time = chrono::prelude::Local::now();
     info!("Starting at {}", start_time);
 
-    let scraper = DragonslairScraper::new("https://astraeus.dragonslair.se", None, Client::new());
+    let scraper: DragonslairScraper = DragonslairScraper::new(DRAGONSLAIR_URL, None, Client::new());
     let dragoslair_cards = scraper.get_available_cards().await.unwrap();
 
     let dl_cards_path = format!(
@@ -156,7 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     info!("Starting");
 
-    let dl_cards_path = if CONFIG.dragonslair {
+    let dl_cards = if CONFIG.dragonslair {
         get_dragonslair_cards_and_save_to_file().await
     } else {
         match get_data_from_most_recent_file("dragonslair_cards", "dl_cards_") {
@@ -167,6 +173,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     };
+
+    if !CONFIG.delver_lense_path.is_empty() {
+        let delver_lense_converter = DelverLenseConverter::new();
+        let cards = delver_lense_converter
+            .get_delver_lense_cards_from_file(&CONFIG.delver_lense_path)
+            .unwrap();
+
+        let comparer = TradableCardsComparer::new(DragonslairScraper::new(
+            DRAGONSLAIR_URL,
+            None,
+            reqwest::Client::new(),
+        ));
+
+        let tradable_cards = comparer
+            .get_tradable_cards(cards, dl_cards.clone())
+            .await
+            .unwrap();
+        let path = format!(
+            "/workspaces/mtg-prz-rust/tradable_cards/tradable_cards_{}.json",
+            date_time_as_string(None, None)
+        );
+        save_to_file(&path, &tradable_cards)?;
+
+        let html = generate_page_content(&tradable_cards);
+
+        fs::write("/workspaces/mtg-prz-rust/cards.html", html)?;
+    }
 
     let scryfall_cards_path = if CONFIG.scryfall {
         log::info!("Downloading Scryfall cards...");
@@ -181,7 +214,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards_path).await;
+    let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards).await;
 
     let _ = generate_nice_price_page(compared_cards, "../", "index.html", CONFIG.nice_price_diff);
 

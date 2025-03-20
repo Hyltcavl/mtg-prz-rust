@@ -21,6 +21,9 @@ RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delv
 
 RUST_LOG=trace DL=0 AS=0 SF=0 EXTERNAL_PRICE_CHECK=0 cargo run > output.log 2>&1
 
+Run it all:
+
+RUST_LOG=info DL=1 AS=1 SF=1 EXTERNAL_PRICE_CHECK=1 DELVER_LENSE_PATH=./../Draftshaft_2025_Mar_10_17-33.csv cargo run > output.log 2>&1
 
 to add dependency:
 cargo add <dependency name>
@@ -30,7 +33,6 @@ cargo add <dependency name> --feature <feature name>
 
 TODO:
 
-- Refactor and reimplement the compare in the new setup
 - re implement the alphaspel cards
 - Get Manatorsk cards
 

@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::{error::Error, time::Instant};
 
 pub struct DragonslairScraper {
-    url: String,
+    pub url: String,
     client: Client,
     cmcs_available: Vec<u8>,
 }
@@ -39,8 +39,13 @@ impl DragonslairScraper {
     }
 
     /// Get's the page count of the CMC pages. Defaults to 1 if no additional pages exist.
-    async fn get_page_count(&self, url: &str) -> Option<u32> {
-        let response = self.client.get(url).send().await.ok()?;
+    pub async fn get_page_count(&self, url_path: &str) -> Option<u32> {
+        let response = self
+            .client
+            .get(format!("{}{}", &self.url, url_path))
+            .send()
+            .await
+            .ok()?;
         let html_content = response.text().await.ok()?;
 
         let parse_document = Html::parse_document(&html_content);
@@ -72,8 +77,8 @@ impl DragonslairScraper {
         let card_urls = stream::iter(&self.cmcs_available)
             .map(|cmc| {
                 let request_url = format!(
-                    "{}/product/magic/card-singles/store:kungsholmstorg/cmc-{}/{}",
-                    self.url, cmc, 0
+                    "/product/magic/card-singles/store:kungsholmstorg/cmc-{}/{}",
+                    cmc, 0
                 );
                 async move {
                     match self.get_page_count(&request_url).await {
@@ -164,13 +169,10 @@ mod tests {
             .with_header("x-api-key", "1234")
             .with_body(html_content)
             .create();
-        let url = format!(
-            "{}/product/magic/card-singles/store:kungsholmstorg/cmc-0/1",
-            url
-        );
+        let url2 = format!("/product/magic/card-singles/store:kungsholmstorg/cmc-0/1",);
 
         let res = DragonslairScraper::new(&url, None, reqwest::Client::new())
-            .get_page_count(&url)
+            .get_page_count(&url2)
             .await
             .unwrap();
 
@@ -198,12 +200,9 @@ mod tests {
             .with_header("x-api-key", "1234")
             .with_body(html_content)
             .create();
-        let url = format!(
-            "{}/product/magic/card-singles/store:kungsholmstorg/cmc-15/1",
-            url
-        );
+        let url2 = format!("/product/magic/card-singles/store:kungsholmstorg/cmc-15/1",);
         let res = DragonslairScraper::new(&url, None, reqwest::Client::new())
-            .get_page_count(&url)
+            .get_page_count(&url2)
             .await
             .unwrap();
 

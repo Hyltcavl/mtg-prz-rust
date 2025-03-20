@@ -10,3 +10,7 @@ pub mod scryfallcard;
 pub mod setname;
 pub mod vendor;
 pub mod vendorcard;
+pub mod delver_lense_card;
+pub mod colour;
+pub mod rarity;
+pub mod tradable_card;

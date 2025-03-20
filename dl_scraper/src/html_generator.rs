@@ -22,12 +22,6 @@ pub fn filter_nice_price_cards(
         .filter(|card| {
             let price_sek = card.vendor_card.price.convert_to(Currency::SEK); // Compare price in SEK
             let price_diff = card.price_difference_to_cheapest_vendor_card;
-
-            println!(
-                "Checking card: {}, price: {:.2} SEK, price_diff: {}",
-                card.vendor_card.name.raw, price_sek, price_diff
-            );
-
             if price_sek <= 10.0 {
                 price_diff <= 0
             } else if price_sek <= 30.0 {

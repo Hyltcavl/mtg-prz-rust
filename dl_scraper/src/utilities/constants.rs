@@ -1,6 +1,6 @@
 pub const DRAGONSLAIR_CARDS_FOLDER: &str = "dragonslair_cards";
 pub const DRAGONSLAIR_CARDS_PREFIX: &str = "dl_cards_";
-
+pub const DRAGONSLAIR_URL: &str = "https://astraeus.dragonslair.se";
 pub const SCRYFALL_CARDS_DIR: &str = "scryfall_cards";
 
 pub const SCRYFALL_FILE_PREFIX: &str = "scryfall_cards_";
