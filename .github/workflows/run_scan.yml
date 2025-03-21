@@ -23,26 +23,26 @@ jobs:
         override: true
 
     - name: Build and run
-      run: cd mtg_rust && RUST_LOG=info cargo run
+      run: cd magic_card_scraper && RUST_LOG=info cargo run
 
     - name: Upload scan Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dl_cards
-        path: mtg_rust/dragonslair_cards
+        path: dragonslair_cards
 
     - name: Upload scan Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mtg_rust/compared_prices
-        path: compared_prices
+        name: compared_cards
+        path: compared_cards
 
-    # - name: Upload scan Artifacts
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ${{ matrix.scan_type }}
-    #     path: alphaspel_cards
-    
+    - name: Upload Alphaspel cards
+      uses: actions/upload-artifact@v4
+      with:
+        name: alphaspel_cards
+        path: alphaspel_cards
+
     - run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

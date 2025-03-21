@@ -1,3 +1,4 @@
+mod alphaspel_scraper;
 mod cards;
 mod comparer;
 mod dragonslair_scraper;
@@ -15,6 +16,7 @@ use crate::cards::cardname::CardName;
 use crate::cards::vendorcard::VendorCard;
 use crate::utilities::{config::CONFIG, string_manipulators::date_time_as_string};
 
+use alphaspel_scraper::AlphaspelScraper;
 use cards::compared_card::ComparedCard;
 use cards::scryfallcard::ScryfallCard;
 
@@ -29,12 +31,41 @@ use tradable_cards::delver_lense_converter::DelverLenseConverter;
 use tradable_cards::html_generator::generate_page_content;
 use tradable_cards::tradable_card_comparer::TradableCardsComparer;
 use utilities::constants::{
-    COMPARED_CARDS_DIR, COMPARED_FILE_PREFIX, DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX,
-    DRAGONSLAIR_URL, MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR,
-    SCRYFALL_FILE_PREFIX,
+    ALPHASPEL_CARDS_FOLDER, ALPHASPEL_CARDS_PREFIX, ALPHASPEL_URL, COMPARED_CARDS_DIR,
+    COMPARED_FILE_PREFIX, DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX, DRAGONSLAIR_URL,
+    MTG_STOCKS_BASE_URL, REPOSITORY_ROOT_PATH, SCRYFALL_CARDS_DIR, SCRYFALL_FILE_PREFIX,
 };
 use utilities::file_management::load_from_json_file;
 use utilities::{file_management::get_newest_file, file_management::save_to_file};
+
+async fn get_alphaspel_cards_and_save_to_file() -> HashMap<CardName, Vec<VendorCard>> {
+    let start_time = chrono::prelude::Local::now();
+    info!("Starting at {}", start_time);
+
+    let scraper = AlphaspelScraper::new(ALPHASPEL_URL);
+    let alphaspel_cards = scraper.scrape_cards().await.unwrap();
+
+    let as_cards_path = format!(
+        "{}/{}/{}{}.json",
+        REPOSITORY_ROOT_PATH,
+        ALPHASPEL_CARDS_FOLDER,
+        ALPHASPEL_CARDS_PREFIX,
+        date_time_as_string(None, None)
+    );
+
+    save_to_file(&as_cards_path, &alphaspel_cards).unwrap();
+
+    let end_time = chrono::prelude::Local::now();
+    info!(
+        "Alphaspel scrape started at: {}. Finished at: {}. Took: {} seconds and with {} cards on as_cards_path: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        alphaspel_cards.len(),
+        as_cards_path
+    );
+    alphaspel_cards
+}
 
 async fn get_dragonslair_cards_and_save_to_file() -> HashMap<CardName, Vec<VendorCard>> {
     let start_time = chrono::prelude::Local::now();
@@ -162,10 +193,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     info!("Starting");
 
-    let dl_cards = if CONFIG.dragonslair {
+    let mut dl_cards = if CONFIG.dragonslair {
         get_dragonslair_cards_and_save_to_file().await
     } else {
-        match get_data_from_most_recent_file("dragonslair_cards", "dl_cards_") {
+        match get_data_from_most_recent_file(DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
                 log::error!("Failed to load Dragonslair cards: {}", e);
@@ -201,6 +232,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         fs::write("/workspaces/mtg-prz-rust/cards.html", html)?;
     }
 
+    let alphaspel_cards = if CONFIG.alpha {
+        get_alphaspel_cards_and_save_to_file().await
+    } else {
+        match get_data_from_most_recent_file(ALPHASPEL_CARDS_FOLDER, ALPHASPEL_CARDS_PREFIX) {
+            Ok(cards) => cards,
+            Err(e) => {
+                log::error!("Failed to load alphaspel cards: {}", e);
+                HashMap::new()
+            }
+        }
+    };
+
     let scryfall_cards_path = if CONFIG.scryfall {
         log::info!("Downloading Scryfall cards...");
         get_scryfall_cards_and_save_to_file().await
@@ -214,6 +257,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
+    dl_cards.extend(alphaspel_cards);
     let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards).await;
 
     let _ = generate_nice_price_page(compared_cards, "../", "index.html", CONFIG.nice_price_diff);

@@ -16,7 +16,8 @@
         "fill-labs.dependi",
         "ms-azuretools.vscode-docker",
         "ms-vsliveshare.vsliveshare",
-        "ritwickdey.LiveServer"
+        "ritwickdey.LiveServer",
+        "yzhang.markdown-all-in-one"
       ]
     }
   }

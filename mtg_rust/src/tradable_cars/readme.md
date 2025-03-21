@@ -1,1 +1,0 @@
-Steps to compare cards 

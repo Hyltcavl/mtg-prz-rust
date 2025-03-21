@@ -101,7 +101,7 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
             <tbody>
     "#,
         current_date,
-        include_str!("../../dl_scraper/static/nice_price_cards_page/style.css"),
+        include_str!("../../magic_card_scraper/static/nice_price_cards_page/style.css"),
         current_date,
         cards.len(),
     );
@@ -160,7 +160,7 @@ pub fn generate_html_footer() -> String {
     </body>
     </html>
     "#,
-        include_str!("../../dl_scraper/static/nice_price_cards_page/filter.js")
+        include_str!("../../magic_card_scraper/static/nice_price_cards_page/filter.js")
     )
 }
 
