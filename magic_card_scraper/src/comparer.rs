@@ -155,7 +155,11 @@ impl Comparer {
         let matching_scryfall_card = scryfall_cards
             .iter()
             .find(|card| card.collector_number == vendor_card.collector_number)
-            .or_else(|| scryfall_cards.iter().find(|card| card.set == vendor_card.set))
+            .or_else(|| {
+                scryfall_cards
+                    .iter()
+                    .find(|card| card.set == vendor_card.set)
+            })
             .cloned()
             .or_else(|| {
                 debug!(

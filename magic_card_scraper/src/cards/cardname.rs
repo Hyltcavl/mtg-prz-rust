@@ -3,6 +3,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
+use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone)]
@@ -36,9 +37,39 @@ impl CardName {
     }
 
     // TODO: meybe use this instead of remove name disclaimers
-    fn remove_things_in_parenthesies_after_name(str: &str) -> String {
-        str.find("(")
-            .map_or_else(|| str.to_string(), |start| str[..start].trim().to_string())
+    fn remove_things_in_parenthesies_after_name(str_raw: &str) -> String {
+        let mut name = Regex::new(r"\([^()]*\)")
+            .unwrap()
+            .replace_all(&str_raw, "")
+            .to_string();
+
+        name = name
+            .replace("v.2", "")
+            .replace("V.2", "")
+            .replace("v.1", "")
+            .replace("v.3", "")
+            .replace("v.4", "")
+            .trim()
+            .to_string();
+
+        name = Regex::new(r"\b(\w+)\s/\s(\w+)\b")
+            .unwrap()
+            .replace_all(&name, "$1 // $2")
+            .to_string();
+
+        let prefixes = [
+            "Commander 2016 ",
+            "Conflux ",
+            "Eventide ",
+            "Shadowmoor ",
+            "Planechase card bundle ",
+        ];
+
+        for prefix in prefixes.iter() {
+            name = name.strip_prefix(prefix).unwrap_or(&name).to_string();
+        }
+
+        name
     }
 
     fn clean_name(name: &str) -> String {

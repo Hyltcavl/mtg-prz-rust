@@ -254,7 +254,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    dl_cards.extend(alphaspel_cards);
+    for (name, alpha_cards) in alphaspel_cards {
+        dl_cards
+            .entry(name)
+            .and_modify(|e| e.extend(alpha_cards.clone()))
+            .or_insert(alpha_cards);
+    }
     let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards).await;
 
     let _ = generate_nice_price_page(compared_cards, "../", "index.html", CONFIG.nice_price_diff);

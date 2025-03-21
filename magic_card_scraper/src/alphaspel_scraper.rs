@@ -80,7 +80,10 @@ impl AlphaspelScraper {
         let stock = if in_stock == "Slutsåld" {
             return Err("Card is Slutsåld".into());
         } else {
-            in_stock.replace("i butiken", "").trim().parse::<i8>()?
+            let cleaned_stock = in_stock.replace("i butiken", "").trim().to_string();
+            cleaned_stock
+                .parse::<i8>()
+                .map_err(|e| format!("Failed to parse stock '{}': {}", cleaned_stock, e))?
         };
 
         let image_url: String = card_elements
@@ -119,8 +122,11 @@ impl AlphaspelScraper {
             return Err("Card is not english".into());
         }
 
-        let set_name: Vec<&str> = product_name.trim().split(":").collect();
+        let binding = product_name.trim().replace("(Begagnad)", "");
+        let set_name: Vec<&str> = binding.trim().split(":").collect();
 
+        //Unexpected set name format given input:
+        //["Magic löskort", " Commander 2016 Swiftwater Cliffs (Begagnad)"]
         let (raw_name, set) = match set_name.len() {
             5 => (
                 set_name[4],
@@ -128,7 +134,21 @@ impl AlphaspelScraper {
                     .trim()
                     .to_string(),
             ),
+            4 => (set_name[3], set_name[2].trim().to_string()),
             3 => (set_name[2], set_name[1].trim().to_string()),
+            2 => {
+                if set_name[1].contains("Commander 2016") {
+                    let temp: Vec<&str> = set_name[1].split(" ").collect();
+                    (
+                        set_name[1],
+                        format!("{} {}", temp[0], temp[1]).trim().to_string(),
+                    )
+                } else {
+                    return Err(
+                        format!("Unexpected set name format given input: {:?}", set_name).into(),
+                    );
+                }
+            }
             _ => {
                 return Err(
                     format!("Unexpected set name format given input: {:?}", set_name).into(),
@@ -146,11 +166,14 @@ impl AlphaspelScraper {
             .ok_or("No price found")?
             .text()
             .collect::<String>();
+
         let price: f64 = Regex::new(r"\d+")?
             .find(&price)
-            .ok_or("No price found")?
+            .ok_or_else(|| format!("No numeric value found in price string: '{}'", price))?
             .as_str()
-            .parse()?;
+            .parse()
+            .map_err(|e| format!("Failed to parse price '{}': {}", price, e))?;
+
         let price = Price::new(price, Currency::SEK);
 
         let foil = Regex::new(r"\(Foil\)")?.is_match(raw_name)
@@ -158,32 +181,36 @@ impl AlphaspelScraper {
             || Regex::new(r"\(Foil Etched\)")?.is_match(raw_name);
 
         let raw_name = raw_name.replace("(Begagnad)", "").trim().to_string();
-        let mut name = Regex::new(r"\([^()]*\)")?
-            .replace_all(&raw_name, "")
-            .to_string();
-        name = name
-            .replace("v.2", "")
-            .replace("V.2", "")
-            .replace("v.1", "")
-            .replace("v.3", "")
-            .replace("v.4", "")
-            .trim()
-            .to_string();
-        name = Regex::new(r"\b(\w+)\s/\s(\w+)\b")?
-            .replace_all(&name, "$1 // $2")
-            .to_string();
 
-        let prefixes = [
-            "Commander 2016 ",
-            "Conflux ",
-            "Eventide ",
-            "Shadowmoor ",
-            "Planechase card bundle ",
-        ];
-        for prefix in prefixes.iter() {
-            name = name.strip_prefix(prefix).unwrap_or(&name).to_string();
-        }
-        let name = CardName::new(name)?;
+        // let mut name = Regex::new(r"\([^()]*\)")?
+        //     .replace_all(&raw_name, "")
+        //     .to_string();
+
+        // name = name
+        //     .replace("v.2", "")
+        //     .replace("V.2", "")
+        //     .replace("v.1", "")
+        //     .replace("v.3", "")
+        //     .replace("v.4", "")
+        //     .trim()
+        //     .to_string();
+
+        // name = Regex::new(r"\b(\w+)\s/\s(\w+)\b")?
+        //     .replace_all(&name, "$1 // $2")
+        //     .to_string();
+
+        // let prefixes = [
+        //     "Commander 2016 ",
+        //     "Conflux ",
+        //     "Eventide ",
+        //     "Shadowmoor ",
+        //     "Planechase card bundle ",
+        // ];
+        // for prefix in prefixes.iter() {
+        //     name = name.strip_prefix(prefix).unwrap_or(&name).to_string();
+        // }
+
+        let name = CardName::new(raw_name)?;
         let set = SetName::new(set)?;
 
         Ok(VendorCard {
@@ -341,9 +368,7 @@ mod tests {
     fn test_card_parser() {
         init();
 
-        let card_html = include_str!(
-            "test/alphaspel_cards_page.html"
-        );
+        let card_html = include_str!("test/alphaspel_cards_page.html");
 
         let document = Html::parse_document(&card_html);
         let selector = Selector::parse(".products.row div.product").unwrap();
@@ -397,9 +422,7 @@ mod tests {
             .unwrap();
         let url = server.url();
 
-        let starterpage_short = include_str!(
-            "test/alphaspel_starter_page_short.html",
-        );
+        let starterpage_short = include_str!("test/alphaspel_starter_page_short.html",);
 
         // Create a mock
         let mock = server
@@ -409,9 +432,7 @@ mod tests {
             .with_body(starterpage_short)
             .create();
 
-        let card_page = include_str!(
-            "test/alphaspel_cards_page_no_extra_pages.html",
-        );
+        let card_page = include_str!("test/alphaspel_cards_page_no_extra_pages.html",);
         //Call to see amount of pages
         let mock2 = server
             .mock(
