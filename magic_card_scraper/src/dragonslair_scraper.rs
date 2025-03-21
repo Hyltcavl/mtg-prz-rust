@@ -183,7 +183,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_page_count_no_pages() {
         let html_content = fs::read_to_string(
-            "/workspaces/mtg-prz-rust/dl_scraper/src/test/get_pages_no_pages.html",
+            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/get_pages_no_pages.html",
         )
         .unwrap();
         let mut server = std::thread::spawn(|| mockito::Server::new())

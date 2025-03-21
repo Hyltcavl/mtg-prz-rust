@@ -135,7 +135,7 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
                         </div>
                     </td>
                     <td>{name}</td>
-                    <td data-sort={cheapest_vendor_price}>{cheapest_vendor_price} SEK</td>
+                    <td data-sort={cheapest_vendor_price}>{cheapest_vendor_price} </td>
                     <td data-sort={cheapest_mcm_price:.2}>{cheapest_mcm_price:.2} </td>
                     <td data-sort={price_diff:.2}>{price_diff:.2} SEK</td>
                     <td>{vendor}</td>
@@ -232,7 +232,7 @@ mod tests {
         // let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
         // let output_dir = "/workspaces/mtg-prz-rust";
         let json_file_path =
-            "/workspaces/mtg-prz-rust/dl_scraper/src/test/test_grouped_compared_cards.json";
+            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/test_grouped_compared_cards.json";
         let cards =
             load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
         let html_page_name = "index.html";
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn test_filter_nice_price_cards_default_config() {
         let json_file_path =
-            "/workspaces/mtg-prz-rust/dl_scraper/src/test/test_grouped_compared_cards.json";
+            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/test_grouped_compared_cards.json";
         // let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
         let cards =
             load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
