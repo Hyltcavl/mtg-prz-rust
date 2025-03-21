@@ -166,12 +166,9 @@ pub fn generate_html_footer() -> String {
 
 #[cfg(test)]
 mod tests {
-    use tempfile::tempdir;
-
-    use crate::utilities::file_management::load_from_json_file;
-
     use super::*;
     use std::path::Path;
+    use tempfile::tempdir;
 
     struct TestContext {
         temp_dir: tempfile::TempDir,

@@ -148,7 +148,6 @@ impl DragonslairScraper {
 mod tests {
 
     use super::*;
-    use std::fs;
     use tokio;
 
     #[tokio::test]

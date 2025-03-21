@@ -15,6 +15,6 @@ pub const COMPARED_FILE_PREFIX: &str = "compared_cards_";
 
 pub const SCRYFALL_API_URL: &str = "https://api.scryfall.com";
 
-pub const REPOSITORY_ROOT_PATH: &str = "../..";
+pub const REPOSITORY_ROOT_PATH: &str = "..";
 
 pub const MTG_STOCKS_BASE_URL: &str = "https://api.mtgstocks.com";
