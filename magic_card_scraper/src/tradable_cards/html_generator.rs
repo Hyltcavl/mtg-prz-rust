@@ -60,9 +60,7 @@ pub fn generate_html_header() -> String {
         </thead>
         <tbody>
     "#,
-        include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/static/tradable_cards_page/styles.css"
-        )
+        include_str!("../../static/tradable_cards_page/styles.css")
     )
 }
 
@@ -77,9 +75,7 @@ pub fn generate_html_footer() -> String {
         </body>
     </html>
     "#,
-        include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/static/tradable_cards_page/filters.js"
-        )
+        include_str!("../../static/tradable_cards_page/filters.js")
     )
 }
 

@@ -317,9 +317,7 @@ mod tests {
     async fn test_get_all_card_pages() {
         init();
 
-        let html_content = include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/alphaspel_starter_page.html",
-        );
+        let html_content = include_str!("test/alphaspel_starter_page.html",);
 
         let mut server = std::thread::spawn(|| mockito::Server::new())
             .join()
@@ -344,7 +342,7 @@ mod tests {
         init();
 
         let card_html = include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/alphaspel_cards_page.html"
+            "test/alphaspel_cards_page.html"
         );
 
         let document = Html::parse_document(&card_html);
@@ -400,7 +398,7 @@ mod tests {
         let url = server.url();
 
         let starterpage_short = include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/alphaspel_starter_page_short.html",
+            "test/alphaspel_starter_page_short.html",
         );
 
         // Create a mock
@@ -412,7 +410,7 @@ mod tests {
             .create();
 
         let card_page = include_str!(
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/alphaspel_cards_page_no_extra_pages.html",
+            "test/alphaspel_cards_page_no_extra_pages.html",
         );
         //Call to see amount of pages
         let mock2 = server

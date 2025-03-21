@@ -171,10 +171,7 @@ fn get_data_from_most_recent_file<T>(
 where
     T: serde::de::DeserializeOwned,
 {
-    let newest_file = get_newest_file(
-        &format!("/workspaces/mtg-prz-rust/{}", folder_name),
-        file_prefix,
-    )?;
+    let newest_file = get_newest_file(&format!("../../{}", folder_name), file_prefix)?;
     let res = newest_file.to_str().unwrap();
 
     load_cards(res)
@@ -222,14 +219,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .await
             .unwrap();
         let path = format!(
-            "/workspaces/mtg-prz-rust/tradable_cards/tradable_cards_{}.json",
+            "../../tradable_cards/tradable_cards_{}.json",
             date_time_as_string(None, None)
         );
         save_to_file(&path, &tradable_cards)?;
 
         let html = generate_page_content(&tradable_cards);
 
-        fs::write("/workspaces/mtg-prz-rust/cards.html", html)?;
+        fs::write("../../cards.html", html)?;
     }
 
     let alphaspel_cards = if CONFIG.alpha {

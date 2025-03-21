@@ -231,11 +231,12 @@ mod tests {
         let ctx = TestContext::new();
         // let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
         // let output_dir = "/workspaces/mtg-prz-rust";
-        let json_file_path =
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/test_grouped_compared_cards.json";
-        let cards =
-            load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
         let html_page_name = "index.html";
+        let file_content = include_str!("test/test_grouped_compared_cards.json");
+
+        // Parse the JSON content directly from the embedded string
+        let cards: HashMap<CardName, Vec<ComparedCard>> =
+            serde_json::from_str(file_content).unwrap();
 
         //Temporary dir
         let temp_dir = ctx.temp_dir.path().to_str().unwrap();
@@ -254,11 +255,18 @@ mod tests {
 
     #[test]
     fn test_filter_nice_price_cards_default_config() {
-        let json_file_path =
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/test_grouped_compared_cards.json";
-        // let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
-        let cards =
-            load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
+        // let _ = include_str!("test/test_grouped_compared_cards.json");
+        // let json_file_path = "test/test_grouped_compared_cards.json";
+
+        // // let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
+        // let cards =
+        //     load_from_json_file::<HashMap<CardName, Vec<ComparedCard>>>(json_file_path).unwrap();
+
+        let file_content = include_str!("test/test_grouped_compared_cards.json");
+
+        // Parse the JSON content directly from the embedded string
+        let cards: HashMap<CardName, Vec<ComparedCard>> =
+            serde_json::from_str(file_content).unwrap();
         let nice_price_cards = filter_nice_price_cards(&cards, 0);
         // assert_eq!(cards["Mist-Syndicate Naga"][0].vendor_card.price, 30.0);
         // assert_eq!(cards["Mist-Syndicate Naga"][0].price_difference_to_cheapest_vendor_card, 2);

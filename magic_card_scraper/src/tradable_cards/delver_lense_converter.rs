@@ -147,8 +147,7 @@ mod tests {
         let delver_lense_converter = DelverLenseConverter::new();
         let expected_cards =
             delver_lense_converter.convert_delver_lense_card_to_personal_card(cards);
-        let file_path =
-            "/workspaces/mtg-prz-rust/magic_card_scraper/src/test/list_of_cards_from_delver_lens.csv";
+        let file_path = "src/test/list_of_cards_from_delver_lens.csv";
         let result = delver_lense_converter.get_delver_lense_cards_from_file(file_path);
         assert_eq!(result.unwrap(), expected_cards);
     }
