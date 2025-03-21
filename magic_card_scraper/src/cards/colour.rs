@@ -1,0 +1,121 @@
+use std::{fmt, str::FromStr};
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, Copy)]
+pub enum Colour {
+    White,
+    Blue,
+    Black,
+    Red,
+    Green,
+    Colorless,
+    Azorius,
+    Boros,
+    Dimir,
+    Golgari,
+    Gruul,
+    Izzet,
+    Orzhov,
+    Rakdos,
+    Selesnya,
+    Simic,
+    Abzan,
+    Bant,
+    Esper,
+    Grixis,
+    Jeskai,
+    Jund,
+    Mardu,
+    Naya,
+    Sultai,
+    Temur,
+    Dune,
+    Glint,
+    Ink,
+    Witch,
+    Yore,
+    WUBRG,
+    Unknown,
+}
+impl fmt::Display for Colour {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Colour::White => write!(f, "White"),
+            Colour::Blue => write!(f, "Blue"),
+            Colour::Black => write!(f, "Black"),
+            Colour::Red => write!(f, "Red"),
+            Colour::Green => write!(f, "Green"),
+            Colour::Colorless => write!(f, "Colorless"),
+            Colour::Azorius => write!(f, "Blue/White"),
+            Colour::Boros => write!(f, "Red/White"),
+            Colour::Dimir => write!(f, "Blue/Black"),
+            Colour::Golgari => write!(f, "Black/Green"),
+            Colour::Gruul => write!(f, "Red/Green"),
+            Colour::Izzet => write!(f, "Blue/Red"),
+            Colour::Orzhov => write!(f, "White/Black"),
+            Colour::Rakdos => write!(f, "Red/Black"),
+            Colour::Selesnya => write!(f, "White/Green"),
+            Colour::Simic => write!(f, "Blue/Green"),
+            Colour::Abzan => write!(f, "White/Black/Green"),
+            Colour::Bant => write!(f, "White/Blue/Green"),
+            Colour::Esper => write!(f, "White/Blue/Black"),
+            Colour::Grixis => write!(f, "Blue/Black/Red"),
+            Colour::Jeskai => write!(f, "White/Blue/Red"),
+            Colour::Jund => write!(f, "Black/Red/Green"),
+            Colour::Mardu => write!(f, "White/Black/Red"),
+            Colour::Naya => write!(f, "White/Red/Green"),
+            Colour::Sultai => write!(f, "Blue/Black/Green"),
+            Colour::Temur => write!(f, "Blue/Red/Green"),
+            Colour::Dune => write!(f, "WBRG (No Blue)"),
+            Colour::Glint => write!(f, "UBRG (No White)"),
+            Colour::Ink => write!(f, "WURG (No Black)"),
+            Colour::Witch => write!(f, "WUBG (No Red)"),
+            Colour::Yore => write!(f, "WUBR (No Green)"),
+            Colour::WUBRG => write!(f, "WUBRG"),
+            Colour::Unknown => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for Colour {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        match input {
+            "White" => Ok(Colour::White),
+            "Blue" => Ok(Colour::Blue),
+            "Black" => Ok(Colour::Black),
+            "Red" => Ok(Colour::Red),
+            "Green" => Ok(Colour::Green),
+            "Colorless" => Ok(Colour::Colorless),
+            "Blue/White" => Ok(Colour::Azorius),
+            "Red/White" => Ok(Colour::Boros),
+            "Blue/Black" => Ok(Colour::Dimir),
+            "Black/Green" => Ok(Colour::Golgari),
+            "Red/Green" => Ok(Colour::Gruul),
+            "Blue/Red" => Ok(Colour::Izzet),
+            "White/Black" => Ok(Colour::Orzhov),
+            "Red/Black" => Ok(Colour::Rakdos),
+            "White/Green" => Ok(Colour::Selesnya),
+            "Blue/Green" => Ok(Colour::Simic),
+            "White/Black/Green" => Ok(Colour::Abzan),
+            "White/Blue/Green" => Ok(Colour::Bant),
+            "White/Blue/Black" => Ok(Colour::Esper),
+            "Blue/Black/Red" => Ok(Colour::Grixis),
+            "White/Blue/Red" => Ok(Colour::Jeskai),
+            "Black/Red/Green" => Ok(Colour::Jund),
+            "White/Black/Red" => Ok(Colour::Mardu),
+            "White/Red/Green" => Ok(Colour::Naya),
+            "Blue/Black/Green" => Ok(Colour::Sultai),
+            "Blue/Red/Green" => Ok(Colour::Temur),
+            "WBRG (No Blue)" => Ok(Colour::Dune),
+            "UBRG (No White)" => Ok(Colour::Glint),
+            "WURG (No Black)" => Ok(Colour::Ink),
+            "WUBG (No Red)" => Ok(Colour::Witch),
+            "WUBR (No Green)" => Ok(Colour::Yore),
+            "WUBRG" => Ok(Colour::WUBRG),
+            _ => Ok(Colour::Unknown), // Handle unmatched cases
+        }
+    }
+}

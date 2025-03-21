@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV-JSON Comparison Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV-JSON Comparison Tool</h1>
+    <input type="file" id="csvFile" accept=".csv">
+    <button onclick="compareFiles()">Compare</button>
+    <div id="results"></div>
+
+    <script>
+        async function compareFiles() {
+            const csvFile = document.getElementById('csvFile').files[0];
+            if (!csvFile) {
+                alert('Please select a CSV file');
+                return;
+            }
+
+            const csvData = await readCSV(csvFile);
+            const jsonData = await fetchJSON('dl_cards.json');
+
+            const matches = compareData(csvData, jsonData);
+            displayResults(matches);
+        }
+
+        function readCSV(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    const headers = lines[0].split(',');
+                    const nameIndex = headers.indexOf('name');
+                    
+                    if (nameIndex === -1) {
+                        reject('CSV file does not contain a "name" column');
+                        return;
+                    }
+
+                    const data = lines.slice(1).map(line => {
+                        const values = line.split(',');
+                        return values[nameIndex].trim();
+                    });
+                    resolve(data);
+                };
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        async function fetchJSON(url) {
+            const response = await fetch(url);
+            return response.json();
+        }
+
+        function compareData(csvData, jsonData) {
+            return jsonData.filter(jsonObj => 
+                csvData.includes(jsonObj.name)
+            );
+        }
+
+        function displayResults(matches) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Matching Results:</h2>';
+            
+            if (matches.length === 0) {
+                resultsDiv.innerHTML += '<p>No matches found.</p>';
+            } else {
+                const list = document.createElement('ul');
+                matches.forEach(match => {
+                    const li = document.createElement('li');
+                    li.textContent = JSON.stringify(match);
+                    list.appendChild(li);
+                });
+                resultsDiv.appendChild(list);
+            }
+        }
+    </script>
+</body>
+</html>

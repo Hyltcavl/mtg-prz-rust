@@ -1,0 +1,814 @@
+{
+  "Cascading Cataracts": [
+    {
+      "vendor_card": {
+        "name": "Cascading Cataracts",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/44694/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Amonkhet",
+          "cleaned": "amonkhet"
+        },
+        "price": {
+          "amount": 40.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 20,
+        "current_stock": 1,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Cascading Cataracts",
+        "set": {
+          "raw": "Amonkhet",
+          "cleaned": "amonkhet"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/7/7/778739db-4431-4e58-91de-d2619aeef3ce.jpg?1543676358",
+        "prices": {
+          "eur": {
+            "amount": 4.46,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 4.46,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": -10
+    },
+    {
+      "vendor_card": {
+        "name": "Cascading Cataracts",
+        "vendor": "Dragonslair",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/44694/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Amonkhet",
+          "cleaned": "amonkhet"
+        },
+        "price": {
+          "amount": 130.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 70,
+        "current_stock": 1,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Cascading Cataracts",
+        "set": {
+          "raw": "Amonkhet",
+          "cleaned": "amonkhet"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/7/7/778739db-4431-4e58-91de-d2619aeef3ce.jpg?1543676358",
+        "prices": {
+          "eur": {
+            "amount": 1.18,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 4.46,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 81
+    }
+  ],
+  "Drossforge Bridge": [
+    {
+      "vendor_card": {
+        "name": "Drossforge Bridge",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/74180/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Modern Horizons 2",
+          "cleaned": "modern horizons 2"
+        },
+        "price": {
+          "amount": 10.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 5,
+        "current_stock": 3,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Drossforge Bridge",
+        "set": {
+          "raw": "Modern Horizons 2",
+          "cleaned": "modern horizons 2"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/5/b/5b46b8d8-723a-4752-b97d-29ef83bd294c.jpg?1626099621",
+        "prices": {
+          "eur": {
+            "amount": 0.53,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 0.72,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 5
+    }
+  ],
+  "Windswept Heath": [
+    {
+      "vendor_card": {
+        "name": "Windswept Heath",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/32215/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Khans of Tarkir",
+          "cleaned": "khans of tarkir"
+        },
+        "price": {
+          "amount": 25.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 190,
+        "current_stock": 4,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Windswept Heath",
+        "set": {
+          "raw": "Khans of Tarkir",
+          "cleaned": "khans of tarkir"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/e/7/e7b28650-cddc-4878-b1d1-b5a764f4df49.jpg?1707235002",
+        "prices": {
+          "eur": {
+            "amount": 2.0,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 2.0,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": -5
+    },
+    {
+      "vendor_card": {
+        "name": "Windswept Heath",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/120384/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Modern Horizons 3",
+          "cleaned": "modern horizons 3"
+        },
+        "price": {
+          "amount": 300.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 150,
+        "current_stock": 1,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Windswept Heath",
+        "set": {
+          "raw": "Modern Horizons 3",
+          "cleaned": "modern horizons 3"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/2/2/2227b1ba-78be-47ab-8dad-13233f4d4dfc.jpg?1738521629",
+        "prices": {
+          "eur": null,
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 300
+    },
+    {
+      "vendor_card": {
+        "name": "Windswept Heath",
+        "vendor": "Dragonslair",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/125016/product",
+        "extended_art": false,
+        "prerelease": true,
+        "showcase": false,
+        "set": {
+          "raw": "Modern Horizons 3 Promos",
+          "cleaned": "modern horizons 3 promos"
+        },
+        "price": {
+          "amount": 220.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 110,
+        "current_stock": 2,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Windswept Heath",
+        "set": {
+          "raw": "Modern Horizons 3 Promos",
+          "cleaned": "modern horizons 3 promos"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/9/0/903e4a26-b49c-45af-b291-37935808295c.jpg?1720464384",
+        "prices": {
+          "eur": null,
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 220
+    }
+  ],
+  "Vivid Crag": [
+    {
+      "vendor_card": {
+        "name": "Vivid Crag",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/46466/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Commander 2017",
+          "cleaned": "commander 2017"
+        },
+        "price": {
+          "amount": 10.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 5,
+        "current_stock": 1,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Vivid Crag",
+        "set": {
+          "raw": "Commander 2017",
+          "cleaned": "commander 2017"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/7/1/71a2c58e-eb1f-4a8b-b040-419c9d5ccf65.jpg?1562612333",
+        "prices": {
+          "eur": {
+            "amount": 0.43,
+            "currency": "EUR"
+          },
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 6
+    }
+  ],
+  "Sulfur Falls": [
+    {
+      "vendor_card": {
+        "name": "Sulfur Falls",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/100066/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Dominaria Remastered",
+          "cleaned": "dominaria remastered"
+        },
+        "price": {
+          "amount": 31.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 20,
+        "current_stock": 1,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Sulfur Falls",
+        "set": {
+          "raw": "Dominaria Remastered",
+          "cleaned": "dominaria remastered"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/6/d/6d3e12e4-6122-41d8-8ffb-a883d02d3278.jpg?1675201323",
+        "prices": {
+          "eur": {
+            "amount": 3.0,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 3.0,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 0
+    },
+    {
+      "vendor_card": {
+        "name": "Sulfur Falls",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/123994/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Bloomburrow Commander",
+          "cleaned": "bloomburrow commander"
+        },
+        "price": {
+          "amount": 30.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 15,
+        "current_stock": 3,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Sulfur Falls",
+        "set": {
+          "raw": "Bloomburrow Commander",
+          "cleaned": "bloomburrow commander"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/1/d/1db63651-5241-4eee-982e-5fa19db87179.jpg?1721429847",
+        "prices": {
+          "eur": {
+            "amount": 0.73,
+            "currency": "EUR"
+          },
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 22
+    },
+    {
+      "vendor_card": {
+        "name": "Sulfur Falls",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/130247/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Aetherdrift Commander",
+          "cleaned": "aetherdrift commander"
+        },
+        "price": {
+          "amount": 30.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 15,
+        "current_stock": 3,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Sulfur Falls",
+        "set": {
+          "raw": "Aetherdrift Commander",
+          "cleaned": "aetherdrift commander"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/e/b/eb24d2b9-8683-454b-b911-d694202d1081.jpg?1738356072",
+        "prices": {
+          "eur": {
+            "amount": 0.56,
+            "currency": "EUR"
+          },
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 24
+    },
+    {
+      "vendor_card": {
+        "name": "Sulfur Falls",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/49545/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Dominaria",
+          "cleaned": "dominaria"
+        },
+        "price": {
+          "amount": 70.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 35,
+        "current_stock": 4,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Sulfur Falls",
+        "set": {
+          "raw": "Dominaria",
+          "cleaned": "dominaria"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/6/b/6bc412fc-e9d4-4283-bd4a-811384e79b5c.jpg?1562737296",
+        "prices": {
+          "eur": {
+            "amount": 0.9,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 1.99,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 61
+    },
+    {
+      "vendor_card": {
+        "name": "Sulfur Falls",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/100594/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Dominaria Remastered",
+          "cleaned": "dominaria remastered"
+        },
+        "price": {
+          "amount": 90.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 45,
+        "current_stock": 1,
+        "max_stock": 2
+      },
+      "scryfall_card": {
+        "name": "Sulfur Falls",
+        "set": {
+          "raw": "Dominaria Remastered",
+          "cleaned": "dominaria remastered"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/6/d/6d3e12e4-6122-41d8-8ffb-a883d02d3278.jpg?1675201323",
+        "prices": {
+          "eur": {
+            "amount": 0.81,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 1.42,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 82
+    }
+  ],
+  "Grove of the Burnwillows": [
+    {
+      "vendor_card": {
+        "name": "Grove of the Burnwillows",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/65577/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Zendikar Rising Expeditions",
+          "cleaned": "zendikar rising expeditions"
+        },
+        "price": {
+          "amount": 120.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 60,
+        "current_stock": 2,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Grove of the Burnwillows",
+        "set": {
+          "raw": "Zendikar Rising Expeditions",
+          "cleaned": "zendikar rising expeditions"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/8/2/82fb5274-c11a-465b-b14f-8f35495482e4.jpg?1604195844",
+        "prices": {
+          "eur": {
+            "amount": 7.47,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 13.07,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 38
+    },
+    {
+      "vendor_card": {
+        "name": "Grove of the Burnwillows",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/47611/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Iconic Masters",
+          "cleaned": "iconic masters"
+        },
+        "price": {
+          "amount": 90.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 45,
+        "current_stock": 1,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Grove of the Burnwillows",
+        "set": {
+          "raw": "Iconic Masters",
+          "cleaned": "iconic masters"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/d/e/de4b75ad-7539-4184-a940-6014a0327b3a.jpg?1562854707",
+        "prices": {
+          "eur": {
+            "amount": 7.01,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 9.82,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 13
+    },
+    {
+      "vendor_card": {
+        "name": "Grove of the Burnwillows",
+        "vendor": "Dragonslair",
+        "foil": true,
+        "image_url": "https://astraeus.dragonslair.se/images/47611/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Iconic Masters",
+          "cleaned": "iconic masters"
+        },
+        "price": {
+          "amount": 150.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 80,
+        "current_stock": 1,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Grove of the Burnwillows",
+        "set": {
+          "raw": "Iconic Masters",
+          "cleaned": "iconic masters"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/d/e/de4b75ad-7539-4184-a940-6014a0327b3a.jpg?1562854707",
+        "prices": {
+          "eur": {
+            "amount": 7.01,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 9.82,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 42
+    }
+  ],
+  "Briber's Purse": [
+    {
+      "vendor_card": {
+        "name": "Briber's Purse",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/32184/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Khans of Tarkir",
+          "cleaned": "khans of tarkir"
+        },
+        "price": {
+          "amount": 5.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 3,
+        "current_stock": 4,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Bribers Purse",
+        "set": {
+          "raw": "Khans of Tarkir",
+          "cleaned": "khans of tarkir"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/7/f/7f9951f1-ca51-44a2-8480-602df466f0ab.jpg?1562789249",
+        "prices": {
+          "eur": {
+            "amount": 0.18,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 0.24,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 4
+    }
+  ],
+  "Three Tree City": [
+    {
+      "vendor_card": {
+        "name": "Three Tree City",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/121769/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Bloomburrow",
+          "cleaned": "bloomburrow"
+        },
+        "price": {
+          "amount": 375.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 200,
+        "current_stock": 4,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Three Tree City",
+        "set": {
+          "raw": "Bloomburrow",
+          "cleaned": "bloomburrow"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/0/6/06008bcb-ce6b-482c-9253-f5b9b5e0718e.jpg?1721427806",
+        "prices": {
+          "eur": null,
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 375
+    },
+    {
+      "vendor_card": {
+        "name": "Three Tree City",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/121969/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Bloomburrow",
+          "cleaned": "bloomburrow"
+        },
+        "price": {
+          "amount": 800.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 500,
+        "current_stock": 1,
+        "max_stock": 1
+      },
+      "scryfall_card": {
+        "name": "Three Tree City",
+        "set": {
+          "raw": "Bloomburrow",
+          "cleaned": "bloomburrow"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/0/6/06008bcb-ce6b-482c-9253-f5b9b5e0718e.jpg?1721427806",
+        "prices": {
+          "eur": null,
+          "eur_foil": null
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 800
+    }
+  ],
+  "Lotus Bloom": [
+    {
+      "vendor_card": {
+        "name": "Lotus Bloom",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/69931/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Time Spiral Remastered",
+          "cleaned": "time spiral remastered"
+        },
+        "price": {
+          "amount": 80.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 40,
+        "current_stock": 4,
+        "max_stock": 4
+      },
+      "scryfall_card": {
+        "name": "Lotus Bloom",
+        "set": {
+          "raw": "Time Spiral Remastered",
+          "cleaned": "time spiral remastered"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/7/4/7466be25-5d41-408d-90eb-6de47ea11484.jpg?1620592945",
+        "prices": {
+          "eur": null,
+          "eur_foil": {
+            "amount": 2.58,
+            "currency": "EUR"
+          }
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 80
+    }
+  ],
+  "Mist-Syndicate Naga": [
+    {
+      "vendor_card": {
+        "name": "Mist-Syndicate Naga",
+        "vendor": "Dragonslair",
+        "foil": false,
+        "image_url": "https://astraeus.dragonslair.se/images/55359/product",
+        "extended_art": false,
+        "prerelease": false,
+        "showcase": false,
+        "set": {
+          "raw": "Modern Horizons",
+          "cleaned": "modern horizons"
+        },
+        "price": {
+          "amount": 30.0,
+          "currency": "SEK"
+        },
+        "trade_in_price": 15,
+        "current_stock": 1,
+        "max_stock": 4,
+        "collector_number": {
+          "raw_value": "MH1-058",
+          "cleaned_value": "mh1-058"
+        }
+      },
+      "scryfall_card": {
+        "name": "MistSyndicate Naga",
+        "set": {
+          "raw": "Modern Horizons",
+          "cleaned": "modern horizons"
+        },
+        "image_url": "https://cards.scryfall.io/normal/front/6/5/65c8f074-e260-4f8e-85d1-1904ca928b51.jpg?1562201419",
+        "prices": {
+          "eur": {
+            "amount": 2.47,
+            "currency": "EUR"
+          },
+          "eur_foil": {
+            "amount": 4.98,
+            "currency": "EUR"
+          }
+        },
+        "collector_number": {
+          "raw_value": "mh1-058",
+          "cleaned_value": "mh1-058"
+        }
+      },
+      "price_difference_to_cheapest_vendor_card": 2
+    }
+  ]
+}
