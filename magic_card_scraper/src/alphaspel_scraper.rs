@@ -37,7 +37,7 @@ impl AlphaspelScraper {
         }
     }
 
-    async fn get_all_card_pages(&self) -> Result<Vec<String>, Box<dyn Error>> {
+    async fn get_all_card_pages(&self) -> Result<Vec<(String, String)>, Box<dyn Error>> {
         let url = format!("{}/1978-mtg-loskort/", self.base_url);
         info!("Fetching all card pages from: {}", self.base_url);
         let client = reqwest::Client::new();
@@ -55,10 +55,14 @@ impl AlphaspelScraper {
         // let selector = Selector::parse(".nav.nav-list a").unwrap();
         let selector = Selector::parse(".categories.row h4.text-center a").unwrap();
 
-        let sets_links: Vec<String> = document
+        let sets_links: Vec<(String, String)> = document
             .select(&selector)
-            .filter_map(|element| element.value().attr("href"))
-            .map(|href| href.to_string())
+            .filter_map(|element| {
+                let href = element.value().attr("href")?.to_string();
+                let text = element.text().collect::<Vec<_>>().join(" ");
+                Some((href, text))
+            })
+            // .map(|(href, content)| href.to_string(),)
             .collect();
 
         Ok(sets_links)
@@ -67,6 +71,7 @@ impl AlphaspelScraper {
     fn get_card_from_html(
         &self,
         card_elements: scraper::ElementRef,
+        list_of_sets: Vec<String>,
     ) -> Result<VendorCard, Box<dyn Error>> {
         let in_stock = card_elements
             .select(&Selector::parse(".stock").unwrap())
@@ -122,43 +127,66 @@ impl AlphaspelScraper {
             return Err("Card is not english".into());
         }
 
-        let binding = product_name.trim().replace("(Begagnad)", "");
-        let set_name: Vec<&str> = binding.trim().split(":").collect();
+        if Regex::new(r"Token")?.is_match(&product_name) {
+            return Err("Card is a token".into());
+        }
+
+        info!("all sets: {:?}", list_of_sets);
+
+        let set = list_of_sets
+            .into_iter()
+            .find(|set| product_name.to_lowercase().contains(&set.to_lowercase()));
+
+        let set = if set.is_some() {
+            set.unwrap()
+        } else {
+            return Err(format!("Unable to find what set {} belongs to", &product_name).into());
+        };
+
+        let raw_name = &product_name
+            .split_once(&set)
+            .map(|(_, after)| after)
+            .unwrap_or("Error retrieving the name".into())
+            .replace(":", "");
+
+        // for set_name in list_of_sets {
+        //     product_name.contains(set_name)
+        // }
+
+        // let binding = product_name.trim().replace("(Begagnad)", "");
+        // let set_name: Vec<&str> = binding.trim().split(":").collect();
 
         //Unexpected set name format given input:
         //["Magic löskort", " Commander 2016 Swiftwater Cliffs (Begagnad)"]
-        let (raw_name, set) = match set_name.len() {
-            5 => (
-                set_name[4],
-                format!("{}:{}", set_name[2], set_name[3])
-                    .trim()
-                    .to_string(),
-            ),
-            4 => (set_name[3], set_name[2].trim().to_string()),
-            3 => (set_name[2], set_name[1].trim().to_string()),
-            2 => {
-                if set_name[1].contains("Commander 2016") {
-                    let temp: Vec<&str> = set_name[1].split(" ").collect();
-                    (
-                        set_name[1],
-                        format!("{} {}", temp[0], temp[1]).trim().to_string(),
-                    )
-                } else {
-                    return Err(
-                        format!("Unexpected set name format given input: {:?}", set_name).into(),
-                    );
-                }
-            }
-            _ => {
-                return Err(
-                    format!("Unexpected set name format given input: {:?}", set_name).into(),
-                )
-            }
-        };
 
-        if Regex::new(r"Token")?.is_match(raw_name) {
-            return Err("Card is a token".into());
-        }
+        // let (raw_name, set) = match set_name.len() {
+        //     5 => (
+        //         set_name[4],
+        //         format!("{}:{}", set_name[2], set_name[3])
+        //             .trim()
+        //             .to_string(),
+        //     ),
+        //     4 => (set_name[3], set_name[2].trim().to_string()),
+        //     3 => (set_name[2], set_name[1].trim().to_string()),
+        //     2 => {
+        //         if set_name[1].contains("Commander 2016") {
+        //             let temp: Vec<&str> = set_name[1].split(" ").collect();
+        //             (
+        //                 set_name[1],
+        //                 format!("{} {}", temp[0], temp[1]).trim().to_string(),
+        //             )
+        //         } else {
+        //             return Err(
+        //                 format!("Unexpected set name format given input: {:?}", set_name).into(),
+        //             );
+        //         }
+        //     }
+        //     _ => {
+        //         return Err(
+        //             format!("Unexpected set name format given input: {:?}", set_name).into(),
+        //         )
+        //     }
+        // };
 
         let price = card_elements
             .select(&Selector::parse(".price.text-success").unwrap())
@@ -231,7 +259,8 @@ impl AlphaspelScraper {
     }
 
     pub async fn scrape_cards(&self) -> Result<HashMap<CardName, Vec<VendorCard>>, Box<dyn Error>> {
-        let pages = self.get_all_card_pages().await?;
+        let pages_and_set_names = self.get_all_card_pages().await?;
+        let (pages, set_names): (Vec<_>, Vec<_>) = pages_and_set_names.into_iter().unzip();
         info!("Found {} alphaspel set pages", pages.len());
 
         //Get all pages to call
@@ -276,40 +305,46 @@ impl AlphaspelScraper {
             .buffered(40)
             .collect::<Vec<_>>()
             .await;
-
         let cards: Vec<VendorCard> = stream::iter(links_to_call)
-            .map(|(set_href, max_page_count)| async move {
-                let mut cards = Vec::new();
+            .map(|(set_href, max_page_count)| {
+                let set_names_clone = set_names.clone();
 
-                for page_count in 1..=max_page_count as i32 {
-                    let link = format!(
-                        "{}{}?order_by=stock_a&ordering=desc&page={}",
-                        self.base_url, set_href, page_count
-                    );
-                    info!("Fetching cards from {}", &link);
-                    match reqwest::get(&link).await {
-                        Ok(response) => match response.text().await {
-                            Ok(set_page) => {
-                                let document = Html::parse_document(&set_page);
-                                let product_selector =
-                                    &Selector::parse(".products.row .product").unwrap();
-                                let products = document.select(product_selector);
+                async move {
+                    let mut cards = Vec::new();
+                    // let value = set_names.clone();
 
-                                for product in products {
-                                    match self.get_card_from_html(product) {
-                                        Ok(card) => cards.push(card),
-                                        Err(e) => warn!("Error parsing card: {}", e),
+                    for page_count in 1..=max_page_count as i32 {
+                        let link = format!(
+                            "{}{}?order_by=stock_a&ordering=desc&page={}",
+                            self.base_url, set_href, page_count
+                        );
+                        info!("Fetching cards from {}", &link);
+                        match reqwest::get(&link).await {
+                            Ok(response) => match response.text().await {
+                                Ok(set_page) => {
+                                    let document = Html::parse_document(&set_page);
+                                    let product_selector =
+                                        &Selector::parse(".products.row .product").unwrap();
+                                    let products = document.select(product_selector);
+
+                                    for product in products {
+                                        match self
+                                            .get_card_from_html(product, set_names_clone.clone())
+                                        {
+                                            Ok(card) => cards.push(card),
+                                            Err(e) => warn!("Error parsing card: {}", e),
+                                        }
                                     }
                                 }
-                            }
-                            Err(e) => {
-                                error!("Error reading response text for {}: {}", link, e)
-                            }
-                        },
-                        Err(e) => error!("Error fetching page {}: {}", link, e),
+                                Err(e) => {
+                                    error!("Error reading response text for {}: {}", link, e)
+                                }
+                            },
+                            Err(e) => error!("Error fetching page {}: {}", link, e),
+                        }
                     }
+                    cards
                 }
-                cards
             })
             .buffered(40)
             .collect::<Vec<_>>()
@@ -378,7 +413,10 @@ mod tests {
 
         let mut cards: Vec<VendorCard> = Vec::new();
         for product in products {
-            match alpha_scraper.get_card_from_html(product) {
+            match alpha_scraper.get_card_from_html(
+                product,
+                ["Bloomburrow".to_string(), "10th Edition".to_string()].to_vec(),
+            ) {
                 Ok(card) => cards.push(card),
                 Err(e) => {
                     log::error!("Error parsing card: {}", e);
