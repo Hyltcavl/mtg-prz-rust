@@ -131,8 +131,6 @@ impl AlphaspelScraper {
             return Err("Card is a token".into());
         }
 
-        info!("all sets: {:?}", list_of_sets);
-
         let set = list_of_sets
             .into_iter()
             .find(|set| product_name.to_lowercase().contains(&set.to_lowercase()));
@@ -148,45 +146,6 @@ impl AlphaspelScraper {
             .map(|(_, after)| after)
             .unwrap_or("Error retrieving the name".into())
             .replace(":", "");
-
-        // for set_name in list_of_sets {
-        //     product_name.contains(set_name)
-        // }
-
-        // let binding = product_name.trim().replace("(Begagnad)", "");
-        // let set_name: Vec<&str> = binding.trim().split(":").collect();
-
-        //Unexpected set name format given input:
-        //["Magic löskort", " Commander 2016 Swiftwater Cliffs (Begagnad)"]
-
-        // let (raw_name, set) = match set_name.len() {
-        //     5 => (
-        //         set_name[4],
-        //         format!("{}:{}", set_name[2], set_name[3])
-        //             .trim()
-        //             .to_string(),
-        //     ),
-        //     4 => (set_name[3], set_name[2].trim().to_string()),
-        //     3 => (set_name[2], set_name[1].trim().to_string()),
-        //     2 => {
-        //         if set_name[1].contains("Commander 2016") {
-        //             let temp: Vec<&str> = set_name[1].split(" ").collect();
-        //             (
-        //                 set_name[1],
-        //                 format!("{} {}", temp[0], temp[1]).trim().to_string(),
-        //             )
-        //         } else {
-        //             return Err(
-        //                 format!("Unexpected set name format given input: {:?}", set_name).into(),
-        //             );
-        //         }
-        //     }
-        //     _ => {
-        //         return Err(
-        //             format!("Unexpected set name format given input: {:?}", set_name).into(),
-        //         )
-        //     }
-        // };
 
         let price = card_elements
             .select(&Selector::parse(".price.text-success").unwrap())
@@ -208,37 +167,7 @@ impl AlphaspelScraper {
             || Regex::new(r"\(Etched Foil\)")?.is_match(raw_name)
             || Regex::new(r"\(Foil Etched\)")?.is_match(raw_name);
 
-        let raw_name = raw_name.replace("(Begagnad)", "").trim().to_string();
-
-        // let mut name = Regex::new(r"\([^()]*\)")?
-        //     .replace_all(&raw_name, "")
-        //     .to_string();
-
-        // name = name
-        //     .replace("v.2", "")
-        //     .replace("V.2", "")
-        //     .replace("v.1", "")
-        //     .replace("v.3", "")
-        //     .replace("v.4", "")
-        //     .trim()
-        //     .to_string();
-
-        // name = Regex::new(r"\b(\w+)\s/\s(\w+)\b")?
-        //     .replace_all(&name, "$1 // $2")
-        //     .to_string();
-
-        // let prefixes = [
-        //     "Commander 2016 ",
-        //     "Conflux ",
-        //     "Eventide ",
-        //     "Shadowmoor ",
-        //     "Planechase card bundle ",
-        // ];
-        // for prefix in prefixes.iter() {
-        //     name = name.strip_prefix(prefix).unwrap_or(&name).to_string();
-        // }
-
-        let name = CardName::new(raw_name)?;
+        let name = CardName::new(raw_name.to_owned())?;
         let set = SetName::new(set)?;
 
         Ok(VendorCard {
