@@ -91,9 +91,9 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>Name</th>
-                    <th data-sort-method="number">Vendor price (SEK)</th>
-                    <th data-sort-method="number">MCM price (SEK)</th>
+                    <th>Name/Set</th>
+                    <th data-sort-method="number">Vendor price</th>
+                    <th data-sort-method="number">MCM price</th>
                     <th data-sort-method="number">Price Difference</th>
                     <th>Vendor</th>
                 </tr>
@@ -109,6 +109,7 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
     for card in cards {
         let vendor = &card.vendor_card.vendor;
         let name = &card.vendor_card.name.raw;
+        let set = &card.vendor_card.set.raw;
         let foil = card.vendor_card.foil;
         let cheapest_mcm_price = if foil {
             card.scryfall_card
@@ -125,6 +126,10 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
         let price_diff = card.price_difference_to_cheapest_vendor_card;
         let image_url = &card.vendor_card.image_url;
 
+        let s_name = &card.scryfall_card.name.raw;
+        let s_set = &card.scryfall_card.set.raw;
+        let s_img = &card.scryfall_card.image_url;
+
         content.push_str(&format!(
             r#"
                 <tr>
@@ -134,9 +139,17 @@ fn generate_page_content(cards: Vec<&ComparedCard>, current_date: &str) -> Strin
                             <img class="enlarged-image" src="{image_url}" alt="{name}">
                         </div>
                     </td>
-                    <td>{name}</td>
-                    <td data-sort={cheapest_vendor_price}>{cheapest_vendor_price} </td>
-                    <td data-sort={cheapest_mcm_price:.2}>{cheapest_mcm_price:.2} </td>
+                    <td>{name}<br>{set}</td>
+                    <td data-sort={cheapest_vendor_price}>{cheapest_vendor_price}</td>
+                    <td data-sort={cheapest_mcm_price:.2}>
+                        <div class="hover-container">
+                            <span class="value-text">{cheapest_mcm_price:.2}</span>
+                            <div class="hover-content">
+                                <img class="hover-enlarged-image" src="{s_img}" alt="{s_name} / {s_set}">
+                                <span class="hover-text">{s_name} / {s_set}</span>
+                            </div>
+                        </div>
+                    </td>
                     <td data-sort={price_diff:.2}>{price_diff:.2} SEK</td>
                     <td>{vendor}</td>
                 </tr>

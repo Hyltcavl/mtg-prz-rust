@@ -123,3 +123,51 @@ button:hover {
 .hidden {
     display: none;
 }
+
+/* Hover container for the cheapest_mcm_price */
+.hover-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Hover content container (hidden by default) */
+.hover-content {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    /* Center vertically */
+    left: 50%;
+    /* Center horizontally */
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Enlarged image styling */
+.hover-enlarged-image {
+    max-width: 40vw;
+    max-height: 40vh;
+    width: auto;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+    /* Space between image and text */
+}
+
+/* Text styling for card name and set */
+.hover-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Show the hover content when hovering over the price text */
+.hover-container:hover .hover-content {
+    display: block;
+    /* Make the hover content visible */
+}

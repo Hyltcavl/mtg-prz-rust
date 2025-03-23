@@ -123,3 +123,29 @@ button:hover {
 .hidden {
     display: none;
 }
+
+/* Hover container for the cheapest_mcm_price */
+.hover-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Enlarged image for the cheapest_mcm_price (hidden by default) */
+.hover-enlarged-image {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 80vw;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Show the enlarged image when hovering over the price text */
+.hover-container:hover .hover-enlarged-image {
+    display: block;
+}

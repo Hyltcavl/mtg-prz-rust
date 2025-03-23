@@ -245,7 +245,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     if !CONFIG.delver_lense_path.is_empty() {
-        compare_delver_lense_cards_to_dl(dl_cards).await;
+        let _ = compare_delver_lense_cards_to_dl(dl_cards.clone()).await;
     }
 
     let alphaspel_cards = if CONFIG.alpha {
@@ -279,7 +279,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .and_modify(|e| e.extend(alpha_cards.clone()))
             .or_insert(alpha_cards);
     }
-    let compared_cards = compare_cards_and_save_to_file(scryfall_cards_path, dl_cards).await;
+    let compared_cards =
+        compare_cards_and_save_to_file(scryfall_cards_path, dl_cards.clone()).await;
 
     let _ = generate_nice_price_page(compared_cards, "../", "index.html", CONFIG.nice_price_diff);
 
