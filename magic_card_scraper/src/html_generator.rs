@@ -270,14 +270,20 @@ mod tests {
         assert_eq!(nice_price_cards.len(), 4);
     }
 
-    // #[test]
-    // fn test_filter_nice_price_cards_custom_config() {
-    //     let json_file_path = "/workspaces/mtg-prz-rust/mtg-rust/src/test/test_compared_cards.json";
-    //     let cards = load_from_json_file::<Vec<ComparedCard>>(json_file_path).unwrap();
+    #[test]
+    #[ignore]
+    fn test_filter_nice_price_cards_custom_config() {
+        let file_content = include_str!("test/test_grouped_compared_cards.json");
+        let cards: HashMap<CardName, Vec<ComparedCard>> =
+            serde_json::from_str(file_content).unwrap();
 
-    //     // Temporarily change the CONFIG for this test
-    //     env::set_var("NICE_PRICE_DIFF", "-20");
-    //     let nice_price_cards = filter_nice_price_cards(&cards);
-    //     assert_eq!(nice_price_cards.len(), 8);
-    // }
+        // generate test page
+        generate_nice_price_page(
+            cards,
+            "/workspaces/mtg-prz-rust/",
+            "test_index_page.html",
+            0,
+        )
+        .unwrap();
+    }
 }

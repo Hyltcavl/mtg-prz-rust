@@ -10,16 +10,17 @@ The defaults of the config is to run all screapers and use the MTG stocks compar
 
 Basic run commands:
 ```bash
-
 RUST_LOG=info DL=1 AS=1 SF=1 EXTERNAL_PRICE_CHECK=1 DELVER_LENSE_PATH=./../Draftshaft_2025_Mar_10_17-33.csv NICE_PRICE_DIFF=0 cargo run > output.log 2>&1
-
 ```
 
 Run command for specific test:
 ```bash
-
 RUST_LOG=info cargo test --package mtg-rust --bin mtg-rust -- delver_lense::delver_lense_card::tests2::test_fetch_card --exact --show-output > output.log 2>&1
 ```
+```bash
+RUST_LOG=info DL=0 AS=0 SF=0 EXTERNAL_PRICE_CHECK=0 DELVER_LENSE_PATH=./../delver_lense_cards/Draftshaft_2025_Mar_10_17-33.csv NICE_PRICE_DIFF=0 CHECK_DL_WHEN_COMPARING=0 cargo run > output.log 2>&1
+```
+
 ## Other
 How to add dependency:
 

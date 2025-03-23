@@ -10,6 +10,7 @@ pub struct Config {
     pub nice_price_diff: i32,
     pub external_price_check: bool,
     pub delver_lense_path: String,
+    pub check_dl_when_comparing: bool,
 }
 
 impl Default for Config {
@@ -21,6 +22,7 @@ impl Default for Config {
             nice_price_diff: 0,
             external_price_check: true,
             delver_lense_path: "".to_string(),
+            check_dl_when_comparing: true,
         }
     }
 }
@@ -57,6 +59,9 @@ impl Config {
                 error!("Supplied incorrect path to delver lense card file");
                 self.delver_lense_path = "".to_string();
             }
+        }
+        if let Ok(check_dl_when_comparing) = env::var("CHECK_DL_WHEN_COMPARING") {
+            self.check_dl_when_comparing = check_dl_when_comparing == "1";
         }
     }
 }

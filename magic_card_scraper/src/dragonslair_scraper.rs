@@ -2,7 +2,7 @@ use crate::cards::card_parser::fetch_and_parse;
 use crate::cards::cardname::CardName;
 use crate::cards::vendorcard::VendorCard;
 use futures::stream::{self, StreamExt};
-use log::info;
+use log::{error, info};
 use reqwest::Client;
 use scraper::{Html, Selector};
 use std::collections::HashMap;
@@ -84,7 +84,7 @@ impl DragonslairScraper {
                     match self.get_page_count(&request_url).await {
                         Some(page_count) => self.generate_card_urls(page_count, *cmc),
                         None => {
-                            log::error!("Failed to get page count on request {:?}", request_url);
+                            error!("Failed to get page count on request {:?}", request_url);
                             Vec::new()
                         }
                     }
@@ -129,7 +129,7 @@ impl DragonslairScraper {
                 match fetch_and_parse(&url).await {
                     Ok(cards) => cards,
                     Err(e) => {
-                        log::error!("Error fetching cards from {}: {}", &url, e);
+                        error!("Error fetching cards from {}: {}", &url, e);
                         Vec::new()
                     }
                 }

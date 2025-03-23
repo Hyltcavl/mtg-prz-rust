@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info, warn};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -35,7 +35,7 @@ impl MtgPriceFetcher {
         card_name: CardName,
         card_set: SetName,
     ) -> Result<Price, Box<dyn std::error::Error>> {
-        log::info!("Fetching live prices for card: {}", card_name.almost_raw);
+        info!("Fetching live prices for card: {}", card_name.almost_raw);
 
         // Check cache first
         let cached_prices: Option<Price> = {
@@ -54,13 +54,13 @@ impl MtgPriceFetcher {
         };
 
         if let Some(price) = cached_prices {
-            log::debug!("Returning cached prices for card: {:?}", price);
+            debug!("Returning cached prices for card: {:?}", price);
             return Ok(price);
         }
 
         let slug = self.get_card_search_uri(&card_name.almost_raw).await?;
         let list = self.get_list_of_prices_for_card(&slug).await?;
-        log::debug!("Fetched live prices for card: {:?}", list);
+        debug!("Fetched live prices for card: {:?}", list);
 
         let price = list.iter().find(|card| card.set == card_set);
 
@@ -141,7 +141,7 @@ impl MtgPriceFetcher {
                         match obj["latest_price_mkm"].as_f64() {
                             Some(price) => price,
                             None => {
-                                log::warn!(
+                                warn!(
                                     "latest_price_mkm avg not found for card: {} in set: {}, using default value of 0.0", slug, obj["set_name"]
                                 );
                                 0.0

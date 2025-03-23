@@ -6,7 +6,7 @@ use crate::utilities::constants::{
 };
 use crate::utilities::string_manipulators::clean_string;
 use chrono::Local;
-use log::{self, error, info};
+use log::{self, debug, error, info};
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -158,7 +158,7 @@ impl ScryfallScraper {
                     let name = match CardName::new(name.clone()) {
                         Ok(name) => name,
                         Err(e) => {
-                            log::debug!("Error parsing card name: '{}', with error: {}", name, e);
+                            debug!("Error parsing card name: '{}', with error: {}", name, e);
                             continue;
                         }
                     };

@@ -209,7 +209,7 @@ impl Comparer {
         {
             Ok(price) => price,
             Err(e) => {
-                log::error!(
+                error!(
                     "Price fetch failed for {}: {}",
                     vendor_card.name.almost_raw,
                     e

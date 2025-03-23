@@ -10,6 +10,7 @@ mod tradable_cards;
 mod utilities;
 
 use std::collections::HashMap;
+use std::error::Error;
 use std::fs;
 
 use crate::cards::cardname::CardName;
@@ -24,7 +25,7 @@ use comparer::Comparer;
 use dragonslair_scraper::DragonslairScraper;
 
 use html_generator::generate_nice_price_page;
-use log::info;
+use log::{error, info};
 use reqwest::Client;
 use scryfall_scraper::ScryfallScraper;
 use tradable_cards::delver_lense_converter::DelverLenseConverter;
@@ -182,11 +183,52 @@ where
     T: serde::de::DeserializeOwned,
 {
     load_from_json_file::<HashMap<CardName, Vec<T>>>(path)
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        .map_err(|e| Box::new(e) as Box<dyn Error>)
+}
+
+async fn compare_delver_lense_cards_to_dl(
+    dl_cards: HashMap<CardName, Vec<VendorCard>>,
+) -> Result<(), Box<dyn Error>> {
+    let start_time = chrono::prelude::Local::now();
+    info!("Starting delver lense compare at {}", start_time);
+    let delver_lense_converter = DelverLenseConverter::new();
+    let cards = delver_lense_converter
+        .get_delver_lense_cards_from_file(&CONFIG.delver_lense_path)
+        .unwrap();
+
+    let comparer = TradableCardsComparer::new(DragonslairScraper::new(
+        DRAGONSLAIR_URL,
+        None,
+        reqwest::Client::new(),
+    ));
+
+    let tradable_cards = comparer
+        .get_tradable_cards(cards, dl_cards.clone())
+        .await
+        .unwrap();
+    let path = format!(
+        "../tradable_cards/tradable_cards_{}.json",
+        date_time_as_string(None, None)
+    );
+    save_to_file(&path, &tradable_cards)?;
+
+    let html = generate_page_content(&tradable_cards);
+
+    fs::write("../cards.html", html)?;
+
+    let end_time = chrono::prelude::Local::now();
+    info!(
+        "Comparing delver lense cards to DL cards started at: {}. Finished at: {}. Took: {} seconds and with cards in dir: {}",
+        start_time,
+        end_time,
+        (end_time - start_time).num_seconds(),
+        path
+    );
+    Ok(())
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     info!("Starting");
 
@@ -196,37 +238,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match get_data_from_most_recent_file(DRAGONSLAIR_CARDS_FOLDER, DRAGONSLAIR_CARDS_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
-                log::error!("Failed to load Dragonslair cards: {}", e);
+                error!("Failed to load Dragonslair cards: {}", e);
                 HashMap::new()
             }
         }
     };
 
     if !CONFIG.delver_lense_path.is_empty() {
-        let delver_lense_converter = DelverLenseConverter::new();
-        let cards = delver_lense_converter
-            .get_delver_lense_cards_from_file(&CONFIG.delver_lense_path)
-            .unwrap();
-
-        let comparer = TradableCardsComparer::new(DragonslairScraper::new(
-            DRAGONSLAIR_URL,
-            None,
-            reqwest::Client::new(),
-        ));
-
-        let tradable_cards = comparer
-            .get_tradable_cards(cards, dl_cards.clone())
-            .await
-            .unwrap();
-        let path = format!(
-            "../tradable_cards/tradable_cards_{}.json",
-            date_time_as_string(None, None)
-        );
-        save_to_file(&path, &tradable_cards)?;
-
-        let html = generate_page_content(&tradable_cards);
-
-        fs::write("../cards.html", html)?;
+        compare_delver_lense_cards_to_dl(dl_cards).await;
     }
 
     let alphaspel_cards = if CONFIG.alpha {
@@ -235,20 +254,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match get_data_from_most_recent_file(ALPHASPEL_CARDS_FOLDER, ALPHASPEL_CARDS_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
-                log::error!("Failed to load alphaspel cards: {}", e);
+                error!("Failed to load alphaspel cards: {}", e);
                 HashMap::new()
             }
         }
     };
 
     let scryfall_cards_path = if CONFIG.scryfall {
-        log::info!("Downloading Scryfall cards...");
+        info!("Downloading Scryfall cards...");
         get_scryfall_cards_and_save_to_file().await
     } else {
         match get_data_from_most_recent_file(SCRYFALL_CARDS_DIR, SCRYFALL_FILE_PREFIX) {
             Ok(cards) => cards,
             Err(e) => {
-                log::error!("Failed to load Scryfall cards: {}", e);
+                error!("Failed to load Scryfall cards: {}", e);
                 HashMap::new()
             }
         }

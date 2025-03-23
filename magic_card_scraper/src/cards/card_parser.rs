@@ -91,7 +91,7 @@ fn get_buyin_value(tr_elements: scraper::ElementRef) -> Result<i32, Box<dyn std:
 pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error>> {
     let start = Instant::now();
     let response = reqwest::get(url).await?;
-    log::debug!("fetching {} took {:?} sec", url, start.elapsed().as_secs());
+    debug!("fetching {} took {:?} sec", url, start.elapsed().as_secs());
     let html_content = response.text().await?;
     let parse_document = Html::parse_document(&html_content);
     let table_selector = Selector::parse("tr[id*='product-row-']")?;
@@ -238,10 +238,9 @@ pub async fn fetch_and_parse(url: &str) -> Result<Vec<VendorCard>, Box<dyn Error
         let trade_in_price = match get_buyin_value(tr_elements) {
             Ok(price) => price,
             Err(e) => {
-                log::error!(
+                error!(
                     "Error parsing trade-in price: {}, for card: {}",
-                    e,
-                    card_name.almost_raw
+                    e, card_name.almost_raw
                 );
                 continue;
             }

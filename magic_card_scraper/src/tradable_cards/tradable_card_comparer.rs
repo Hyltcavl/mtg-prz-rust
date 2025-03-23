@@ -1,3 +1,4 @@
+use log::{debug, info};
 use std::{collections::HashMap, error::Error};
 use urlencoding::encode;
 
@@ -8,6 +9,7 @@ use crate::{
         vendorcard::VendorCard,
     },
     dragonslair_scraper::DragonslairScraper,
+    utilities::config::CONFIG,
 };
 
 pub struct TradableCardsComparer {
@@ -27,36 +29,38 @@ impl TradableCardsComparer {
         let (mut tradable_cards, leftover_personal_cards) =
             self.get_tradable_and_leftover_cards(personal_cards, vendor_cards);
 
-        // Make function for checking the personal cards at the vendor site
         let mut vendor_cards_with_same_name_as_leftover: Vec<VendorCard> = vec![];
-        for card in &leftover_personal_cards {
-            let card_name_lowercase = card.name.almost_raw.to_lowercase();
-            let card_name_encoded = encode(&card_name_lowercase);
-            let request_url = format!(
-                "/product/card-singles/magic/name:{}/{}",
-                card_name_encoded, 0
-            );
-            let page_count = self
-                .dl_scraper
-                .get_page_count(&request_url)
-                .await
-                .unwrap_or(1);
-            log::debug!("page_count for {} is {:?}", card_name_encoded, page_count);
 
-            let urls = (1..=page_count)
-                .map(|count| {
-                    format!(
-                        "{}/product/card-singles/magic/name:{}/{}",
-                        self.dl_scraper.url, card_name_encoded, count
-                    )
-                })
-                .collect::<Vec<String>>();
+        if CONFIG.check_dl_when_comparing {
+            for card in &leftover_personal_cards {
+                let card_name_lowercase = card.name.almost_raw.to_lowercase();
+                let card_name_encoded = encode(&card_name_lowercase);
+                let request_url = format!(
+                    "/product/card-singles/magic/name:{}/{}",
+                    card_name_encoded, 0
+                );
+                let page_count = self
+                    .dl_scraper
+                    .get_page_count(&request_url)
+                    .await
+                    .unwrap_or(1);
+                debug!("page_count for {} is {:?}", card_name_encoded, page_count);
 
-            for url in urls {
-                log::info!("Fetching url: {}", url);
-                let mut cards = fetch_and_parse(&url).await.unwrap();
-                log::info!("Fetched cards: {:?}", &cards);
-                vendor_cards_with_same_name_as_leftover.append(&mut cards);
+                let urls = (1..=page_count)
+                    .map(|count| {
+                        format!(
+                            "{}/product/card-singles/magic/name:{}/{}",
+                            self.dl_scraper.url, card_name_encoded, count
+                        )
+                    })
+                    .collect::<Vec<String>>();
+
+                for url in urls {
+                    info!("Fetching url: {}", url);
+                    let mut cards = fetch_and_parse(&url).await.unwrap();
+                    info!("Fetched cards: {:?}", &cards);
+                    vendor_cards_with_same_name_as_leftover.append(&mut cards);
+                }
             }
         }
         let mut grouped_vendor_cards: HashMap<CardName, Vec<VendorCard>> = HashMap::new();
@@ -71,7 +75,7 @@ impl TradableCardsComparer {
             self.get_tradable_and_leftover_cards(leftover_personal_cards, grouped_vendor_cards);
         tradable_cards.append(&mut more_tradable_cards);
 
-        log::debug!("tradable cards: {:?}", &tradable_cards);
+        debug!("tradable cards: {:?}", &tradable_cards);
 
         return Ok(tradable_cards);
     }
@@ -421,21 +425,6 @@ mod tests {
         mock.assert();
 
         assert!(tradable_cards[0].name.raw == "personalcard");
-
-        // env_logger::builder().is_test(true).try_init();
-        // let file_path = "/workspaces/mtg-prz-rust/Draftshaft_2025_Mar_10_17-33.csv";
-        // let vendor_cards: HashMap<CardName, Vec<VendorCard>> = load_from_json_file::<
-        //     HashMap<CardName, Vec<VendorCard>>,
-        // >(
-        //     "/workspaces/mtg-prz-rust/mtg-rust/dragonslair_cards/dl_cards_25_02_2025-16-14.json",
-        // )
-        // .unwrap();
-
-        // let tradable_cards = get_tradable_cards(file_path, vendor_cards).await;
-        // for card in tradable_cards.unwrap() {
-        //     log::info!("Card: {:?}", card);
-        // }
-        // assert!(true);
     }
 
     // #[tokio::test]

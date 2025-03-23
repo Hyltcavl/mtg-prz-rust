@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use log::info;
+use log::{error, info};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fs::File;
@@ -12,14 +12,14 @@ use std::{
 };
 
 pub fn load_from_json_file<T: DeserializeOwned>(filename: &str) -> io::Result<T> {
-    log::info!("Loading from file: {}", filename);
+    info!("Loading from file: {}", filename);
     let file = File::open(filename).map_err(|e| {
-        log::error!("Failed to open file: {}", e);
+        error!("Failed to open file: {}", e);
         e
     })?;
     let reader = BufReader::new(file);
     let data = serde_json::from_reader(reader).map_err(|e| {
-        log::error!("Failed to read from file: {}", e);
+        error!("Failed to read from file: {}", e);
         e
     })?;
     Ok(data)
@@ -83,7 +83,7 @@ pub fn get_newest_file(
             let file_path = entry.path();
 
             if file_path.is_file() {
-                log::info!("Found file: {}", file_path.display());
+                info!("Found file: {}", file_path.display());
                 file_path
                     .file_name()
                     .and_then(|name| name.to_str())
@@ -100,7 +100,7 @@ pub fn get_newest_file(
                             .map(|date_time| (file_path.clone(), date_time))
                     })
             } else {
-                log::error!("Failed to read file: {}", file_path.display());
+                error!("Failed to read file: {}", file_path.display());
                 None
             }
         })

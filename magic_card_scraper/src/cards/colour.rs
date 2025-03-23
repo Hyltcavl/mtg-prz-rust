@@ -90,7 +90,9 @@ impl FromStr for Colour {
             "Green" => Ok(Colour::Green),
             "Colorless" => Ok(Colour::Colorless),
             "Blue/White" => Ok(Colour::Azorius),
+            "White/Blue" => Ok(Colour::Azorius),
             "Red/White" => Ok(Colour::Boros),
+            "White/Red" => Ok(Colour::Boros),
             "Blue/Black" => Ok(Colour::Dimir),
             "Black/Green" => Ok(Colour::Golgari),
             "Red/Green" => Ok(Colour::Gruul),
@@ -115,6 +117,7 @@ impl FromStr for Colour {
             "WUBG (No Red)" => Ok(Colour::Witch),
             "WUBR (No Green)" => Ok(Colour::Yore),
             "WUBRG" => Ok(Colour::WUBRG),
+            "Land" => Ok(Colour::Colorless),
             _ => Ok(Colour::Unknown), // Handle unmatched cases
         }
     }

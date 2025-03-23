@@ -220,12 +220,12 @@ impl AlphaspelScraper {
                                 (set_href, max_page)
                             }
                             Err(e) => {
-                                log::error!("Error reading response text for {}: {}", link, e);
+                                error!("Error reading response text for {}: {}", link, e);
                                 (set_href, 1)
                             }
                         },
                         Err(e) => {
-                            log::error!("Error fetching page {}: {}", link, e);
+                            error!("Error fetching page {}: {}", link, e);
                             (set_href, 1)
                         }
                     }
@@ -348,7 +348,7 @@ mod tests {
             ) {
                 Ok(card) => cards.push(card),
                 Err(e) => {
-                    log::error!("Error parsing card: {}", e);
+                    error!("Error parsing card: {}", e);
                 }
             }
         }
