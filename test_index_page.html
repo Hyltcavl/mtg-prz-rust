@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MTG Card Price Comparison, 23_03_2025-18-47 </title>
+        <title>MTG Card Price Comparison, 23_03_2025-19-53 </title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"></script>
         <style> 
@@ -133,10 +133,82 @@ button:hover {
 .hidden {
     display: none;
 }
+
+/* Hover container for the cheapest_mcm_price */
+.hover-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Hover content container (hidden by default) */
+.hover-content {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    /* Center vertically */
+    left: 50%;
+    /* Center horizontally */
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Enlarged image styling */
+.hover-enlarged-image {
+    max-width: 40vw;
+    max-height: 40vh;
+    width: auto;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+    /* Space between image and text */
+}
+
+/* Text styling for card name and set */
+.hover-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Show the hover content when hovering over the price text */
+.hover-container:hover .hover-content {
+    display: block;
+    /* Make the hover content visible */
+}
+
+/* Styling for the value-text to make it stand out */
+.value-text {
+    font-weight: bold;
+    /* Make the text bold */
+    color: #26323f;
+    /* Use a noticeable color (e.g., blue) */
+    cursor: pointer;
+    /* Change the cursor to indicate interactivity */
+    /* text-decoration: underline; */
+    /* Add an underline to indicate it's actionable */
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    /* Smooth transition for hover effects */
+}
+
+/* Hover effect for value-text */
+.value-text:hover {
+    color: #0056b3;
+    /* Darker shade of blue on hover */
+    text-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Add a subtle glow effect */
+    text-decoration: none;
+    /* Remove underline on hover for a cleaner look */
+}
         </style>
     </head>
     <body>
-        <h1>MTG-prizes 23_03_2025-18-47, Total cards: 4</h1>
+        <h1>MTG-prizes 23_03_2025-19-53, Total cards: 4</h1>
          <div class="filters">
         <div class="filter-group">
             <label for="vendorFilter">Vendor:</label>
@@ -152,9 +224,9 @@ button:hover {
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>Name</th>
-                    <th data-sort-method="number">Vendor price (SEK)</th>
-                    <th data-sort-method="number">MCM price (SEK)</th>
+                    <th>Name/Set</th>
+                    <th data-sort-method="number">Vendor price</th>
+                    <th data-sort-method="number">MCM price</th>
                     <th data-sort-method="number">Price Difference</th>
                     <th>Vendor</th>
                 </tr>
@@ -164,13 +236,65 @@ button:hover {
                 <tr>
                     <td>
                         <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/100066/product" alt="Sulfur Falls">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/100066/product" alt="Sulfur Falls">
+                        </div>
+                    </td>
+                    <td>Sulfur Falls<br>Dominaria Remastered</td>
+                    <td data-sort=31.00 SEK>31.00 SEK</td>
+                    <td data-sort=33.09 SEK>
+                        <div class="hover-container">
+                            <span class="value-text">33.09 SEK</span>
+                            <div class="hover-content">
+                                <img class="hover-enlarged-image" src="https://cards.scryfall.io/normal/front/6/d/6d3e12e4-6122-41d8-8ffb-a883d02d3278.jpg?1675201323" alt="Sulfur Falls / Dominaria Remastered">
+                                <span class="hover-text">Sulfur Falls / Dominaria Remastered</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-sort=0>0 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
+                            <img class="card-image" src="https://astraeus.dragonslair.se/images/44694/product" alt="Cascading Cataracts">
+                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/44694/product" alt="Cascading Cataracts">
+                        </div>
+                    </td>
+                    <td>Cascading Cataracts<br>Amonkhet</td>
+                    <td data-sort=40.00 SEK>40.00 SEK</td>
+                    <td data-sort=49.20 SEK>
+                        <div class="hover-container">
+                            <span class="value-text">49.20 SEK</span>
+                            <div class="hover-content">
+                                <img class="hover-enlarged-image" src="https://cards.scryfall.io/normal/front/7/7/778739db-4431-4e58-91de-d2619aeef3ce.jpg?1543676358" alt="Cascading Cataracts / Amonkhet">
+                                <span class="hover-text">Cascading Cataracts / Amonkhet</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-sort=-10>-10 SEK</td>
+                    <td>Dragonslair</td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class="card-image-container">
                             <img class="card-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/55359/product" alt="Mist-Syndicate Naga">
                         </div>
                     </td>
-                    <td>Mist-Syndicate Naga</td>
-                    <td data-sort=30.00 SEK>30.00 SEK </td>
-                    <td data-sort=27.25 SEK>27.25 SEK </td>
+                    <td>Mist-Syndicate Naga<br>Modern Horizons</td>
+                    <td data-sort=30.00 SEK>30.00 SEK</td>
+                    <td data-sort=27.25 SEK>
+                        <div class="hover-container">
+                            <span class="value-text">27.25 SEK</span>
+                            <div class="hover-content">
+                                <img class="hover-enlarged-image" src="https://cards.scryfall.io/normal/front/6/5/65c8f074-e260-4f8e-85d1-1904ca928b51.jpg?1562201419" alt="MistSyndicate Naga / Modern Horizons">
+                                <span class="hover-text">MistSyndicate Naga / Modern Horizons</span>
+                            </div>
+                        </div>
+                    </td>
                     <td data-sort=2>2 SEK</td>
                     <td>Dragonslair</td>
                 </tr>
@@ -182,38 +306,18 @@ button:hover {
                             <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/32215/product" alt="Windswept Heath">
                         </div>
                     </td>
-                    <td>Windswept Heath</td>
-                    <td data-sort=25.00 SEK>25.00 SEK </td>
-                    <td data-sort=22.06 SEK>22.06 SEK </td>
+                    <td>Windswept Heath<br>Khans of Tarkir</td>
+                    <td data-sort=25.00 SEK>25.00 SEK</td>
+                    <td data-sort=22.06 SEK>
+                        <div class="hover-container">
+                            <span class="value-text">22.06 SEK</span>
+                            <div class="hover-content">
+                                <img class="hover-enlarged-image" src="https://cards.scryfall.io/normal/front/e/7/e7b28650-cddc-4878-b1d1-b5a764f4df49.jpg?1707235002" alt="Windswept Heath / Khans of Tarkir">
+                                <span class="hover-text">Windswept Heath / Khans of Tarkir</span>
+                            </div>
+                        </div>
+                    </td>
                     <td data-sort=-5>-5 SEK</td>
-                    <td>Dragonslair</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/44694/product" alt="Cascading Cataracts">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/44694/product" alt="Cascading Cataracts">
-                        </div>
-                    </td>
-                    <td>Cascading Cataracts</td>
-                    <td data-sort=40.00 SEK>40.00 SEK </td>
-                    <td data-sort=49.20 SEK>49.20 SEK </td>
-                    <td data-sort=-10>-10 SEK</td>
-                    <td>Dragonslair</td>
-                </tr>
-            
-                <tr>
-                    <td>
-                        <div class="card-image-container">
-                            <img class="card-image" src="https://astraeus.dragonslair.se/images/100066/product" alt="Sulfur Falls">
-                            <img class="enlarged-image" src="https://astraeus.dragonslair.se/images/100066/product" alt="Sulfur Falls">
-                        </div>
-                    </td>
-                    <td>Sulfur Falls</td>
-                    <td data-sort=31.00 SEK>31.00 SEK </td>
-                    <td data-sort=33.09 SEK>33.09 SEK </td>
-                    <td data-sort=0>0 SEK</td>
                     <td>Dragonslair</td>
                 </tr>
             

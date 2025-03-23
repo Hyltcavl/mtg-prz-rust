@@ -171,3 +171,27 @@ button:hover {
     display: block;
     /* Make the hover content visible */
 }
+
+/* Styling for the value-text to make it stand out */
+.value-text {
+    font-weight: bold;
+    /* Make the text bold */
+    color: #26323f;
+    /* Use a noticeable color (e.g., blue) */
+    cursor: pointer;
+    /* Change the cursor to indicate interactivity */
+    /* text-decoration: underline; */
+    /* Add an underline to indicate it's actionable */
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    /* Smooth transition for hover effects */
+}
+
+/* Hover effect for value-text */
+.value-text:hover {
+    color: #0056b3;
+    /* Darker shade of blue on hover */
+    text-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Add a subtle glow effect */
+    text-decoration: none;
+    /* Remove underline on hover for a cleaner look */
+}
