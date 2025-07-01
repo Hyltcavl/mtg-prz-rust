@@ -3,6 +3,20 @@ new Tablesort(document.getElementById('card-table'), {
     descending: true
 });
 
+// Utility function to escape HTML special characters
+function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, function (match) {
+        const escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return escapeMap[match];
+    });
+}
+
 // Function to populate filter dropdowns dynamically
 function populateFilters() {
     const rows = document.querySelectorAll('#card-table tbody tr');
@@ -22,14 +36,14 @@ function populateFilters() {
     const rarityFilter = document.getElementById('rarityFilter');
     rarityFilter.innerHTML = '<option value="all">All</option>';
     Array.from(raritySet).sort().forEach(rarity => {
-        rarityFilter.innerHTML += `<option value="${rarity}">${rarity}</option>`;
+        rarityFilter.innerHTML += `<option value="${escapeHTML(rarity)}">${escapeHTML(rarity)}</option>`;
     });
 
     // Populate color filter
     const colorFilter = document.getElementById('colorFilter');
     colorFilter.innerHTML = '<option value="all">All</option>';
     Array.from(colorSet).sort().forEach(color => {
-        colorFilter.innerHTML += `<option value='${color}'>${color}</option>`;
+        colorFilter.innerHTML += `<option value='${escapeHTML(color)}'>${escapeHTML(color)}</option>`;
     });
 }
 
