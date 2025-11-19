@@ -35,7 +35,6 @@ cargo add <dependency name>
 cargo add <dependency name> --feature <feature name>
 ```
 
-
 ## On the TODO list
 
 - Redesign alphaspel card parser to save more of the card raw name
