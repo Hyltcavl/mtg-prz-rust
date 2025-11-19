@@ -55,7 +55,7 @@ impl AlphaspelScraper {
             .text()
             .await?;
 
-        info!("{}", sets_page);
+        // info!("{}", sets_page);
         let document = Html::parse_document(&sets_page);
         // let selector = Selector::parse(".nav.nav-list a").unwrap();
         let selector = Selector::parse(".categories.row h4.text-center a").unwrap();
