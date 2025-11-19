@@ -39,10 +39,14 @@ impl AlphaspelScraper {
 
     async fn get_all_card_pages(&self) -> Result<Vec<(String, String)>, Box<dyn Error>> {
         let url = format!("{}/1978-mtg-loskort/", self.base_url);
-        info!("Fetching all card pages from: {}", self.base_url);
+        info!("Fetching all card pages from: {}", url);
         let client = reqwest::Client::new();
         let mut header_map = reqwest::header::HeaderMap::new();
-        header_map.insert(reqwest::header::ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7".parse()?);
+        header_map.insert(reqwest::header::ACCEPT, "*/*".parse().unwrap());
+        header_map.insert(
+            reqwest::header::USER_AGENT,
+            "application/json".parse().unwrap(),
+        );
         let sets_page = client
             .get(url)
             .headers(header_map.clone())
@@ -51,6 +55,7 @@ impl AlphaspelScraper {
             .text()
             .await?;
 
+        info!("{}", sets_page);
         let document = Html::parse_document(&sets_page);
         // let selector = Selector::parse(".nav.nav-list a").unwrap();
         let selector = Selector::parse(".categories.row h4.text-center a").unwrap();
@@ -303,6 +308,19 @@ mod tests {
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
     }
+
+    //     #[tokio::test]
+    // async fn test_get_all_card_pages_live() {
+    //     init();
+
+    //     let url = "https://alphaspel.se";
+
+    //     let scraper = AlphaspelScraper::new(&url);
+    //     let result = scraper.get_all_card_pages().await.unwrap();
+    //     let (pages, set_names): (Vec<_>, Vec<_>) = result.into_iter().unzip();
+    //     info!("Found {} alphaspel set pages", pages.len());
+    //     // assert_eq!(result, alphaspel_page_set_endings())
+    // }
 
     #[tokio::test]
     async fn test_get_all_card_pages() {

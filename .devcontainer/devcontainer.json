@@ -3,7 +3,6 @@
   "postCreateCommand": "sh ./.devcontainer/post_create.sh",
   "features": {
     "ghcr.io/devcontainers/features/rust:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
   "customizations": {
     "vscode": {
