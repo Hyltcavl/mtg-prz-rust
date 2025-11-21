@@ -55,7 +55,6 @@ impl AlphaspelScraper {
             .text()
             .await?;
 
-        // info!("{}", sets_page);
         let document = Html::parse_document(&sets_page);
         // let selector = Selector::parse(".nav.nav-list a").unwrap();
         let selector = Selector::parse(".categories.row h4.text-center a").unwrap();
@@ -198,69 +197,51 @@ impl AlphaspelScraper {
         info!("Found {} alphaspel set pages", pages.len());
 
         //Get all pages to call
-        let links_to_call = stream::iter(pages)
-            .map(|set_href| {
-                let link = format!(
-                    "{}{}?order_by=stock_a&ordering=desc&page=1",
-                    self.base_url, set_href
-                );
-                debug!("Processing link {}", &link);
-                async move {
-                    match reqwest::get(&link).await {
-                        Ok(response) => match response.text().await {
-                            Ok(set_initial_page) => {
-                                let document = Html::parse_document(&set_initial_page);
-                                let selector = Selector::parse("ul.pagination li").unwrap();
+        let links_to_call = self.get_app_pages_to_call(pages).await;
+        let cards = self.extract_cards(set_names, links_to_call).await;
 
-                                let mut max_page = 1;
-                                for element in document.select(&selector) {
-                                    if let Ok(num) =
-                                        element.text().collect::<String>().trim().parse::<u32>()
-                                    {
-                                        if num > max_page {
-                                            max_page = num;
-                                        }
-                                    }
-                                }
-                                (set_href, max_page)
-                            }
-                            Err(e) => {
-                                error!("Error reading response text for {}: {}", link, e);
-                                (set_href, 1)
-                            }
-                        },
-                        Err(e) => {
-                            error!("Error fetching page {}: {}", link, e);
-                            (set_href, 1)
-                        }
-                    }
-                }
-            })
-            .buffered(40)
-            .collect::<Vec<_>>()
-            .await;
+        let mut grouped_cards = HashMap::new();
+        for card in &cards {
+            grouped_cards
+                .entry(card.name.clone())
+                .or_insert_with(Vec::new)
+                .push(card.clone())
+        }
+        Ok(grouped_cards)
+    }
+
+    
+    pub async fn extract_cards(&self, set_names: Vec<String>, links_to_call: Vec<(String, u32)>) -> Vec<VendorCard> {
+
+        let client = reqwest::Client::new();
+        let mut header_map = reqwest::header::HeaderMap::new();
+        header_map.insert(reqwest::header::ACCEPT, "*/*".parse().unwrap());
+        header_map.insert(
+            reqwest::header::USER_AGENT,
+            "application/json".parse().unwrap(),
+        );
         let cards: Vec<VendorCard> = stream::iter(links_to_call)
             .map(|(set_href, max_page_count)| {
                 let set_names_clone = set_names.clone();
-
+                let client2 = client.clone();
+                let headers_map2 = header_map.clone();    
                 async move {
                     let mut cards = Vec::new();
                     // let value = set_names.clone();
-
+    
                     for page_count in 1..=max_page_count as i32 {
                         let link = format!(
                             "{}{}?order_by=stock_a&ordering=desc&page={}",
                             self.base_url, set_href, page_count
                         );
                         info!("Fetching cards from {}", &link);
-                        match reqwest::get(&link).await {
+                        match client2.get(&link).headers(headers_map2.clone()).send().await {
                             Ok(response) => match response.text().await {
                                 Ok(set_page) => {
                                     let document = Html::parse_document(&set_page);
                                     let product_selector =
-                                        &Selector::parse(".products.row .product").unwrap();
+                                        &Selector::parse(".product-name").unwrap();
                                     let products = document.select(product_selector);
-
                                     for product in products {
                                         match self
                                             .get_card_from_html(product, set_names_clone.clone())
@@ -286,21 +267,71 @@ impl AlphaspelScraper {
             .into_iter()
             .flatten()
             .collect();
-
-        let mut grouped_cards = HashMap::new();
-        for card in &cards {
-            grouped_cards
-                .entry(card.name.clone())
-                .or_insert_with(Vec::new)
-                .push(card.clone())
-        }
-        Ok(grouped_cards)
+        cards
     }
+    
+    pub async fn get_app_pages_to_call(&self, pages: Vec<String>) -> Vec<(String, u32)> {
+
+    let client = reqwest::Client::new();
+    let mut header_map = reqwest::header::HeaderMap::new();
+    header_map.insert(reqwest::header::ACCEPT, "*/*".parse().unwrap());
+    header_map.insert(
+            reqwest::header::USER_AGENT,
+            "application/json".parse().unwrap(),
+    );
+
+    let links_to_call = stream::iter(pages)
+        .map(|set_href| {
+            let link = format!(
+                "{}{}?order_by=stock_a&ordering=desc&page=1",
+                self.base_url, set_href
+            );
+            debug!("Processing link {}", &link);
+            let value = client.clone();
+            let header_map2 = header_map.clone();
+            async move {
+                match value.get(&link).headers(header_map2).send().await {
+                    Ok(response) => match response.text().await {
+                        Ok(set_initial_page) => {
+                            let document = Html::parse_document(&set_initial_page);
+                            let selector = Selector::parse("ul.pagination li").unwrap();
+
+                            let mut max_page = 1;
+                            for element in document.select(&selector) {
+                                if let Ok(num) =
+                                    element.text().collect::<String>().trim().parse::<u32>()
+                                {
+                                    if num > max_page {
+                                        max_page = num;
+                                    }
+                                }
+                            }
+                            (set_href, max_page)
+                        }
+                        Err(e) => {
+                            error!("Error reading response text for {}: {}", link, e);
+                            (set_href, 1)
+                        }
+                    },
+                    Err(e) => {
+                        error!("Error fetching page {}: {}", link, e);
+                        (set_href, 1)
+                    }
+                }
+            }
+        })
+        .buffered(40)
+        .collect::<Vec<_>>()
+        .await;
+    links_to_call
 }
+}
+
+
 
 #[cfg(test)]
 mod tests {
-    use crate::{cards::vendorcard::VendorCard, test::alphaspel::alphaspel_page_set_endings};
+    use crate::{cards::vendorcard::VendorCard, test::alphaspel::alphaspel_page_set_endings, utilities::constants::ALPHASPEL_URL};
 
     use super::*;
     use tokio;
@@ -450,4 +481,25 @@ mod tests {
         mock3.assert();
         assert_eq!(result.len(), 51);
     }
+
+// #[tokio::test]
+//     async fn test_scraper_cards_live() {
+//         init();
+
+//         //Given all calls mocked
+       
+//         //When scrape_cards is called
+//         let scraper = AlphaspelScraper::new(ALPHASPEL_URL);
+
+//         let mut set: Vec<String> = Vec::new();
+//         set.push("urzas".to_string());
+//         let mut linksToCall: Vec<(String, u32)> = Vec::new();
+//         linksToCall.push(("/2317-urzas-destiny/?order_by=stock_a&ordering=desc&page=1".to_string(), 2));
+
+
+//         //Then we should have a Hashmap of 54 cards
+//         let result = scraper.extract_cards(set, linksToCall).await;
+//         info!("results!: {:?}", result)
+//     }
+
 }
