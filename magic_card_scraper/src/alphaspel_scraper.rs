@@ -240,7 +240,7 @@ impl AlphaspelScraper {
                                 Ok(set_page) => {
                                     let document = Html::parse_document(&set_page);
                                     let product_selector =
-                                        &Selector::parse(".product-name").unwrap();
+                                        &Selector::parse(".products.row .product").unwrap();
                                     let products = document.select(product_selector);
                                     for product in products {
                                         match self
